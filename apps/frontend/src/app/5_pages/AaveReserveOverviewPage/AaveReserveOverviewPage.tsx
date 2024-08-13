@@ -42,13 +42,13 @@ const AaveReserveOverviewPage: FC = () => {
       },
     },
     data: {
-      data1: [0, 1, 2, 3, 4, 5, 6],
+      data1: [3, 2, 6, 5.5, 4, 1.5],
       label1: t(pageTranslations.reserveStatusTab.supply.label1),
       borderColor1: 'rgba(255, 255, 255, 1)',
       data2: [],
       label2: '',
       borderColor2: 'rgba(255, 255, 255, 1)',
-      xLabels: ['1', '2', '3', '4', '5', '6', '7'],
+      xLabels: ['Jun 16', 'Jun 23', 'Jun 30', 'Jul 7'],
     },
   });
 
@@ -66,7 +66,7 @@ const AaveReserveOverviewPage: FC = () => {
       },
     },
     data: {
-      data1: [0, 1, 2, 3, 4, 5, 6],
+      data1: [2.2, 2.3, 4.5, 3.8],
       label1: t(pageTranslations.reserveStatusTab.borrow.label1),
       borderColor1: 'rgba(255, 255, 255, 1)',
       data2: [],
@@ -86,11 +86,11 @@ const AaveReserveOverviewPage: FC = () => {
       },
     },
     data: {
-      data1: [0, 1, 2, 3, 4, 5, 6],
+      data1: [1, 10, 12, 15, 20, 50, 99, 100],
       label1: t(pageTranslations.reserveStatusTab.interest.label1),
       borderColor1: 'rgba(255, 255, 255, 1)',
-      data2: [],
-      label2: '',
+      data2: [78.64, 92],
+      label2: t(pageTranslations.reserveStatusTab.interest.label2),
       borderColor2: 'rgba(255, 255, 255, 1)',
       xLabels: ['1', '2', '3', '4', '5', '6', '7'],
     },

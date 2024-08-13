@@ -13,21 +13,16 @@ export const getChartOptions = (
   tickStep: number,
   mockData: MockData,
   yLabel1: string,
-  yLabel2: string,
+  yLabel2?: string,
 ) => {
   const data1AxisOptions = {
     border: {
       color: BORDER_COLOR,
     },
     position: 'left' as const,
-    display: true,
-    title: {
-      display: true,
-      text: yLabel1,
-      color: TEXT_COLOR,
-    },
+    display: false,
     ticks: {
-      callback: (value: any) => Number(value).toFixed(3) + '%',
+      callback: value => Number(value).toFixed(3) + '%',
       stepSize: tickStep,
       min: Math.min(...mockData.data1) - 3 * tickStep,
       max: Math.max(...mockData.data1) + 3 * tickStep,
@@ -44,32 +39,6 @@ export const getChartOptions = (
       drawTicks: true,
       gridDashType: DASH_GRID_TYPE,
       tickColor: BORDER_COLOR,
-    },
-  };
-
-  const data2AxisOptions = {
-    border: {
-      color: BORDER_COLOR,
-    },
-    display: true,
-    position: 'right' as const,
-    title: {
-      display: true,
-      text: yLabel2,
-      color: TEXT_COLOR,
-    },
-    grid: {
-      drawTicks: true,
-      tickColor: BORDER_COLOR,
-    },
-    ticks: {
-      color: TEXT_COLOR,
-      font: {
-        family: FONT_FAMILY,
-        fontSize: FONT_SIZE,
-        fontWeight: FONT_WEIGHT,
-      },
-      padding: 5,
     },
   };
 
@@ -114,8 +83,7 @@ export const getChartOptions = (
       },
     },
     scales: {
-      y1: data1AxisOptions,
-      y: data2AxisOptions,
+      y: data1AxisOptions,
       x: xAxisOptions,
     },
     stacked: false,
@@ -132,7 +100,6 @@ export const getChartOptions = (
 export const getChartData = (
   mockData: MockData,
   gradient1: CanvasGradient | undefined,
-  gradient2: CanvasGradient | undefined,
 ) => ({
   labels: mockData.xLabels,
   datasets: [
@@ -143,15 +110,6 @@ export const getChartData = (
       borderColor: mockData.borderColor1,
       fill: true,
       yAxisID: 'y1',
-      pointRadius: 0,
-    },
-    {
-      label: mockData.label2,
-      data: mockData.data2,
-      backgroundColor: gradient2,
-      borderColor: mockData.borderColor2,
-      fill: true,
-      yAxisID: 'y',
       pointRadius: 0,
     },
   ],

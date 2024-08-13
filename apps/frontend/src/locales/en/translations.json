@@ -881,18 +881,16 @@
             "title": "Reserve status & configuration",
             "supply": {
                 "title": "Supply details",
-                "label1": "label 1",
-                "label2": "label 2"
+                "label1": "Supply APR"
             },
             "borrow": {
                 "title": "Borrow details",
-                "label1": "label 1",
-                "label2": "label 2"
+                "label1": "Borrow APR, variable"
             },
             "interest": {
                 "title": "Interest rates",
-                "label1": "label 1",
-                "label2": "label 2"
+                "label1": "Borrow APR, variable",
+                "label2": "Utilization rate"
             }
         },
         "yourWalletTab": {
