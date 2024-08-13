@@ -11,6 +11,7 @@ import {
   ParagraphSize,
 } from '@sovryn/ui';
 
+import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/StatisticsCard';
 import { useAccount } from '../../../../../hooks/useAccount';
 import { translations } from '../../../../../locales/i18n';
@@ -38,21 +39,26 @@ export const TopPanel: FC<TopPanelProps> = () => {
           {/* TODO: mock values */}
           <StatisticsCard
             label={t(pageTranslations.netWorth)}
-            prefix="$"
-            value={account ? 1234567.58 : undefined}
+            value={
+              account ? (
+                <AmountRenderer prefix="$" value={1234567.58} />
+              ) : undefined
+            }
           />
           <div className="flex gap-9">
             <StatisticsCard
               label={t(pageTranslations.netApy)}
-              value={account ? 2.69 : undefined}
-              suffix="%"
-              helperContent={t(pageTranslations.netApyInfo)}
+              value={
+                account ? <AmountRenderer suffix="%" value={2.69} /> : undefined
+              }
+              help={t(pageTranslations.netApyInfo)}
             />
             <StatisticsCard
               label={t(pageTranslations.collateralRatio)}
-              value={account ? 11.5 : undefined}
-              suffix="%"
-              helperContent={t(pageTranslations.collateralRatioInfo)}
+              value={
+                account ? <AmountRenderer suffix="%" value={11.5} /> : undefined
+              }
+              help={t(pageTranslations.collateralRatioInfo)}
             />
           </div>
         </div>
