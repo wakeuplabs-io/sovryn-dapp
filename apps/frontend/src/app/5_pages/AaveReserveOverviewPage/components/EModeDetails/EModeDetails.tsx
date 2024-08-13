@@ -14,7 +14,7 @@ const pageTranslations = translations.aaveReserveOverviewPage.eModeDetails;
 type EModeDetailsProps = {};
 
 export const EModeDetails: FC<EModeDetailsProps> = () => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(true);
   const { isMobile } = useIsMobile();
 
   // TODO: All this data is mocked

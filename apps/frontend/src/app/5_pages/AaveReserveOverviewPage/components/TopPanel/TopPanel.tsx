@@ -65,23 +65,45 @@ export const TopPanel: FC<TopPanelProps> = ({ className }) => {
         <StatisticsCard
           label={t(pageTranslations.reserveSize)}
           value={
-            <AmountRenderer prefix="$" suffix="M" value={reserveSizeInM} />
+            <AmountRenderer
+              prefix="$"
+              suffix="M"
+              value={reserveSizeInM}
+              className="text-2xl"
+            />
           }
         />
         <StatisticsCard
           label={t(pageTranslations.availableLiquidity)}
           value={
-            <AmountRenderer prefix="$" suffix="M" value={availableLiquidityM} />
+            <AmountRenderer
+              prefix="$"
+              suffix="M"
+              value={availableLiquidityM}
+              className="text-2xl"
+            />
           }
         />
         <StatisticsCard
           label={t(pageTranslations.utilizationRate)}
-          value={<AmountRenderer suffix="%" value={utilizationRate} />}
+          value={
+            <AmountRenderer
+              suffix="%"
+              value={utilizationRate}
+              className="text-2xl"
+            />
+          }
         />
         <StatisticsCard
           label={t(pageTranslations.oraclePrice)}
           link="#oracle-price"
-          value={<AmountRenderer prefix="$" value={oraclePrice} />}
+          value={
+            <AmountRenderer
+              prefix="$"
+              value={oraclePrice}
+              className="text-2xl"
+            />
+          }
         />
       </div>
     </div>
