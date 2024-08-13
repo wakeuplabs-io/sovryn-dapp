@@ -16,7 +16,7 @@ type SupplyDetailsGraphProps = {};
 // TODO: mocked amounts
 
 export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = () => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(true);
   const { isMobile } = useIsMobile();
 
   return (
@@ -86,7 +86,7 @@ export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = () => {
           </div>
 
           {/* statistics */}
-          <div className="flex justify-between lg:justify-start lg:gap-8">
+          <div className="flex flex-col sm:flex-row justify-between gap-4 lg:justify-start lg:gap-8">
             <StatisticsCard
               label={t(pageTranslations.maxLtv)}
               help={t(pageTranslations.maxLtvInfo)}
