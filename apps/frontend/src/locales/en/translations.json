@@ -878,7 +878,22 @@
             "title": "Pool details"
         },
         "reserveStatusTab": {
-            "title": "Reserve status"
+            "title": "Reserve status & configuration",
+            "supply": {
+                "title": "Supply details",
+                "label1": "label 1",
+                "label2": "label 2"
+            },
+            "borrow": {
+                "title": "Borrow details",
+                "label1": "label 1",
+                "label2": "label 2"
+            },
+            "interest": {
+                "title": "Interest rates",
+                "label1": "label 1",
+                "label2": "label 2"
+            }
         },
         "yourWalletTab": {
             "title": "Your wallet",

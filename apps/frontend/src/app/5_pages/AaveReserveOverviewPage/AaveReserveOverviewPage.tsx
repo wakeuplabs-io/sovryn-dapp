@@ -4,9 +4,14 @@ import classNames from 'classnames';
 import { t } from 'i18next';
 import { Helmet } from 'react-helmet-async';
 
-import { Tabs, TabSize, TabType } from '@sovryn/ui';
+import { Paragraph, Tabs, TabSize, TabType } from '@sovryn/ui';
 
 import { translations } from '../../../locales/i18n';
+import {
+  ChartData,
+  DetailBoxChart,
+  DetailBoxMetaData,
+} from './components/DetailBoxChart/DetailBoxChart';
 import { EModeDetails } from './components/EModeDetails/EModeDetails';
 import { WalletOverview } from './components/WalletOverview/WalletOverview';
 
@@ -22,6 +27,74 @@ const AaveReserveOverviewPage: FC = () => {
     OverviewTab.RESERVE,
   );
 
+  const [supplyDetailBox] = useState<{
+    data: ChartData;
+    meta: DetailBoxMetaData;
+  }>({
+    meta: {
+      totalAmount: '1.63B',
+      totalAmountOf: '1.63B',
+      APY: '5.94%',
+      collateralUsage: {
+        maxLTV: '80.50%',
+        liquidationThreshold: '83.00%',
+        liquidationPenalty: '5.00%',
+      },
+    },
+    data: {
+      data1: [0, 1, 2, 3, 4, 5, 6],
+      label1: t(pageTranslations.reserveStatusTab.supply.label1),
+      borderColor1: 'rgba(255, 255, 255, 1)',
+      data2: [],
+      label2: '',
+      borderColor2: 'rgba(255, 255, 255, 1)',
+      xLabels: ['1', '2', '3', '4', '5', '6', '7'],
+    },
+  });
+
+  const [borrowDetailBox] = useState<{
+    data: ChartData;
+    meta: DetailBoxMetaData;
+  }>({
+    meta: {
+      totalAmount: '1.63B',
+      totalAmountOf: '1.63B',
+      APR: '5.94%',
+      borrowCap: '1.40M',
+      collectorInfo: {
+        reserveFactor: '15.00%',
+      },
+    },
+    data: {
+      data1: [0, 1, 2, 3, 4, 5, 6],
+      label1: t(pageTranslations.reserveStatusTab.borrow.label1),
+      borderColor1: 'rgba(255, 255, 255, 1)',
+      data2: [],
+      label2: '',
+      borderColor2: 'rgba(255, 255, 255, 1)',
+      xLabels: ['1', '2', '3', '4', '5', '6', '7'],
+    },
+  });
+  const [interestDetailBox] = useState<{
+    data: ChartData;
+    meta: DetailBoxMetaData;
+  }>({
+    meta: {
+      utilizationRate: '78.64%',
+      collectorInfo: {
+        reserveFactor: '15.00%',
+      },
+    },
+    data: {
+      data1: [0, 1, 2, 3, 4, 5, 6],
+      label1: t(pageTranslations.reserveStatusTab.interest.label1),
+      borderColor1: 'rgba(255, 255, 255, 1)',
+      data2: [],
+      label2: '',
+      borderColor2: 'rgba(255, 255, 255, 1)',
+      xLabels: ['1', '2', '3', '4', '5', '6', '7'],
+    },
+  });
   return (
     <div className="w-full pb-6 2xl:px-12">
       <Helmet>
@@ -51,6 +124,11 @@ const AaveReserveOverviewPage: FC = () => {
           type={TabType.secondary}
         />
 
+        <div className="grid w-full">
+          <Paragraph className="text-base">
+            {t(pageTranslations.reserveStatusTab.title)}
+          </Paragraph>
+        </div>
         {/* reserve graphics columns */}
         <div className="grid grid-cols-1 lg:gap-5 lg:grid-cols-[auto_465px]">
           <div
@@ -59,7 +137,25 @@ const AaveReserveOverviewPage: FC = () => {
               'lg:block space-y-4 w-full',
             )}
           >
+            <DetailBoxChart
+              title={t(pageTranslations.reserveStatusTab.supply.title)}
+              mockData={supplyDetailBox.data}
+              meta={supplyDetailBox.meta}
+              yLabel1="label1"
+            />
+            <DetailBoxChart
+              title={t(pageTranslations.reserveStatusTab.borrow.title)}
+              mockData={borrowDetailBox.data}
+              meta={borrowDetailBox.meta}
+              yLabel1="label1"
+            />
             <EModeDetails />
+            <DetailBoxChart
+              title={t(pageTranslations.reserveStatusTab.interest.title)}
+              mockData={interestDetailBox.data}
+              meta={interestDetailBox.meta}
+              yLabel1="label1"
+            />
           </div>
 
           {/* wallet column */}
