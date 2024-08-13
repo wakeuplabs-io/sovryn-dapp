@@ -43,11 +43,7 @@ export const TopPanel: FC<TopPanelProps> = () => {
             label={t(pageTranslations.netWorth)}
             value={
               account ? (
-                <AmountRenderer
-                  prefix="$"
-                  value={netWorth}
-                  className="text-2xl"
-                />
+                <AmountRenderer prefix="$" value={1234567.58} />
               ) : undefined
             }
           />
@@ -55,26 +51,14 @@ export const TopPanel: FC<TopPanelProps> = () => {
             <StatisticsCard
               label={t(pageTranslations.netApy)}
               value={
-                account ? (
-                  <AmountRenderer
-                    suffix="%"
-                    value={netApy}
-                    className="text-2xl"
-                  />
-                ) : undefined
+                account ? <AmountRenderer suffix="%" value={2.69} /> : undefined
               }
               help={t(pageTranslations.netApyInfo)}
             />
             <StatisticsCard
               label={t(pageTranslations.collateralRatio)}
               value={
-                account ? (
-                  <AmountRenderer
-                    suffix="%"
-                    value={collateralRatio}
-                    className="text-2xl"
-                  />
-                ) : undefined
+                account ? <AmountRenderer suffix="%" value={11.5} /> : undefined
               }
               help={t(pageTranslations.collateralRatioInfo)}
             />

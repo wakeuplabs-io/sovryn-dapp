@@ -16,7 +16,7 @@ type InterestRateModelGraphProps = {};
 // TODO: mocked amounts
 
 export const InterestRateModelGraph: FC<InterestRateModelGraphProps> = () => {
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(false);
   const { isMobile } = useIsMobile();
 
   return (

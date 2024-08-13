@@ -16,7 +16,7 @@ type BorrowDetailsGraphProps = {};
 // TODO: mocked amounts
 
 export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = () => {
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(false);
   const { isMobile } = useIsMobile();
 
   return (
