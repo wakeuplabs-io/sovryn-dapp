@@ -15,6 +15,7 @@ import {
 import { Decimal } from '@sovryn/utils';
 
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
+import { ETH, WETH } from '../../../../../constants/currencies';
 import { useWalletConnect } from '../../../../../hooks';
 import { translations } from '../../../../../locales/i18n';
 import { BorrowAction } from './components/BorrowAction/BorrowAction';
@@ -22,14 +23,19 @@ import { SupplyAction } from './components/SupplyAction/SupplyAction';
 
 const pageTranslations = translations.aaveReserveOverviewPage;
 
+const ETH_ASSET_SYMBOLS = [ETH, WETH];
+
 type WalletOverviewProps = {
-  asset: string;
+  asset: {
+    symbol: string;
+    name: string;
+  };
 };
 
 export const WalletOverview: FC<WalletOverviewProps> = ({
   asset: initialAsset,
 }) => {
-  const [asset, setAsset] = useState(initialAsset);
+  const [asset, setAsset] = useState(initialAsset.symbol);
   const { account, connectWallet, pending } = useWalletConnect();
 
   const assetBalance = Decimal.from(0); // TODO: mocked
@@ -44,23 +50,16 @@ export const WalletOverview: FC<WalletOverviewProps> = ({
       {account ? (
         <>
           <div>
-            {['ETH', 'WETH'].includes(asset) && (
+            {ETH_ASSET_SYMBOLS.includes(asset) && (
               <Tabs
                 className="mb-5"
-                index={asset === 'ETH' ? 0 : 1}
-                onChange={e => setAsset(e === 0 ? 'ETH' : 'WETH')}
-                items={[
-                  {
-                    activeClassName: 'text-primary-20',
-                    dataAttribute: 'eth',
-                    label: 'ETH',
-                  },
-                  {
-                    activeClassName: 'text-primary-20',
-                    dataAttribute: 'weth',
-                    label: 'WETH',
-                  },
-                ]}
+                index={ETH_ASSET_SYMBOLS.indexOf(asset)}
+                onChange={e => setAsset(ETH_ASSET_SYMBOLS[e])}
+                items={ETH_ASSET_SYMBOLS.map(s => ({
+                  activeClassName: 'text-primary-20',
+                  dataAttribute: s,
+                  label: s,
+                }))}
                 size={TabSize.normal}
                 type={TabType.secondary}
               />

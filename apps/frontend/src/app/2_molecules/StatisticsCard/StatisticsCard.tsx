@@ -37,13 +37,13 @@ export const StatisticsCard: FC<StatisticsCardProps> = ({
           <>
             {value}
             {link && (
-              <a href={link} className="ml-3">
-                <Icon icon={LinkIcon} />
+              <a href={link} className="ml-3" target="_blank" rel="noreferrer">
+                <Icon icon={LinkIcon} className="h-4 w-4 text-gray-30" />
               </a>
             )}
           </>
         ) : (
-          <span>{t(translations.aavePage.topPanel['n/a'])}</span>
+          <span>{t(translations.common.na)}</span>
         )}
       </div>
     </div>

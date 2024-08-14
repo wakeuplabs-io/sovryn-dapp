@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 
 import { t } from 'i18next';
 
@@ -22,6 +22,9 @@ type TopPanelProps = {};
 
 export const TopPanel: FC<TopPanelProps> = () => {
   const { account } = useAccount();
+  const [netWorth] = useState(1234567.58); // TODO: mock
+  const [netApy] = useState(2.69); // TODO: mock
+  const [collateralRatio] = useState(11); // TODO: mock
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -36,14 +39,13 @@ export const TopPanel: FC<TopPanelProps> = () => {
 
       <div className="flex flex-col gap-6 md:flex-row">
         <div className="flex flex-col gap-4 md:py-12 md:flex-row md:gap-9 flex-shrink-0">
-          {/* TODO: mock values */}
           <StatisticsCard
             label={t(pageTranslations.netWorth)}
             value={
               account ? (
                 <AmountRenderer
                   prefix="$"
-                  value={1234567.58}
+                  value={netWorth}
                   className="text-2xl"
                 />
               ) : undefined
@@ -56,7 +58,7 @@ export const TopPanel: FC<TopPanelProps> = () => {
                 account ? (
                   <AmountRenderer
                     suffix="%"
-                    value={2.69}
+                    value={netApy}
                     className="text-2xl"
                   />
                 ) : undefined
@@ -69,7 +71,7 @@ export const TopPanel: FC<TopPanelProps> = () => {
                 account ? (
                   <AmountRenderer
                     suffix="%"
-                    value={11.5}
+                    value={collateralRatio}
                     className="text-2xl"
                   />
                 ) : undefined
@@ -81,7 +83,7 @@ export const TopPanel: FC<TopPanelProps> = () => {
 
         <div className="md:flex md:justify-end md:w-full md:items-end md:pb-5">
           <Button
-            text="View transactions"
+            text={t(pageTranslations.viewTransactions)}
             style={ButtonStyle.secondary}
             size={ButtonSize.small}
           />
