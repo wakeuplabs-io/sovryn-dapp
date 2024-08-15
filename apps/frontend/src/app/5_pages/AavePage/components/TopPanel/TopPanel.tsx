@@ -45,7 +45,7 @@ export const TopPanel: FC<TopPanelProps> = () => {
               account ? (
                 <AmountRenderer
                   prefix="$"
-                  value={1234567.58}
+                  value={netWorth}
                   className="text-2xl"
                 />
               ) : undefined
@@ -58,7 +58,7 @@ export const TopPanel: FC<TopPanelProps> = () => {
                 account ? (
                   <AmountRenderer
                     suffix="%"
-                    value={2.69}
+                    value={netApy}
                     className="text-2xl"
                   />
                 ) : undefined
@@ -71,7 +71,7 @@ export const TopPanel: FC<TopPanelProps> = () => {
                 account ? (
                   <AmountRenderer
                     suffix="%"
-                    value={11.5}
+                    value={collateralRatio}
                     className="text-2xl"
                   />
                 ) : undefined

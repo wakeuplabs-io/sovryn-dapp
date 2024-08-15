@@ -43,7 +43,7 @@ export const StatisticsCard: FC<StatisticsCardProps> = ({
             )}
           </>
         ) : (
-          <span>{t(translations.aavePage.topPanel['n/a'])}</span>
+          <span>{t(translations.common.na)}</span>
         )}
       </div>
     </div>
