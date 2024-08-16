@@ -44,6 +44,7 @@ export class AaveUserReservesSummary {
   public borrowPowerUsed: Decimal;
   public suppliedAssets: SuppliedAsset[];
   public borrowedAssets: BorrowedAsset[];
+  public eModeEnabled: boolean;
 
   constructor(private readonly userSummary: UserSummary) {
     // balances
@@ -93,6 +94,9 @@ export class AaveUserReservesSummary {
     this.borrowedAssets = this.computeBorrowedAssets(
       this.userSummary.userReservesData,
     );
+
+    // emode
+    this.eModeEnabled = this.userSummary.userEmodeCategoryId !== 0;
   }
 
   static from(

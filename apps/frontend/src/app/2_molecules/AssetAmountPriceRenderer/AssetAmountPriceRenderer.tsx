@@ -2,14 +2,14 @@ import React, { FC } from 'react';
 
 import classNames from 'classnames';
 
-import { Decimal, Decimalish } from '@sovryn/utils';
+import { Decimalish } from '@sovryn/utils';
 
 import { AmountRenderer } from '../AmountRenderer/AmountRenderer';
 
 type AssetAmountPriceRendererProps = {
   asset: string;
   value: Decimalish;
-  valueUSD?: Decimalish;
+  valueUSD: Decimalish;
   className?: string;
   valueClassName?: string;
   priceClassName?: string;
@@ -23,9 +23,6 @@ export const AssetAmountPriceRenderer: FC<AssetAmountPriceRendererProps> = ({
   valueClassName,
   priceClassName,
 }) => {
-  // TODO: get price in usd
-  const usdPrice = valueUSD ?? Decimal.from(0);
-
   return (
     <div className={className ?? 'flex flex-col text-right space-y-1'}>
       <AmountRenderer
@@ -35,7 +32,7 @@ export const AssetAmountPriceRenderer: FC<AssetAmountPriceRendererProps> = ({
         precision={2}
       />
       <AmountRenderer
-        value={usdPrice}
+        value={valueUSD}
         prefix={'$'}
         precision={2}
         className={classNames(

@@ -9,6 +9,7 @@ import { AssetRenderer } from '../../../../2_molecules/AssetRenderer/AssetRender
 import { translations } from '../../../../../locales/i18n';
 import { BorrowPoolDetails } from './BorrowAssetsList.types';
 import { BorrowAssetAction } from './components/BorrowAssetAction/BorrowAssetAction';
+import { AssetAmountPriceRenderer } from '../../../../2_molecules/AssetAmountPriceRenderer/AssetAmountPriceRenderer';
 
 const pageTranslations = translations.aavePage;
 
@@ -43,13 +44,17 @@ export const COLUMNS_CONFIG = [
         />
       </span>
     ),
-    cellRenderer: (position: BorrowPoolDetails) => (
-      <span>-</span>
-      // <AssetAmountPriceRenderer
-      //   value={1} // TODO: This should be calculated by the component
-      //   asset={position.asset}
-      // />
-    ),
+    cellRenderer: (position: BorrowPoolDetails) =>
+      position.available !== undefined &&
+      position.availableUSD !== undefined ? (
+        <AssetAmountPriceRenderer
+          value={position.available}
+          valueUSD={position.availableUSD}
+          asset={position.asset}
+        />
+      ) : (
+        <span>-</span>
+      ),
   },
   {
     id: 'apy',

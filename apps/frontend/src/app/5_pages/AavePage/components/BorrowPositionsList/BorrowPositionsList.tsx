@@ -21,6 +21,7 @@ type BorrowPositionsListProps = {
   borrowBalance?: Decimal;
   borrowWeightedApy?: Decimal;
   borrowPowerUsed?: Decimal;
+  eModeEnabled: boolean;
 };
 
 export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
@@ -28,6 +29,7 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
   borrowBalance,
   borrowPowerUsed,
   borrowWeightedApy,
+  eModeEnabled,
 }) => {
   const { account } = useAccount();
   const [open, setOpen] = useState<boolean>(true);
@@ -50,7 +52,7 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
           <span>{t(pageTranslations.borrowPositionsList.title)}</span>
           <div className="hidden lg:flex gap-3">
             <span className="text-gray-30 font-medium text-sm">E-Mode</span>
-            <EfficiencyModeCard />
+            <EfficiencyModeCard enabled={eModeEnabled} />
           </div>
         </div>
       }
@@ -61,7 +63,10 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
     >
       {account ? (
         <>
-          <EfficiencyModeCard className="lg:hidden mb-3" />
+          <EfficiencyModeCard
+            enabled={eModeEnabled}
+            className="lg:hidden mb-3"
+          />
           <div className="flex flex-col gap-2 mb-2 lg:flex-row lg:gap-6 lg:mb-6">
             <PoolPositionStat
               label={t(pageTranslations.common.balance)}

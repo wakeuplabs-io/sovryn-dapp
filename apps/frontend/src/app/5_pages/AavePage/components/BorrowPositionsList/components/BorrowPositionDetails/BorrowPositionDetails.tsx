@@ -25,8 +25,9 @@ export const BorrowPositionDetails: FC<BorrowPositionDetailsProps> = ({
           label={t(translations.aavePage.common.balance)}
           value={
             <AssetAmountPriceRenderer
-              value={position.borrowed}
               asset={position.asset}
+              value={position.borrowed}
+              valueUSD={position.borrowedUSD}
             />
           }
         />

@@ -54,14 +54,21 @@ const AavePage: FC = () => {
     }));
   }, [userReservesSummary]);
 
-  const borrowPools: BorrowPoolDetails[] = useMemo(
-    () =>
-      reserves.map(r => ({
+  const borrowPools: BorrowPoolDetails[] = useMemo(() => {
+    if (!userReservesSummary) {
+      return reserves.map(r => ({
         asset: r.symbol,
         apy: Decimal.from(r.variableBorrowAPY).mul(100),
-      })),
-    [reserves],
-  );
+      }));
+    } else {
+      return reserves.map(r => ({
+        asset: r.symbol,
+        apy: Decimal.from(r.variableBorrowAPY).mul(100),
+        available: userReservesSummary.borrowPower.div(r.priceInUSD),
+        availableUSD: userReservesSummary.borrowPower,
+      }));
+    }
+  }, [reserves, userReservesSummary]);
 
   const lendPools: LendPoolDetails[] = useMemo(
     () =>
@@ -132,6 +139,7 @@ const AavePage: FC = () => {
             )}
           >
             <BorrowPositionsList
+              eModeEnabled={userReservesSummary?.eModeEnabled ?? false}
               borrowPositions={borrowPositions}
               borrowBalance={userReservesSummary?.borrowBalance}
               borrowPowerUsed={userReservesSummary?.borrowPowerUsed}
