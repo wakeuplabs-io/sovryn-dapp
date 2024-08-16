@@ -9,6 +9,7 @@ import { AmountRenderer } from '../../../../../../2_molecules/AmountRenderer/Amo
 import { translations } from '../../../../../../../locales/i18n';
 import { LendPoolDetails } from '../../LendAssetsList.types';
 import { LendAssetAction } from '../LendAssetAction/LendAssetAction';
+import { AssetBalanceRenderer } from '../AssetBalance/AssetBalance';
 
 type LendAssetDetailsProps = {
   pool: LendPoolDetails;
@@ -21,14 +22,7 @@ export const LendAssetDetails: FC<LendAssetDetailsProps> = ({ pool }) => {
         {/* Available */}
         <SimpleTableRow
           label={t(translations.aavePage.lendAssetsList.walletBalance)}
-          value={
-            // TODO: should be a component on itself
-            <span>-</span>
-            // <AssetAmountPriceRenderer
-            //   value={pool.walletBalance}
-            //   asset={pool.asset}
-            // />
-          }
+          value={<AssetBalanceRenderer asset={pool.asset} />}
         />
 
         {/* APY */}
