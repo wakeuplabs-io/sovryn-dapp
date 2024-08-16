@@ -84,7 +84,6 @@ export const AssetAmountInput: FC<AssetAmountInputProps> = ({
             labelRenderer={assetOptionRenderer}
             className="min-w-[6.7rem]"
             menuClassName="max-h-[10rem] sm:max-h-[20rem]"
-            dataAttribute="asset-select"
           />
         </div>
       </div>
