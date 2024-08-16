@@ -40,7 +40,8 @@ export const COLUMNS_CONFIG = [
       </span>
     ),
     cellRenderer: (pool: LendPoolDetails) => (
-      <AmountRenderer value={pool.walletBalance} suffix={pool.asset} />
+      <span>-</span> // TODO: should be a component on itself
+      // <AmountRenderer value={pool.walletBalance} suffix={pool.asset} />
     ),
   },
   {

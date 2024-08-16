@@ -28,7 +28,7 @@ export const BorrowAssetDetails: FC<BorrowAssetDetailsProps> = ({ pool }) => {
               <HelperButton content={t(pageTranslations.common.aprInfo)} />
             </span>
           }
-          value={<AmountRenderer value={pool.apr} suffix={'%'} />}
+          value={<AmountRenderer value={pool.apy} suffix={'%'} />}
         />
 
         {/* Available */}
@@ -36,7 +36,7 @@ export const BorrowAssetDetails: FC<BorrowAssetDetailsProps> = ({ pool }) => {
           label={t(pageTranslations.borrowAssetsList.available)}
           value={
             <AssetAmountPriceRenderer
-              value={pool.available}
+              value={1} // TODO: this should be calculated by new hook
               asset={pool.asset}
             />
           }

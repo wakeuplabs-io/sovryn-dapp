@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 
 import { t } from 'i18next';
 
@@ -9,36 +9,30 @@ import { translations } from '../../../../../locales/i18n';
 import { COLUMNS_CONFIG } from './BorrowAssetsList.constants';
 import { BorrowPoolDetails } from './BorrowAssetsList.types';
 import { BorrowAssetDetails } from './components/BorrowAssetDetails/BorrowAssetDetails';
+import { useAaveReservesData } from '../../../../../hooks/useAaveReservesData';
 
 const pageTranslations = translations.aavePage.borrowAssetsList;
 
-type BorrowAssetsListProps = {};
+type BorrowAssetsListProps = {
+  borrowPools: BorrowPoolDetails[];
+};
 
-export const BorrowAssetsList: FC<BorrowAssetsListProps> = () => {
+export const BorrowAssetsList: FC<BorrowAssetsListProps> = ({
+  borrowPools,
+}) => {
   const [open, setOpen] = useState<boolean>(true);
   const [orderOptions, setOrderOptions] = useState<OrderOptions>();
+  const { reserves } = useAaveReservesData();
+
+  useEffect(() => {
+    console.log(reserves.length ? reserves[0] : []);
+  }, [reserves]);
 
   const rowTitleRenderer = useCallback(
     r => <AaveRowTitle asset={r.asset} value={r.apr} suffix="%" label="APY" />,
     [],
   );
   const mobileRenderer = useCallback(p => <BorrowAssetDetails pool={p} />, []);
-
-  // TODO: just a mock for now
-  const borrowPools: BorrowPoolDetails[] = [
-    {
-      asset: 'BTC',
-      apr: 2.01,
-      available: 12.34,
-      availableUsd: 100,
-    },
-    {
-      asset: 'ETH',
-      apr: 2.01,
-      available: 12.34,
-      availableUsd: 100,
-    },
-  ];
 
   return (
     <Accordion

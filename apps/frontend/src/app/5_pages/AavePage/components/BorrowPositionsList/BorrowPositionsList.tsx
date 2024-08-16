@@ -12,17 +12,25 @@ import { COLUMNS_CONFIG } from './BorrowPositionsList.constants';
 import { BorrowPosition } from './BorrowPositionsList.types';
 import { BorrowPositionDetails } from './components/BorrowPositionDetails/BorrowPositionDetails';
 import { EfficiencyModeCard } from './components/EfficiencyModeCard/EfficiencyModeCard';
+import { Decimal } from '@sovryn/utils';
 
 const pageTranslations = translations.aavePage;
 
-type BorrowPositionsListProps = {};
+type BorrowPositionsListProps = {
+  borrowPositions: BorrowPosition[];
+  borrowBalance?: Decimal;
+  borrowWeightedApy?: Decimal;
+  borrowPowerUsed?: Decimal;
+};
 
-export const BorrowPositionsList: FC<BorrowPositionsListProps> = () => {
+export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
+  borrowPositions,
+  borrowBalance,
+  borrowPowerUsed,
+  borrowWeightedApy,
+}) => {
   const { account } = useAccount();
   const [open, setOpen] = useState<boolean>(true);
-  const [balance] = useState(123.45); // TODO: mock
-  const [apy] = useState(2.05); // TODO: mock
-  const [borrowPowerUsed] = useState(2.05); // TODO: mock
   const [orderOptions, setOrderOptions] = useState<OrderOptions>();
 
   const rowTitleRenderer = useCallback(
@@ -34,22 +42,6 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = () => {
     p => <BorrowPositionDetails position={p} />,
     [],
   );
-
-  // TODO: mocked values
-  const borrowPositions: BorrowPosition[] = [
-    {
-      asset: 'BTC',
-      apr: 2.24,
-      balance: 12.34,
-      apyType: 'variable',
-    },
-    {
-      asset: 'ETH',
-      apr: 2.33,
-      balance: 12.34,
-      apyType: 'fixed',
-    },
-  ];
 
   return (
     <Accordion
@@ -73,19 +65,19 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = () => {
           <div className="flex flex-col gap-2 mb-2 lg:flex-row lg:gap-6 lg:mb-6">
             <PoolPositionStat
               label={t(pageTranslations.common.balance)}
-              value={balance}
+              value={borrowBalance ?? 0}
               prefix="$"
               precision={2}
             />
             <PoolPositionStat
               label={t(pageTranslations.common.apy)}
-              value={apy}
+              value={borrowWeightedApy ?? 0}
               suffix="%"
               precision={2}
             />
             <PoolPositionStat
               label={t(pageTranslations.borrowPositionsList.borrowPowerUsed)}
-              value={borrowPowerUsed}
+              value={borrowPowerUsed ?? 0}
               suffix="%"
               precision={2}
             />

@@ -5,7 +5,6 @@ import { t } from 'i18next';
 import { Align, HelperButton } from '@sovryn/ui';
 
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
-import { AssetAmountPriceRenderer } from '../../../../2_molecules/AssetAmountPriceRenderer/AssetAmountPriceRenderer';
 import { AssetRenderer } from '../../../../2_molecules/AssetRenderer/AssetRenderer';
 import { translations } from '../../../../../locales/i18n';
 import { BorrowPoolDetails } from './BorrowAssetsList.types';
@@ -45,14 +44,15 @@ export const COLUMNS_CONFIG = [
       </span>
     ),
     cellRenderer: (position: BorrowPoolDetails) => (
-      <AssetAmountPriceRenderer
-        value={position.available}
-        asset={position.asset}
-      />
+      <span>-</span>
+      // <AssetAmountPriceRenderer
+      //   value={1} // TODO: This should be calculated by the component
+      //   asset={position.asset}
+      // />
     ),
   },
   {
-    id: 'apr',
+    id: 'apy',
     sortable: true,
     align: Align.center,
     className: '[&_*]:mx-auto [&_*]:space-x-2', // center head
@@ -63,7 +63,7 @@ export const COLUMNS_CONFIG = [
       </span>
     ),
     cellRenderer: (pool: BorrowPoolDetails) => (
-      <AmountRenderer value={pool.apr} suffix={'%'} />
+      <AmountRenderer value={pool.apy} suffix={'%'} precision={2} />
     ),
   },
   {

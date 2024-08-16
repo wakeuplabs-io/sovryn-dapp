@@ -15,19 +15,27 @@ import { useAccount } from '../../../../../hooks/useAccount';
 import { translations } from '../../../../../locales/i18n';
 import { PoolPositionStat } from '../PoolPositionStat/PoolPositionStat';
 import { COLUMNS_CONFIG } from './LendPositionsList.constants';
-import { LendPosition } from './LendPositionsList.types';
 import { LendPositionDetails } from './components/LendPositionDetails/LendPositionDetails';
+import { Decimal } from '@sovryn/utils';
+import { LendPosition } from './LendPositionsList.types';
 
 const pageTranslations = translations.aavePage;
 
-type LendPositionsListProps = {};
+type LendPositionsListProps = {
+  supplyBalance?: Decimal;
+  supplyWeightedApy?: Decimal;
+  collateralBalance?: Decimal;
+  lendPositions: LendPosition[];
+};
 
-export const LendPositionsList: FC<LendPositionsListProps> = () => {
+export const LendPositionsList: FC<LendPositionsListProps> = ({
+  supplyBalance,
+  supplyWeightedApy,
+  collateralBalance,
+  lendPositions,
+}) => {
   const { account } = useAccount();
   const [open, setOpen] = useState<boolean>(true);
-  const [balance] = useState(100); // TODO: mocked data
-  const [apy] = useState(2.3); // TODO: mocked data
-  const [collateral] = useState(3); // TODO: mocked data
   const [orderOptions, setOrderOptions] = useState<OrderOptions>({
     orderBy: 'balance',
     orderDirection: OrderDirection.Asc,
@@ -41,22 +49,6 @@ export const LendPositionsList: FC<LendPositionsListProps> = () => {
     p => <LendPositionDetails position={p} />,
     [],
   );
-
-  // TODO: mocked data
-  const lendPositions: LendPosition[] = [
-    {
-      asset: 'BTC',
-      apy: 2.01,
-      balance: 12.34,
-      collateral: true,
-    },
-    {
-      asset: 'ETH',
-      apy: 2.04,
-      balance: 1.34,
-      collateral: false,
-    },
-  ];
 
   return (
     <Accordion
@@ -75,20 +67,20 @@ export const LendPositionsList: FC<LendPositionsListProps> = () => {
           <div className="flex flex-col gap-2 mb-2 lg:flex-row lg:gap-6 lg:mb-6">
             <PoolPositionStat
               label={t(pageTranslations.common.balance)}
-              value={balance}
+              value={supplyBalance ?? 0}
               prefix="$"
               precision={2}
             />
             <PoolPositionStat
               label={t(pageTranslations.common.apy)}
               labelInfo={t(pageTranslations.common.apyInfo)}
-              value={apy}
+              value={supplyWeightedApy ?? 0}
               suffix="%"
               precision={2}
             />
             <PoolPositionStat
               label={t(pageTranslations.common.collateral)}
-              value={collateral}
+              value={collateralBalance ?? 0}
               prefix="$"
               precision={2}
             />
