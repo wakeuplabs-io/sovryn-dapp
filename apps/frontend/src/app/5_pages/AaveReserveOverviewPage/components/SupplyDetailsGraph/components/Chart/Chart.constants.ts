@@ -1,6 +1,9 @@
 export const PRIMARY_COLOR = '#2C303B';
 export const TEXT_COLOR = '#f5f5f5';
+export const LINE_COLOR = '#f58c31';
+export const TICK_COLOR = '#b6bac1';
 export const BORDER_COLOR = '#484D59';
+export const GRID_COLOR = 'rgb(72 77 89)';
 export const FONT_FAMILY = 'Roboto';
 export const FONT_SIZE = 12;
 export const FONT_WEIGHT = '500';

@@ -9,7 +9,7 @@ import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/Statistic
 import { useIsMobile } from '../../../../../hooks/useIsMobile';
 import { translations } from '../../../../../locales/i18n';
 import { Chart } from './components/Chart/Chart';
-import { harcodedData } from './components/Chart/Chart.constants';
+import { harcodedData, LINE_COLOR } from './components/Chart/Chart.constants';
 import { MockData } from './components/Chart/Chart.types';
 
 const pageTranslations = translations.aaveReserveOverviewPage.interestRateModel;
@@ -30,8 +30,8 @@ export const InterestRateModelGraph: FC<InterestRateModelGraphProps> = () => {
       data1: data,
       data2: currentData,
       data3: optimalData,
-      label1: 'Borrow APR, variable',
-      lineColor: '#f58c31',
+      label1: t(pageTranslations.chart.label1),
+      lineColor: LINE_COLOR,
       xLabels: data.map(() => ''),
     };
   }, []);
