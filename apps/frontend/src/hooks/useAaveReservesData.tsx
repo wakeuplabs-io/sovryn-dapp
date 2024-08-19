@@ -5,17 +5,17 @@ import {
 } from '@aave/contract-helpers';
 import { formatReserves, FormatReserveUSDResponse } from '@aave/math-utils';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
 
 import { config } from '../constants/aave';
 
+export type Reserve = ReserveDataHumanized & FormatReserveUSDResponse;
+
 export const useAaveReservesData = () => {
   const provider = config.provider; // TODO: replace with useAccount
-  const [reserves, setReserves] = useState<
-    (ReserveDataHumanized & FormatReserveUSDResponse)[]
-  >([]);
+  const [reserves, setReserves] = useState<Reserve[]>([]);
   const [reservesData, setReservesData] =
     useState<ReservesDataHumanized | null>(null);
 
@@ -31,12 +31,8 @@ export const useAaveReservesData = () => {
     [provider],
   );
 
-  useEffect(() => {
-    const fetchReservesData = async () => {
-      if (!uiPoolDataProvider) {
-        return;
-      }
-
+  const fetchReservesData = useCallback(
+    async (uiPoolDataProvider: UiPoolDataProvider) => {
       const currentTimestamp = dayjs().unix();
       const reservesData = await uiPoolDataProvider.getReservesHumanized({
         lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
@@ -58,10 +54,15 @@ export const useAaveReservesData = () => {
         baseCurrencyData: reservesData.baseCurrencyData,
         reservesData: reserves,
       });
-    };
+    },
+    [],
+  );
 
-    fetchReservesData();
-  }, [uiPoolDataProvider]);
+  useEffect(() => {
+    if (uiPoolDataProvider) {
+      fetchReservesData(uiPoolDataProvider);
+    }
+  }, [uiPoolDataProvider, fetchReservesData]);
 
   return { reserves, reservesData };
 };
