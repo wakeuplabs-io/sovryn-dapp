@@ -140,6 +140,7 @@ export class AaveUserReservesSummary {
     borrowedBalance: Decimal,
     borrowPower: Decimal,
   ) {
+    if (borrowPower.eq(0)) return Decimal.from(0);
     return Decimal.from(borrowedBalance).div(borrowPower).mul(100);
   }
 
@@ -160,6 +161,7 @@ export class AaveUserReservesSummary {
     currentLiquidationThreshold: Decimal,
     borrowedBalance: Decimal,
   ): Decimal {
+    if (borrowedBalance.eq(0)) return Decimal.from(0);
     return collateral.mul(currentLiquidationThreshold).div(borrowedBalance);
   }
 
@@ -179,6 +181,7 @@ export class AaveUserReservesSummary {
       totalBorrowedUSD = totalBorrowedUSD.add(borrowedAmountUSD);
     });
 
+    if (totalBorrowedUSD.eq(0)) return Decimal.from(0);
     return weightedBorrowAPYSum.div(totalBorrowedUSD).mul(100);
   }
 
@@ -198,6 +201,7 @@ export class AaveUserReservesSummary {
       totalBorrowedUSD = totalBorrowedUSD.add(borrowedAmountUSD);
     });
 
+    if (totalBorrowedUSD.eq(0)) return Decimal.from(0);
     return weightedBorrowAPYSum.div(totalBorrowedUSD).mul(100);
   }
 

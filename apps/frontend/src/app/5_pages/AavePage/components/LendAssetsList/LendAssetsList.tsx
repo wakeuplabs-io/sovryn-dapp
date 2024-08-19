@@ -23,7 +23,15 @@ export const LendAssetsList: FC<LendAssetsListProps> = ({ lendPools }) => {
 
   const mobileRenderer = useCallback(p => <LendAssetDetails pool={p} />, []);
   const rowTitleRenderer = useCallback(
-    r => <AaveRowTitle asset={r.asset} value={r.apy} suffix="%" label="APY" />,
+    (r: LendPoolDetails) => (
+      <AaveRowTitle
+        asset={r.asset}
+        value={r.apy}
+        suffix="%"
+        label="APY"
+        precision={2}
+      />
+    ),
     [],
   );
 
