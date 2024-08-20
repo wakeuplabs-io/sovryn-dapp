@@ -6,11 +6,11 @@ import { t } from 'i18next';
 import { AssetDetailsData } from '@sovryn/contracts';
 import { Decimal } from '@sovryn/utils';
 
-import { config } from '../constants/aave';
-import { useTransactionContext } from '../contexts/TransactionContext';
-import { translations } from '../locales/i18n';
-import { AaveSupplyTransactionsFactory } from '../utils/aave/AaveSupplyTransactionsFactory';
-import { useAccount } from './useAccount';
+import { config } from '../../constants/aave';
+import { useTransactionContext } from '../../contexts/TransactionContext';
+import { translations } from '../../locales/i18n';
+import { AaveSupplyTransactionsFactory } from '../../utils/aave/AaveSupplyTransactionsFactory';
+import { useAccount } from '../useAccount';
 
 export const useAaveDeposit = (onBegin: () => void, onComplete: () => void) => {
   const { signer } = useAccount();

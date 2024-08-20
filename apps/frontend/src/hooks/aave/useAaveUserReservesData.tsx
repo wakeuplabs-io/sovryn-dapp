@@ -9,10 +9,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { ethers } from 'ethers';
 
-import { config } from '../constants/aave';
-import { AaveUserReservesSummary } from '../utils/aave';
+import { config } from '../../constants/aave';
+import { AaveUserReservesSummary } from '../../utils/aave';
+import { useAccount } from '../useAccount';
 import { Reserve, useAaveReservesData } from './useAaveReservesData';
-import { useAccount } from './useAccount';
 
 export const useAaveUserReservesData = () => {
   const provider = config.provider;
@@ -40,10 +40,12 @@ export const useAaveUserReservesData = () => {
       reservesData: ReservesDataHumanized,
       signer: ethers.Signer,
     ) => {
+      // const user = await signer.getAddress()
+      const user = '0xF754D0f4de0e815b391D997Eeec5cD07E59858F0';
       const userReservesData =
         await uiPoolDataProvider.getUserReservesHumanized({
           lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
-          user: await signer.getAddress(),
+          user,
         });
 
       setUserReservesSummary(

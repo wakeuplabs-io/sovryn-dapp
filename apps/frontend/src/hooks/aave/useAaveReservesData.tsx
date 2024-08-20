@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
 
-import { config } from '../constants/aave';
+import { config } from '../../constants/aave';
 
 export type Reserve = ReserveDataHumanized & FormatReserveUSDResponse;
 
