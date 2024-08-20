@@ -2,6 +2,7 @@ import React, { FC, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
+import { theme } from '@sovryn/tailwindcss-config';
 import { Accordion, Icon, IconNames, Paragraph } from '@sovryn/ui';
 
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
@@ -16,8 +17,6 @@ const pageTranslations = translations.aaveReserveOverviewPage.supplyDetails;
 
 type SupplyDetailsGraphProps = {};
 
-const LINE_COLOR = '#f58c31';
-
 export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = () => {
   const [open, setOpen] = useState<boolean>(true);
   const { isMobile } = useIsMobile();
@@ -28,7 +27,7 @@ export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = () => {
     return {
       data1,
       label1: t(pageTranslations.chart.label1),
-      lineColor: LINE_COLOR,
+      lineColor: theme.colors['primary-30'],
       xLabels: data1.map(item => item.x),
     };
   }, []);

@@ -3,6 +3,8 @@ import React, { FC, useEffect, useRef } from 'react';
 import ChartLibrary from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 
+import { theme } from '@sovryn/tailwindcss-config';
+
 import {
   CUSTOM_CANVAS_BACKGROUND_COLOR,
   GRID_COLOR,
@@ -48,8 +50,8 @@ export const Chart: FC<ChartProps> = ({ mockData }) => {
             label: 'Current 78.64%',
             type: 'scatter',
             data: mockData.data2,
-            backgroundColor: 'cyan',
-            borderColor: 'cyan',
+            borderColor: theme.colors.positive,
+            backgroundColor: theme.colors.positive,
             showLine: true,
             borderDash: [1, 2],
             pointRadius: 0,
@@ -58,8 +60,8 @@ export const Chart: FC<ChartProps> = ({ mockData }) => {
             label: 'Optimal 92%',
             type: 'scatter',
             data: mockData.data3,
-            backgroundColor: '#4caf51',
-            borderColor: '#4caf51',
+            borderColor: theme.colors.success,
+            backgroundColor: theme.colors.success,
             showLine: true,
             borderDash: [1, 2],
             pointRadius: 0,

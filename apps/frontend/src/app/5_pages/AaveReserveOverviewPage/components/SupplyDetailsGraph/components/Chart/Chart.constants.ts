@@ -1,7 +1,10 @@
+import { theme } from '@sovryn/tailwindcss-config';
+
 export const GRID_COLOR = '#484d59';
 export const TICK_COLOR = '#b6bac1';
 const GRAY_90 = '#16171C';
 const GRAY_80 = '#1e2128';
+const SM_BREAKPOINT = parseInt(theme.screens.sm, 10);
 
 export const CUSTOM_CANVAS_BACKGROUND_COLOR = {
   id: 'customCanvasBackgroundColor',
@@ -10,9 +13,8 @@ export const CUSTOM_CANVAS_BACKGROUND_COLOR = {
     const windowWidth = window.innerWidth;
     ctx.save();
     ctx.globalCompositeOperation = 'destination-over';
-    // Cambia el color según el ancho de la ventana
-    if (windowWidth < 640) {
-      // Breakpoint 'sm'
+
+    if (windowWidth < SM_BREAKPOINT) {
       ctx.fillStyle = GRAY_90;
     } else {
       ctx.fillStyle = GRAY_80;

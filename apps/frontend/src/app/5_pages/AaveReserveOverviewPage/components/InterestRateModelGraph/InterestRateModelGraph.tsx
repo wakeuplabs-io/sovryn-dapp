@@ -2,6 +2,7 @@ import React, { FC, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
+import { theme } from '@sovryn/tailwindcss-config';
 import { Accordion, Link } from '@sovryn/ui';
 
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
@@ -15,7 +16,6 @@ import { MockData } from './components/Chart/Chart.types';
 const pageTranslations = translations.aaveReserveOverviewPage.interestRateModel;
 
 type InterestRateModelGraphProps = {};
-const LINE_COLOR = '#f58c31';
 
 export const InterestRateModelGraph: FC<InterestRateModelGraphProps> = () => {
   const [open, setOpen] = useState<boolean>(true);
@@ -32,7 +32,7 @@ export const InterestRateModelGraph: FC<InterestRateModelGraphProps> = () => {
       data2: currentData,
       data3: optimalData,
       label1: t(pageTranslations.chart.label1),
-      lineColor: LINE_COLOR,
+      lineColor: theme.colors['primary-30'],
       xLabels: data.map(() => ''),
     };
   }, []);
