@@ -40,7 +40,7 @@ export const useAaveUserReservesData = () => {
       reservesData: ReservesDataHumanized,
       signer: ethers.Signer,
     ) => {
-      // const user = await signer.getAddress()
+      // const user = await signer.getAddress() TODO: uncomment when bob calculations are ready
       const user = '0xF754D0f4de0e815b391D997Eeec5cD07E59858F0';
       const userReservesData =
         await uiPoolDataProvider.getUserReservesHumanized({
