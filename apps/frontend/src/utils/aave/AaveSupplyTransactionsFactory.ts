@@ -1,4 +1,4 @@
-import { BigNumber, constants, ethers } from 'ethers';
+import { BigNumber, constants, Contract, ethers } from 'ethers';
 import { t } from 'i18next';
 
 import { AssetDetailsData, getAssetDataByAddress } from '@sovryn/contracts';
@@ -53,34 +53,30 @@ export class AaveSupplyTransactionsFactory {
     const approval = await prepareApproveTransaction({
       spender: this.PoolAddress,
       token: asset.symbol,
-      contract: asset.contract(),
+      contract: new Contract(asset.address, asset.abi, this.signer),
       amount: amount,
       chain: BOB_CHAIN_ID,
     });
     const transactions: Transaction[] = approval ? [approval] : [];
 
-    const fnName = 'supply';
-    const args = [
-      asset.address,
-      amount.toString(),
-      await this.signer.getAddress(),
-      0,
-    ];
-    const gasEstimate = await this.Pool.estimateGas[fnName](...args);
     transactions.push({
       title: t(translations.aavePage.tx.supplyTitle, {
         symbol: asset.symbol,
       }),
       subtitle: t(translations.aavePage.tx.supplySubtitle, {
         symbol: asset.symbol,
+        amount: ethers.utils.formatUnits(amount, asset.decimals),
       }),
       request: {
         type: TransactionType.signTransaction,
-        args: args,
+        args: [
+          asset.address,
+          amount.toString(),
+          await this.signer.getAddress(),
+          0,
+        ],
         contract: this.Pool,
-        fnName,
-        gasPrice: (await this.signer.getGasPrice()).toString(),
-        gasLimit: gasEstimate.toString(),
+        fnName: 'supply',
         value: 0,
       },
     });
@@ -89,12 +85,6 @@ export class AaveSupplyTransactionsFactory {
   }
 
   private async supplyNative(amount: BigNumber): Promise<Transaction[]> {
-    const fnName = 'depositETH';
-    const args = [this.PoolAddress, await this.signer.getAddress(), 0];
-    const gasEstimate = await this.Pool.estimateGas[fnName](...args, {
-      value: amount.toString(),
-    });
-
     const nativeAsset = await getAssetDataByAddress(
       constants.AddressZero,
       BOB_CHAIN_ID,
@@ -110,11 +100,9 @@ export class AaveSupplyTransactionsFactory {
         }),
         request: {
           type: TransactionType.signTransaction,
-          args: args,
+          args: [this.PoolAddress, await this.signer.getAddress(), 0],
           contract: this.WETHGateway,
-          fnName,
-          gasPrice: (await this.signer.getGasPrice()).toString(),
-          gasLimit: gasEstimate.toString(),
+          fnName: 'depositETH',
           value: amount.toString(),
         },
       },

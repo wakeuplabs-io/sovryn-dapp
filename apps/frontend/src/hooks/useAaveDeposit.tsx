@@ -3,8 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import { t } from 'i18next';
 
-import { getAssetData } from '@sovryn/contracts';
-import { ChainIds } from '@sovryn/ethers-provider';
+import { AssetDetailsData } from '@sovryn/contracts';
 import { Decimal } from '@sovryn/utils';
 
 import { config } from '../constants/aave';
@@ -27,12 +26,10 @@ export const useAaveDeposit = (onBegin: () => void, onComplete: () => void) => {
   }, [signer]);
 
   const handleDeposit = useCallback(
-    async (amount: Decimal, assetSymbol: string) => {
+    async (amount: Decimal, asset: AssetDetailsData) => {
       if (!aaveSupplyTransactionsFactory) {
         return;
       }
-
-      const asset = await getAssetData(assetSymbol, ChainIds.BOB_TESTNET);
       const bnAmount = BigNumber.from(
         amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
       );

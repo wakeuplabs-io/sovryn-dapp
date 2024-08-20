@@ -2,6 +2,7 @@ import React, { FC, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
+import { getAssetData } from '@sovryn/contracts';
 import {
   Button,
   ErrorBadge,
@@ -30,10 +31,13 @@ type LendFormProps = {
   onSuccess: () => unknown;
 };
 
-export const LendForm: FC<LendFormProps> = ({ asset, onSuccess }) => {
+export const LendForm: FC<LendFormProps> = ({
+  asset: initialAsset,
+  onSuccess,
+}) => {
   const { account } = useAccount();
   const { reserves } = useAaveReservesData();
-  const [lendAsset, setLendAsset] = useState<string>(asset);
+  const [lendAsset, setLendAsset] = useState<string>(initialAsset);
   const [lendAmount, setLendAmount, lendSize] = useDecimalAmountInput('');
   const { balance: lendAssetBalance } = useAssetBalance(
     lendAsset,
@@ -126,7 +130,12 @@ export const LendForm: FC<LendFormProps> = ({ asset, onSuccess }) => {
 
       <Button
         disabled={submitButtonDisabled}
-        onClick={() => handleDeposit(lendSize, reserve.underlyingAsset)}
+        onClick={async () =>
+          handleDeposit(
+            lendSize,
+            await getAssetData(reserve.symbol, BOB_CHAIN_ID),
+          )
+        }
         text={t(translations.aavePage.lendModal.deposit)}
       />
     </form>
