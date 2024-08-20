@@ -9,12 +9,14 @@ import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/Statistic
 import { useIsMobile } from '../../../../../hooks/useIsMobile';
 import { translations } from '../../../../../locales/i18n';
 import { Chart } from './components/Chart/Chart';
-import { harcodedData, LINE_COLOR } from './components/Chart/Chart.constants';
+import { harcodedData } from './components/Chart/Chart.constants';
 import { MockData } from './components/Chart/Chart.types';
 
 const pageTranslations = translations.aaveReserveOverviewPage.supplyDetails;
 
 type SupplyDetailsGraphProps = {};
+
+const LINE_COLOR = '#f58c31';
 
 export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = () => {
   const [open, setOpen] = useState<boolean>(true);

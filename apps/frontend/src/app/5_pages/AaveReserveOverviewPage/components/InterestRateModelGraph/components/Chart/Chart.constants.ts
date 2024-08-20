@@ -1,21 +1,22 @@
-export const PRIMARY_COLOR = '#2C303B';
-export const TEXT_COLOR = '#f5f5f5';
-export const LINE_COLOR = '#f58c31';
-export const BORDER_COLOR = '#484D59';
+export const GRID_COLOR = '#484d59';
 export const TICK_COLOR = '#b6bac1';
-export const GRID_COLOR = 'rgb(72 77 89)';
-export const FONT_FAMILY = 'Roboto';
-export const FONT_SIZE = 12;
-export const FONT_WEIGHT = '500';
-export const DASH_GRID_TYPE = 'dash';
+const GRAY_90 = '#16171C';
+const GRAY_80 = '#1e2128';
 
 export const CUSTOM_CANVAS_BACKGROUND_COLOR = {
   id: 'customCanvasBackgroundColor',
   beforeDraw: (chart, options) => {
     const { ctx } = chart;
+    const windowWidth = window.innerWidth;
     ctx.save();
     ctx.globalCompositeOperation = 'destination-over';
-    ctx.fillStyle = '#1e2128';
+    // Cambia el color según el ancho de la ventana
+    if (windowWidth < 640) {
+      // Breakpoint 'sm'
+      ctx.fillStyle = GRAY_90;
+    } else {
+      ctx.fillStyle = GRAY_80;
+    }
     ctx.fillRect(0, 0, chart.width, chart.height);
     ctx.restore();
   },
