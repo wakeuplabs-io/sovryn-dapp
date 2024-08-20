@@ -5,34 +5,33 @@ import {
 } from '@aave/contract-helpers';
 import { formatReserves, FormatReserveUSDResponse } from '@aave/math-utils';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import dayjs from 'dayjs';
 
+import { BOB_CHAIN_ID } from '../../config/chains';
+
 import { config } from '../../constants/aave';
+import { useCacheCall } from '../useCacheCall';
 
 export type Reserve = ReserveDataHumanized & FormatReserveUSDResponse;
 
-export const useAaveReservesData = () => {
+export type ReserveData = {
+  reserves: Reserve[];
+  reservesData: ReservesDataHumanized | null;
+};
+
+export const useAaveReservesData = (): ReserveData => {
   const provider = config.provider; // TODO: replace with useAccount
-  const [reserves, setReserves] = useState<Reserve[]>([]);
-  const [reservesData, setReservesData] =
-    useState<ReservesDataHumanized | null>(null);
 
-  const uiPoolDataProvider = useMemo(
-    () =>
-      provider
-        ? new UiPoolDataProvider({
-            provider,
-            uiPoolDataProviderAddress: config.UiPoolDataProviderV3Address,
-            chainId: config.chainId,
-          })
-        : null,
-    [provider],
-  );
+  const { value } = useCacheCall<ReserveData>(
+    'AaveReservesData',
+    BOB_CHAIN_ID,
+    async () => {
+      const uiPoolDataProvider = new UiPoolDataProvider({
+        provider,
+        uiPoolDataProviderAddress: config.UiPoolDataProviderV3Address,
+        chainId: config.chainId,
+      });
 
-  const fetchReservesData = useCallback(
-    async (uiPoolDataProvider: UiPoolDataProvider) => {
       const currentTimestamp = dayjs().unix();
       const reservesData = await uiPoolDataProvider.getReservesHumanized({
         lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
@@ -49,20 +48,18 @@ export const useAaveReservesData = () => {
           reservesData.baseCurrencyData.marketReferenceCurrencyPriceInUsd,
       });
 
-      setReserves(formattedReserves);
-      setReservesData({
-        baseCurrencyData: reservesData.baseCurrencyData,
-        reservesData: reserves,
-      });
+      return {
+        reserves: formattedReserves,
+        reservesData: {
+          baseCurrencyData: reservesData.baseCurrencyData,
+          reservesData: reserves,
+        },
+      };
     },
     [],
+    { reserves: [], reservesData: null },
+    { ttl: 1000 * 60 },
   );
 
-  useEffect(() => {
-    if (uiPoolDataProvider) {
-      fetchReservesData(uiPoolDataProvider);
-    }
-  }, [uiPoolDataProvider, fetchReservesData]);
-
-  return { reserves, reservesData };
+  return value;
 };
