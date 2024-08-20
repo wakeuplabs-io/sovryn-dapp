@@ -11,26 +11,35 @@ import {
 } from '@sovryn/ui';
 import { Decimal } from '@sovryn/utils';
 
+import { BOB_CHAIN_ID } from '../../../../../../../config/chains';
+
 import { AmountRenderer } from '../../../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { AssetAmountInput } from '../../../../../../2_molecules/AssetAmountInput/AssetAmountInput';
 import { AssetRenderer } from '../../../../../../2_molecules/AssetRenderer/AssetRenderer';
+import { useAaveDeposit } from '../../../../../../../hooks/useAaveDeposit';
+import { useAaveReservesData } from '../../../../../../../hooks/useAaveReservesData';
+import { useAccount } from '../../../../../../../hooks/useAccount';
+import { useAssetBalance } from '../../../../../../../hooks/useAssetBalance';
 import { useDecimalAmountInput } from '../../../../../../../hooks/useDecimalAmountInput';
 import { translations } from '../../../../../../../locales/i18n';
-import { useAaveReservesData } from '../../../../../../../hooks/useAaveReservesData';
-import { useAaveDeposit } from '../../../../../../../hooks/useAaveDeposit';
 
 const pageTranslations = translations.aavePage;
 
 type LendFormProps = {
-  asset?: string;
+  asset: string;
   onSuccess: () => unknown;
 };
 
 export const LendForm: FC<LendFormProps> = ({ asset, onSuccess }) => {
+  const { account } = useAccount();
   const { reserves } = useAaveReservesData();
-  const [maximumLendAmount] = useState<Decimal>(Decimal.from(10)); // TODO: this is mocked data. Replace with proper hook
-  const [lendAsset, setLendAsset] = useState<string>(asset ?? 'USDC');
+  const [lendAsset, setLendAsset] = useState<string>(asset);
   const [lendAmount, setLendAmount, lendSize] = useDecimalAmountInput('');
+  const { balance: lendAssetBalance } = useAssetBalance(
+    lendAsset,
+    BOB_CHAIN_ID,
+    account,
+  );
   const { handleDeposit } = useAaveDeposit(
     () => null,
     () => null,
@@ -56,8 +65,8 @@ export const LendForm: FC<LendFormProps> = ({ asset, onSuccess }) => {
   );
 
   const isValidLendAmount = useMemo(
-    () => (lendSize.gt(0) ? lendSize.lte(maximumLendAmount) : true),
-    [lendSize, maximumLendAmount],
+    () => (lendSize.gt(0) ? lendSize.lte(lendAssetBalance) : true),
+    [lendSize, lendAssetBalance],
   );
 
   const submitButtonDisabled = useMemo(
@@ -65,17 +74,22 @@ export const LendForm: FC<LendFormProps> = ({ asset, onSuccess }) => {
     [isValidLendAmount, lendSize],
   );
 
+  const assetUsdValue: Decimal = useMemo(() => {
+    return Decimal.from(reserve?.priceInUSD ?? 0).mul(lendSize);
+  }, [reserve, lendSize]);
+
   return (
     <form className="flex flex-col gap-6">
       <div>
         <AssetAmountInput
           label={t(translations.aavePage.common.lend)}
-          maxAmount={maximumLendAmount}
+          maxAmount={lendAssetBalance}
           amountLabel={t(translations.common.amount)}
           amountValue={lendAmount}
           onAmountChange={setLendAmount}
           invalid={!isValidLendAmount}
           assetValue={lendAsset}
+          assetUsdValue={assetUsdValue}
           onAssetChange={setLendAsset}
           assetOptions={lendAssetsOptions}
         />

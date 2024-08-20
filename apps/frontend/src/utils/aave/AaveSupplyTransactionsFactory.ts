@@ -1,10 +1,14 @@
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, constants, ethers } from 'ethers';
+import { t } from 'i18next';
+
+import { AssetDetailsData, getAssetDataByAddress } from '@sovryn/contracts';
+
+import { BOB_CHAIN_ID } from '../../config/chains';
+
 import {
   Transaction,
   TransactionType,
 } from '../../app/3_organisms/TransactionStepDialog/TransactionStepDialog.types';
-import { AssetDetailsData } from '@sovryn/contracts';
-import { t } from 'i18next';
 import { translations } from '../../locales/i18n';
 import { prepareApproveTransaction } from '../transactions';
 
@@ -13,7 +17,6 @@ export class AaveSupplyTransactionsFactory {
   private readonly WETHGateway: ethers.Contract;
 
   constructor(
-    private readonly chain: string,
     private readonly PoolAddress: string,
     private readonly WETHGatewayAddress: string,
     private readonly signer: ethers.Signer,
@@ -22,10 +25,6 @@ export class AaveSupplyTransactionsFactory {
       this.PoolAddress,
       [
         'function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode)',
-        'function withdraw(address asset, uint256 amount, address to)',
-        'function repay(address asset, uint256 amount, uint256 rateMode, address onBehalfOf)',
-        'function borrow(address asset, uint256 amount, uint256 interestRateMode, uint16 referralCode, address onBehalfOf)',
-        'function setUserUseReserveAsCollateral(address asset, bool useAsCollateral)',
       ],
       this.signer,
     );
@@ -34,10 +33,6 @@ export class AaveSupplyTransactionsFactory {
       this.WETHGatewayAddress,
       [
         'function depositETH(address pool, address onBehalfOf, uint16 referralCode) payable',
-        'function getWETHAddress() external view returns (address)',
-        'function withdrawETH(address pool, uint256 amount, address to)',
-        'function repayETH(address pool, uint256 amount, uint256 rateMode, address onBehalfOf) payable',
-        'function borrowETH(address pool, uint256 amount, uint256 interestRateMode, uint16 referralCode)',
       ],
       this.signer,
     );
@@ -60,7 +55,7 @@ export class AaveSupplyTransactionsFactory {
       token: asset.symbol,
       contract: asset.contract(),
       amount: amount,
-      chain: this.chain,
+      chain: BOB_CHAIN_ID,
     });
     const transactions: Transaction[] = approval ? [approval] : [];
 
@@ -73,7 +68,12 @@ export class AaveSupplyTransactionsFactory {
     ];
     const gasEstimate = await this.Pool.estimateGas[fnName](...args);
     transactions.push({
-      title: 'Supply', // TODO: translations
+      title: t(translations.aavePage.tx.supplyTitle, {
+        symbol: asset.symbol,
+      }),
+      subtitle: t(translations.aavePage.tx.supplySubtitle, {
+        symbol: asset.symbol,
+      }),
       request: {
         type: TransactionType.signTransaction,
         args: args,
@@ -95,13 +95,18 @@ export class AaveSupplyTransactionsFactory {
       value: amount.toString(),
     });
 
+    const nativeAsset = await getAssetDataByAddress(
+      constants.AddressZero,
+      BOB_CHAIN_ID,
+    );
+
     return [
       {
-        title: t(translations.common.tx.signApproveTitle, {
-          symbol: 'ETH', // TODO: find native symbol
+        title: t(translations.aavePage.tx.supplyTitle, {
+          symbol: nativeAsset.symbol,
         }),
-        subtitle: t(translations.common.tx.signApproveTitle, {
-          symbol: 'ETH', // TODO: find native symbol
+        subtitle: t(translations.aavePage.tx.supplySubtitle, {
+          symbol: nativeAsset.symbol,
         }),
         request: {
           type: TransactionType.signTransaction,

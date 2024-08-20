@@ -1,13 +1,17 @@
 import { useCallback, useMemo } from 'react';
 
-import { config } from '../constants/aave';
-import { useAccount } from './useAccount';
-import { useTransactionContext } from '../contexts/TransactionContext';
-import { Decimal } from '@sovryn/utils';
-import { AaveSupplyTransactionsFactory } from '../utils/aave/AaveSupplyTransactionsFactory';
+import { BigNumber } from 'ethers';
+import { t } from 'i18next';
+
 import { getAssetData } from '@sovryn/contracts';
 import { ChainIds } from '@sovryn/ethers-provider';
-import { BigNumber } from 'ethers';
+import { Decimal } from '@sovryn/utils';
+
+import { config } from '../constants/aave';
+import { useTransactionContext } from '../contexts/TransactionContext';
+import { translations } from '../locales/i18n';
+import { AaveSupplyTransactionsFactory } from '../utils/aave/AaveSupplyTransactionsFactory';
+import { useAccount } from './useAccount';
 
 export const useAaveDeposit = (onBegin: () => void, onComplete: () => void) => {
   const { signer } = useAccount();
@@ -36,7 +40,7 @@ export const useAaveDeposit = (onBegin: () => void, onComplete: () => void) => {
       setTransactions(
         await aaveSupplyTransactionsFactory.supply(asset, bnAmount),
       );
-      setTitle('Deposit'); // TODO: translations
+      setTitle(t(translations.common.deposit));
       setIsOpen(true);
     },
     [setIsOpen, setTitle, setTransactions, aaveSupplyTransactionsFactory],
