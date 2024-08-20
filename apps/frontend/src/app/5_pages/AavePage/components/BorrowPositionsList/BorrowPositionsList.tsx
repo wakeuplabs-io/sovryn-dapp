@@ -3,6 +3,7 @@ import React, { FC, useCallback, useState } from 'react';
 import { t } from 'i18next';
 
 import { Accordion, OrderOptions, Paragraph, Table } from '@sovryn/ui';
+import { Decimal } from '@sovryn/utils';
 
 import { AaveRowTitle } from '../../../../2_molecules/AavePoolRowTitle/AavePoolRowTitle';
 import { useAccount } from '../../../../../hooks/useAccount';
@@ -12,7 +13,6 @@ import { COLUMNS_CONFIG } from './BorrowPositionsList.constants';
 import { BorrowPosition } from './BorrowPositionsList.types';
 import { BorrowPositionDetails } from './components/BorrowPositionDetails/BorrowPositionDetails';
 import { EfficiencyModeCard } from './components/EfficiencyModeCard/EfficiencyModeCard';
-import { Decimal } from '@sovryn/utils';
 
 const pageTranslations = translations.aavePage;
 
@@ -36,7 +36,14 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
   const [orderOptions, setOrderOptions] = useState<OrderOptions>();
 
   const rowTitleRenderer = useCallback(
-    r => <AaveRowTitle asset={r.asset} value={r.balance} suffix={r.asset} />,
+    (r: BorrowPosition) => (
+      <AaveRowTitle
+        asset={r.asset}
+        value={r.borrowed}
+        suffix={r.asset}
+        precision={2}
+      />
+    ),
     [],
   );
 

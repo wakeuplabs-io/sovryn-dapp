@@ -1,13 +1,18 @@
-import { UiPoolDataProvider } from '@aave/contract-helpers';
+import {
+  ReservesDataHumanized,
+  UiPoolDataProvider,
+} from '@aave/contract-helpers';
 import { formatUserSummary } from '@aave/math-utils';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
+import { ethers } from 'ethers';
+
 import { config } from '../constants/aave';
-import { useAaveReservesData } from './useAaveReservesData';
+import { AaveUserReservesSummary } from '../utils/aave';
+import { Reserve, useAaveReservesData } from './useAaveReservesData';
 import { useAccount } from './useAccount';
-import { AaveUserReservesSummary } from '../utils/aave/AaveUserReservesSummary';
 
 export const useAaveUserReservesData = () => {
   const provider = config.provider;
@@ -28,17 +33,13 @@ export const useAaveUserReservesData = () => {
     [provider],
   );
 
-  useEffect(() => {
-    const fetchPoolData = async () => {
-      if (
-        !uiPoolDataProvider ||
-        reserves.length === 0 ||
-        !signer ||
-        !reservesData
-      ) {
-        return;
-      }
-
+  const fetchPoolData = useCallback(
+    async (
+      uiPoolDataProvider: UiPoolDataProvider,
+      reserves: Reserve[],
+      reservesData: ReservesDataHumanized,
+      signer: ethers.Signer,
+    ) => {
       const userReservesData =
         await uiPoolDataProvider.getUserReservesHumanized({
           lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
@@ -59,10 +60,22 @@ export const useAaveUserReservesData = () => {
           }),
         ),
       );
-    };
+    },
+    [],
+  );
 
-    fetchPoolData();
-  }, [uiPoolDataProvider, reserves, signer, reservesData]);
+  useEffect(() => {
+    if (
+      !uiPoolDataProvider ||
+      reserves.length === 0 ||
+      !signer ||
+      !reservesData
+    ) {
+      return;
+    }
+
+    fetchPoolData(uiPoolDataProvider, reserves, reservesData, signer);
+  }, [uiPoolDataProvider, reserves, signer, reservesData, fetchPoolData]);
 
   return { userReservesSummary };
 };

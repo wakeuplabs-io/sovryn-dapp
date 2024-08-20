@@ -23,7 +23,15 @@ export const BorrowAssetsList: FC<BorrowAssetsListProps> = ({
   const [orderOptions, setOrderOptions] = useState<OrderOptions>();
 
   const rowTitleRenderer = useCallback(
-    r => <AaveRowTitle asset={r.asset} value={r.apr} suffix="%" label="APY" />,
+    (r: BorrowPoolDetails) => (
+      <AaveRowTitle
+        asset={r.asset}
+        value={r.apy}
+        suffix="%"
+        label="APY"
+        precision={2}
+      />
+    ),
     [],
   );
   const mobileRenderer = useCallback(p => <BorrowAssetDetails pool={p} />, []);

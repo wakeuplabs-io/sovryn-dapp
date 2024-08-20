@@ -9,15 +9,15 @@ import {
   Paragraph,
   Table,
 } from '@sovryn/ui';
+import { Decimal } from '@sovryn/utils';
 
 import { AaveRowTitle } from '../../../../2_molecules/AavePoolRowTitle/AavePoolRowTitle';
 import { useAccount } from '../../../../../hooks/useAccount';
 import { translations } from '../../../../../locales/i18n';
 import { PoolPositionStat } from '../PoolPositionStat/PoolPositionStat';
 import { COLUMNS_CONFIG } from './LendPositionsList.constants';
-import { LendPositionDetails } from './components/LendPositionDetails/LendPositionDetails';
-import { Decimal } from '@sovryn/utils';
 import { LendPosition } from './LendPositionsList.types';
+import { LendPositionDetails } from './components/LendPositionDetails/LendPositionDetails';
 
 const pageTranslations = translations.aavePage;
 
@@ -42,7 +42,14 @@ export const LendPositionsList: FC<LendPositionsListProps> = ({
   });
 
   const rowTitleRenderer = useCallback(
-    r => <AaveRowTitle asset={r.asset} value={r.balance} suffix={r.asset} />,
+    (r: LendPosition) => (
+      <AaveRowTitle
+        asset={r.asset}
+        value={r.supplied}
+        suffix={r.asset}
+        precision={2}
+      />
+    ),
     [],
   );
   const mobileRenderer = useCallback(
