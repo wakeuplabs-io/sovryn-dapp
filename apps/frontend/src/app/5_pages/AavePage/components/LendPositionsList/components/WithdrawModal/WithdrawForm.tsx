@@ -60,10 +60,10 @@ export const WithdrawForm: FC<WithdrawFormProps> = ({ asset }) => {
 
   const maximumWithdrawAmount: Decimal = useMemo(() => {
     if (!userReservesSummary) return Decimal.from(0);
-    const sa = userReservesSummary.suppliedAssets.find(
-      sa => sa.asset === withdrawAsset,
+    const suppliedAsset = userReservesSummary.suppliedAssets.find(
+      asset => asset.asset === withdrawAsset,
     );
-    return sa ? sa.supplied : Decimal.from(0);
+    return suppliedAsset ? suppliedAsset.supplied : Decimal.from(0);
   }, [userReservesSummary, withdrawAsset]);
 
   const withdrawAmountUsd: Decimal = useMemo(() => {
