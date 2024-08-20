@@ -1,75 +1,45 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { config } from '../constants/aave';
 import { useAccount } from './useAccount';
 import { useTransactionContext } from '../contexts/TransactionContext';
 import { Decimal } from '@sovryn/utils';
-import { prepareApproveTransaction } from '../utils/transactions';
-import { AssetDetailsData, getAssetData } from '@sovryn/contracts';
-import { Transaction } from '../app/3_organisms/TransactionStepDialog/TransactionStepDialog.types';
+import { AaveSupplyTransactionsFactory } from '../utils/aave/AaveSupplyTransactionsFactory';
+import { getAssetData } from '@sovryn/contracts';
 import { ChainIds } from '@sovryn/ethers-provider';
+import { BigNumber } from 'ethers';
 
 export const useAaveDeposit = (onBegin: () => void, onComplete: () => void) => {
-  const { account, signer, provider } = useAccount();
-
+  const { signer } = useAccount();
   const { setTransactions, setIsOpen, setTitle } = useTransactionContext();
 
+  const aaveSupplyTransactionsFactory = useMemo(() => {
+    if (!signer) return null;
+    return new AaveSupplyTransactionsFactory(
+      config.PoolAddress,
+      config.WETHGatewayAddress,
+      signer,
+    );
+  }, [signer]);
+
   const handleDeposit = useCallback(
-    async (amount: Decimal, token: string) => {
-      if (!account || !signer || !provider) {
+    async (amount: Decimal, assetSymbol: string) => {
+      if (!aaveSupplyTransactionsFactory) {
         return;
       }
 
-      console.log(
-        'handleDeposit',
-        amount.toString(),
-        token,
-        await getAssetData('USDC', ChainIds.BOB_MAINNET),
+      const asset = await getAssetData(assetSymbol, ChainIds.BOB_TESTNET);
+      const bnAmount = BigNumber.from(
+        amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
       );
 
-      const tokenDetails: AssetDetailsData = await getAssetData(
-        'USDC',
-        ChainIds.BOB_MAINNET,
+      setTransactions(
+        await aaveSupplyTransactionsFactory.supply(asset, bnAmount),
       );
-
-      const transactions: Transaction[] = [];
-      if (!tokenDetails.isNative) {
-        const approve = await prepareApproveTransaction({
-          token: tokenDetails.symbol,
-          amount: amount.toBigNumber().toString(),
-          signer,
-          spender: config.PoolAddress,
-          chain: ChainIds.BOB_MAINNET,
-        });
-
-        if (approve) {
-          transactions.push(approve);
-        }
-      }
-
-      console.log('deposit');
-
-      // const pool = new PoolBundle(provider).contractFactory.connect(
-      //   config.PoolAddress,
-      //   signer,
-      // );
-
-      // transactions.push({
-      //   title: 'deposit',
-      //   request: {
-      //     type: TransactionType.signTransaction,
-      //     contract: pool,
-      //     fnName: 'supply(address,uint256,address,uint16)',
-      //     args: [token, amount.toBigNumber().toString(), account, '0'],
-      //   },
-      //   onComplete,
-      // });
-
-      setTransactions(transactions);
-      setTitle('Deposit');
+      setTitle('Deposit'); // TODO: translations
       setIsOpen(true);
     },
-    [provider, account, setIsOpen, setTitle, signer, setTransactions],
+    [setIsOpen, setTitle, setTransactions, aaveSupplyTransactionsFactory],
   );
 
   return { handleDeposit };

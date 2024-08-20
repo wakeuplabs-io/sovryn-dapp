@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import { config } from '../constants/aave';
 import { useAaveReservesData } from './useAaveReservesData';
 import { useAccount } from './useAccount';
-import { AaveUserReservesSummary } from '../utils/aave';
+import { AaveUserReservesSummary } from '../utils/aave/AaveUserReservesSummary';
 
 export const useAaveUserReservesData = () => {
   const provider = config.provider;
