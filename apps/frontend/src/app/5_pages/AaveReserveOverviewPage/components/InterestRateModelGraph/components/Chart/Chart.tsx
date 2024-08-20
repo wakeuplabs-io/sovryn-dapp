@@ -125,7 +125,7 @@ export const Chart: FC<ChartProps> = ({ mockData }) => {
       onClick={e => {
         e.stopPropagation();
       }}
-      className={`lg:p-6 lg:bg-gray-80`}
+      className="lg:p-6 lg:bg-gray-80"
     >
       <span id="legend-container-interest-chart" className="text-tiny"></span>
       <canvas ref={canvas}></canvas>

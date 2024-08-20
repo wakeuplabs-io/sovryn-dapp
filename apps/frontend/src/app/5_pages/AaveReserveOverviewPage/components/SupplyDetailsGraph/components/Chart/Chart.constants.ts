@@ -2,8 +2,6 @@ import { theme } from '@sovryn/tailwindcss-config';
 
 export const GRID_COLOR = '#484d59';
 export const TICK_COLOR = '#b6bac1';
-const GRAY_90 = '#16171C';
-const GRAY_80 = '#1e2128';
 const SM_BREAKPOINT = parseInt(theme.screens.sm, 10);
 
 export const CUSTOM_CANVAS_BACKGROUND_COLOR = {
@@ -15,9 +13,9 @@ export const CUSTOM_CANVAS_BACKGROUND_COLOR = {
     ctx.globalCompositeOperation = 'destination-over';
 
     if (windowWidth < SM_BREAKPOINT) {
-      ctx.fillStyle = GRAY_90;
+      ctx.fillStyle = theme.colors['gray-90'];
     } else {
-      ctx.fillStyle = GRAY_80;
+      ctx.fillStyle = theme.colors['gray-80'];
     }
     ctx.fillRect(0, 0, chart.width, chart.height);
     ctx.restore();
