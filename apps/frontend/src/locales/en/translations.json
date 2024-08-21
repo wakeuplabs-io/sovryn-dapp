@@ -865,7 +865,7 @@
         },
         "borrowForm": {
             "borrowApy": "Borrow APY",
-            "collateralRatio": "Collateral ratio",
+            "healthFactor": "Health ratio",
             "liquidationPrice": "Liquidation price",
             "acknowledge": "I understand that my collateral may be liquidated or used to pay rollover fees if applicable.",
             "invalidAmountError": "Invalid amount",

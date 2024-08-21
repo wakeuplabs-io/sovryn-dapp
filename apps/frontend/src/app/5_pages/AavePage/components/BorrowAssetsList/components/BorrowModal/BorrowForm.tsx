@@ -26,7 +26,6 @@ import { useAaveUserReservesData } from '../../../../../../../hooks/aave/useAave
 import { useDecimalAmountInput } from '../../../../../../../hooks/useDecimalAmountInput';
 import { translations } from '../../../../../../../locales/i18n';
 import { BorrowRateMode } from '../../../../../../../utils/aave/AaveBorrowTransactionsFactory';
-import { getCollateralRatioThresholds } from './BorrowForm.utils';
 
 const pageTranslations = translations.aavePage;
 
@@ -57,6 +56,10 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
     return userReservesSummary.borrowPower.div(reserve.priceInUSD);
   }, [userReservesSummary, reserve]);
 
+  const borrowUsdAmount = useMemo(() => {
+    return borrowSize.mul(reserve?.priceInUSD ?? 0);
+  }, [borrowSize, reserve]);
+
   const borrowableAssetsOptions = useMemo(
     () =>
       reserves.map(r => ({
@@ -78,53 +81,22 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
     [borrowSize, maximumBorrowAmount],
   );
 
-  const newBorrowedBalance = useMemo(() => {
-    if (!userReservesSummary || !reserve) return Decimal.from(0);
-    return userReservesSummary.borrowBalance.add(
-      borrowSize.mul(reserve.priceInUSD),
-    );
-  }, [userReservesSummary, borrowSize, reserve]);
-
-  const collateralRatioThresholds = useMemo(
-    () =>
-      getCollateralRatioThresholds(
-        reserve,
-        userReservesSummary?.eModeEnabled ?? false,
-      ),
-    [reserve, userReservesSummary],
-  );
-
-  const collateralRatio = useMemo(() => {
-    if (!userReservesSummary || newBorrowedBalance.eq(0))
-      return Decimal.from(0);
-
-    return Decimal.from(userReservesSummary.collateralBalance).div(
-      newBorrowedBalance,
-    );
-  }, [userReservesSummary, newBorrowedBalance]);
+  const newHealthFactor = useMemo(() => {
+    if (!userReservesSummary) return Decimal.from(0);
+    return userReservesSummary.collateralBalance
+      .mul(userReservesSummary.currentLiquidationThreshold)
+      .div(userReservesSummary.borrowBalance.add(borrowUsdAmount));
+  }, [userReservesSummary, borrowUsdAmount]);
 
   const liquidationPrice = useMemo(() => {
     if (!borrowSize || !reserve || !userReservesSummary) {
       return Decimal.from(0);
     }
-    if (userReservesSummary.collateralBalance.eq(0)) {
-      return Decimal.from(0);
-    }
 
-    const liquidationThreehold = userReservesSummary.eModeEnabled
-      ? Decimal.from(reserve.formattedEModeLiquidationThreshold)
-      : Decimal.from(reserve.formattedReserveLiquidationThreshold);
-
-    console.log(
-      'liquidationPrice',
-      borrowSize.toString(),
-      liquidationThreehold.toString(),
-      userReservesSummary.collateralBalance.toString(),
-    );
-
-    return borrowSize
-      .mul(liquidationThreehold.div(100))
-      .div(userReservesSummary.collateralBalance);
+    return userReservesSummary.collateralBalance
+      .mul(userReservesSummary.currentLiquidationThreshold)
+      .sub(userReservesSummary.borrowBalance)
+      .div(borrowSize);
   }, [borrowSize, reserve, userReservesSummary]);
 
   // TODO: expand validations
@@ -140,7 +112,7 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
           label={t(translations.aavePage.common.borrow)}
           amountLabel={t(translations.common.amount)}
           amountValue={borrowAmount}
-          assetUsdValue={borrowSize.mul(reserve?.priceInUSD ?? 0)}
+          assetUsdValue={borrowUsdAmount}
           onAmountChange={setBorrowAmount}
           maxAmount={maximumBorrowAmount}
           invalid={!isValidBorrowAmount}
@@ -174,23 +146,17 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
       <div>
         <div className="flex flex-row justify-between items-center mt-6 mb-3">
           <div className="flex flex-row justify-start items-center gap-2">
-            <span>{t(translations.aavePage.borrowForm.collateralRatio)}</span>
+            <span>{t(translations.aavePage.borrowForm.healthFactor)}</span>
           </div>
-          <AmountRenderer value={collateralRatio.toString()} suffix="%" />
+          <AmountRenderer value={newHealthFactor} suffix="%" precision={2} />
         </div>
 
         <HealthBar
-          // className="w-full"
-          start={collateralRatioThresholds.START}
-          middleStart={collateralRatioThresholds.MIDDLE_START}
-          middleEnd={collateralRatioThresholds.MIDDLE_END}
-          end={collateralRatioThresholds.END}
-          value={100}
-          // start={0}
-          // middleStart={10}
-          // middleEnd={80}
-          // end={110}
-          // value={20}
+          start={0}
+          end={4 * 25} // maximum health rate for graph 4. So multiply all by 25 to reach 100
+          middleStart={1 * 25} // health factor < 1 => liquidation
+          middleEnd={1.2 * 25}
+          value={(newHealthFactor.toNumber() ?? 0) * 25}
         />
       </div>
 
