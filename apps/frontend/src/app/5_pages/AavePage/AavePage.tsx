@@ -7,8 +7,8 @@ import { Helmet } from 'react-helmet-async';
 import { Tabs, TabSize, TabType } from '@sovryn/ui';
 import { Decimal } from '@sovryn/utils';
 
-import { useAaveReservesData } from '../../../hooks/aave/useAaveReservesData';
 import { useAaveUserReservesData } from '../../../hooks/aave/useAaveUserReservesData';
+import { useAaveReservesData } from '../../../hooks/useAaveReservesData';
 import { translations } from '../../../locales/i18n';
 import { BorrowAssetsList } from './components/BorrowAssetsList/BorrowAssetsList';
 import { BorrowPoolDetails } from './components/BorrowAssetsList/BorrowAssetsList.types';
