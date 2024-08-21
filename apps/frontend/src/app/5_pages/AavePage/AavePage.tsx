@@ -28,7 +28,7 @@ enum ActiveTab {
 }
 
 const AavePage: FC = () => {
-  const { reserves } = useAaveReservesData();
+  const reserves = useAaveReservesData();
   const userReservesSummary = useAaveUserReservesData();
   const [activeTab, setActiveTab] = useState<ActiveTab>(ActiveTab.LEND);
 

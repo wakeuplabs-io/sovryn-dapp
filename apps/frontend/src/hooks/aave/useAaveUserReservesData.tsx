@@ -1,5 +1,5 @@
 import { UiPoolDataProvider } from '@aave/contract-helpers';
-import { formatUserSummary } from '@aave/math-utils';
+import { formatReserves, formatUserSummary } from '@aave/math-utils';
 
 import { useMemo } from 'react';
 
@@ -10,7 +10,6 @@ import { BOB_CHAIN_ID } from '../../config/chains';
 import { config } from '../../constants/aave';
 import { AaveUserReservesSummary } from '../../utils/aave';
 import { useCacheCall } from '../useCacheCall';
-import { useAaveReservesData } from './useAaveReservesData';
 
 type UserReservesData = AaveUserReservesSummary | null;
 
@@ -18,8 +17,6 @@ export const useAaveUserReservesData = (): UserReservesData => {
   const provider = config.provider;
   const account = '0xF754D0f4de0e815b391D997Eeec5cD07E59858F0';
   // const { account, provider } = useAccount(); TODO: activate this instead of 2 above once calculations in bob are possible
-
-  const { reserves, reservesData } = useAaveReservesData();
 
   const uiPoolDataProvider = useMemo(
     () =>
@@ -34,35 +31,47 @@ export const useAaveUserReservesData = (): UserReservesData => {
   );
 
   const { value } = useCacheCall<UserReservesData>(
-    'AaveUserReservesData',
+    `AaveUserReservesData/${account}`,
     BOB_CHAIN_ID,
     async () => {
-      if (!account || !uiPoolDataProvider || !reservesData || !reserves) {
+      if (!account || !uiPoolDataProvider) {
         return null;
       }
 
-      const userReservesData =
-        await uiPoolDataProvider.getUserReservesHumanized({
+      const [reservesData, userReservesData] = await Promise.all([
+        uiPoolDataProvider.getReservesHumanized({
+          lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
+        }),
+        uiPoolDataProvider.getUserReservesHumanized({
           lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
           user: account,
-        });
+        }),
+      ]);
+      const {
+        marketReferenceCurrencyDecimals,
+        marketReferenceCurrencyPriceInUsd: marketReferencePriceInUsd,
+      } = reservesData.baseCurrencyData;
+      const currentTimestamp = dayjs().unix();
 
       return AaveUserReservesSummary.from(
         formatUserSummary({
-          currentTimestamp: dayjs().unix(),
+          currentTimestamp,
+          marketReferencePriceInUsd,
+          marketReferenceCurrencyDecimals,
           userReserves: userReservesData.userReserves,
           userEmodeCategoryId: userReservesData.userEmodeCategoryId,
-          formattedReserves: reserves,
-          marketReferenceCurrencyDecimals:
-            reservesData.baseCurrencyData.marketReferenceCurrencyDecimals,
-          marketReferencePriceInUsd:
-            reservesData.baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+          formattedReserves: formatReserves({
+            currentTimestamp,
+            marketReferencePriceInUsd,
+            marketReferenceCurrencyDecimals,
+            reserves: reservesData.reservesData,
+          }),
         }),
       );
     },
-    [uiPoolDataProvider, reservesData, account, reserves],
+    [uiPoolDataProvider, account],
     null,
-    { ttl: 1000 * 60 },
+    { ttl: 1000 * 60, fallbackToPreviousResult: true },
   );
 
   return value;

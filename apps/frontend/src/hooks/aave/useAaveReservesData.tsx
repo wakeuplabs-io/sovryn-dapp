@@ -1,9 +1,10 @@
 import {
   ReserveDataHumanized,
-  ReservesDataHumanized,
   UiPoolDataProvider,
 } from '@aave/contract-helpers';
 import { formatReserves, FormatReserveUSDResponse } from '@aave/math-utils';
+
+import { useMemo } from 'react';
 
 import dayjs from 'dayjs';
 
@@ -14,23 +15,30 @@ import { useCacheCall } from '../useCacheCall';
 
 export type Reserve = ReserveDataHumanized & FormatReserveUSDResponse;
 
-export type ReserveData = {
-  reserves: Reserve[];
-  reservesData: ReservesDataHumanized | null;
-};
+export type ReserveData = Reserve[];
 
 export const useAaveReservesData = (): ReserveData => {
   const provider = config.provider; // TODO: replace with useAccount
+
+  const uiPoolDataProvider = useMemo(
+    () =>
+      provider
+        ? new UiPoolDataProvider({
+            provider,
+            uiPoolDataProviderAddress: config.UiPoolDataProviderV3Address,
+            chainId: config.chainId,
+          })
+        : null,
+    [provider],
+  );
 
   const { value } = useCacheCall<ReserveData>(
     'AaveReservesData',
     BOB_CHAIN_ID,
     async () => {
-      const uiPoolDataProvider = new UiPoolDataProvider({
-        provider,
-        uiPoolDataProviderAddress: config.UiPoolDataProviderV3Address,
-        chainId: config.chainId,
-      });
+      if (!uiPoolDataProvider) {
+        return [];
+      }
 
       const currentTimestamp = dayjs().unix();
       const reservesData = await uiPoolDataProvider.getReservesHumanized({
@@ -48,17 +56,11 @@ export const useAaveReservesData = (): ReserveData => {
           reservesData.baseCurrencyData.marketReferenceCurrencyPriceInUsd,
       });
 
-      return {
-        reserves: formattedReserves,
-        reservesData: {
-          baseCurrencyData: reservesData.baseCurrencyData,
-          reservesData: reserves,
-        },
-      };
+      return formattedReserves;
     },
+    [uiPoolDataProvider],
     [],
-    { reserves: [], reservesData: null },
-    { ttl: 1000 * 60 },
+    { ttl: 1000 * 60, fallbackToPreviousResult: true },
   );
 
   return value;
