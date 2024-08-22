@@ -9,7 +9,7 @@ import { BOB_CHAIN_ID } from '../../config/chains';
 
 import { config } from '../../constants/aave';
 import { AaveUserReservesSummary } from '../../utils/aave';
-import { useCacheCall } from '../useCacheCall';
+import { useCachedData } from '../useCachedData';
 
 type UserReservesData = AaveUserReservesSummary | null;
 
@@ -30,7 +30,7 @@ export const useAaveUserReservesData = (): UserReservesData => {
     [provider],
   );
 
-  const { value } = useCacheCall<UserReservesData>(
+  const { value } = useCachedData<UserReservesData>(
     `AaveUserReservesData/${account}`,
     BOB_CHAIN_ID,
     async () => {
