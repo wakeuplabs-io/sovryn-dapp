@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import { BOB_CHAIN_ID } from '../../config/chains';
 
 import { config } from '../../constants/aave';
-import { useCacheCall } from '../useCacheCall';
+import { useCachedData } from '../useCachedData';
 
 export type Reserve = ReserveDataHumanized & FormatReserveUSDResponse;
 
@@ -32,7 +32,7 @@ export const useAaveReservesData = (): ReserveData => {
     [provider],
   );
 
-  const { value } = useCacheCall<ReserveData>(
+  const { value } = useCachedData<ReserveData>(
     'AaveReservesData',
     BOB_CHAIN_ID,
     async () => {
