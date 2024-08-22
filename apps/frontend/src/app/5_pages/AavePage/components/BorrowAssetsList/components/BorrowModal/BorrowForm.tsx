@@ -20,6 +20,7 @@ import { BOB_CHAIN_ID } from '../../../../../../../config/chains';
 import { AmountRenderer } from '../../../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { AssetAmountInput } from '../../../../../../2_molecules/AssetAmountInput/AssetAmountInput';
 import { AssetRenderer } from '../../../../../../2_molecules/AssetRenderer/AssetRenderer';
+import { config } from '../../../../../../../constants/aave';
 import { useAaveBorrow } from '../../../../../../../hooks/aave/useAaveBorrow';
 import { useAaveReservesData } from '../../../../../../../hooks/aave/useAaveReservesData';
 import { useAaveUserReservesData } from '../../../../../../../hooks/aave/useAaveUserReservesData';
@@ -53,7 +54,11 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
 
   const maximumBorrowAmount = useMemo(() => {
     if (!reserve || !userReservesSummary) return Decimal.from(0);
-    return userReservesSummary.borrowPower.div(reserve.priceInUSD);
+
+    // deducted from hf=kte/borrowed => newhf=kte/borrowed+new_borrow => MinHealthFactor = newhf
+    return userReservesSummary.borrowBalance.mul(
+      userReservesSummary.healthFactor.div(config.MinHealthFactor).sub(1),
+    );
   }, [userReservesSummary, reserve]);
 
   const borrowUsdAmount = useMemo(() => {
@@ -83,8 +88,8 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
 
   const newHealthFactor = useMemo(() => {
     if (!userReservesSummary) return Decimal.from(0);
-    return userReservesSummary.collateralBalance
-      .mul(userReservesSummary.currentLiquidationThreshold)
+    return userReservesSummary.healthFactor
+      .mul(userReservesSummary.borrowBalance)
       .div(userReservesSummary.borrowBalance.add(borrowUsdAmount));
   }, [userReservesSummary, borrowUsdAmount]);
 
@@ -93,10 +98,9 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
       return Decimal.from(0);
     }
 
-    return userReservesSummary.collateralBalance
+    return borrowSize
       .mul(userReservesSummary.currentLiquidationThreshold)
-      .sub(userReservesSummary.borrowBalance)
-      .div(borrowSize);
+      .div(userReservesSummary.collateralBalance);
   }, [borrowSize, reserve, userReservesSummary]);
 
   // TODO: expand validations
