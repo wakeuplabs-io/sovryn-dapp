@@ -3,7 +3,9 @@ import {
   FormatReserveUSDResponse,
   FormatUserSummaryResponse,
 } from '@aave/math-utils';
+
 import { Decimal } from '@sovryn/utils';
+
 type UserSummary = FormatUserSummaryResponse<
   ReserveDataHumanized & FormatReserveUSDResponse
 >;
@@ -35,7 +37,7 @@ export class AaveUserReservesSummary {
   public netWorth: Decimal;
   public netApy: Decimal;
   public healthFactor: Decimal;
-  public supplyBalance: Decimal; // OK
+  public supplyBalance: Decimal;
   public supplyWeightedApy: Decimal;
   public collateralBalance: Decimal;
   public borrowBalance: Decimal;
