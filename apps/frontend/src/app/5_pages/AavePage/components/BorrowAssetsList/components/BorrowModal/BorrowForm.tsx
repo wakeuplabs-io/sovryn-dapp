@@ -103,7 +103,6 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
       .div(userReservesSummary.collateralBalance);
   }, [borrowSize, reserve, userReservesSummary]);
 
-  // TODO: expand validations
   const submitButtonDisabled = useMemo(
     () => !isValidBorrowAmount || borrowSize.lte(0) || !acknowledge || !reserve,
     [isValidBorrowAmount, borrowSize, acknowledge, reserve],
