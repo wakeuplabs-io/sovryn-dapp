@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import { t } from 'i18next';
 
@@ -27,16 +27,6 @@ export const CollateralRatioHealthBar: FC<CollateralRatioHealthBarProps> = ({
     () => thresholds ?? getCollateralRatioThresholds(),
     [thresholds],
   );
-
-  useEffect(() => {
-    console.log(
-      collateralRatioThresholds.START.toString(),
-      collateralRatioThresholds.MIDDLE_START.toString(),
-      collateralRatioThresholds.MIDDLE_END.toString(),
-      collateralRatioThresholds.END.toString(),
-      ratio.toString(),
-    );
-  }, [collateralRatioThresholds, ratio]);
 
   return (
     <div className="py-3">
