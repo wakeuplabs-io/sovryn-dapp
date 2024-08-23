@@ -8,7 +8,6 @@ import {
   Checkbox,
   ErrorBadge,
   ErrorLevel,
-  HealthBar,
   Link,
   SimpleTable,
   SimpleTableRow,
@@ -27,6 +26,7 @@ import { useAaveUserReservesData } from '../../../../../../../hooks/aave/useAave
 import { useDecimalAmountInput } from '../../../../../../../hooks/useDecimalAmountInput';
 import { translations } from '../../../../../../../locales/i18n';
 import { BorrowRateMode } from '../../../../../../../utils/aave/AaveBorrowTransactionsFactory';
+import { CollateralRatioHealthBar } from '../../../CollateralRatioHealthBar/CollateralRatioHealthBar';
 
 const pageTranslations = translations.aavePage;
 
@@ -47,9 +47,9 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
     return reserves.find(r => r.symbol === borrowAsset);
   }, [reserves, borrowAsset]);
 
-  const variableBorrowAPY = useMemo(() => {
+  const variableBorrowAPR = useMemo(() => {
     if (!reserve) return Decimal.from(0);
-    return Decimal.from(reserve.variableBorrowAPY).mul(100);
+    return Decimal.from(reserve.variableBorrowAPR).mul(100);
   }, [reserve]);
 
   const maximumBorrowAmount = useMemo(() => {
@@ -86,11 +86,13 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
     [borrowSize, maximumBorrowAmount],
   );
 
-  const newHealthFactor = useMemo(() => {
+  const collateralRatio = useMemo(() => {
     if (!userReservesSummary) return Decimal.from(0);
-    return userReservesSummary.healthFactor
+    const newHealthFactor = userReservesSummary.healthFactor
       .mul(userReservesSummary.borrowBalance)
       .div(userReservesSummary.borrowBalance.add(borrowUsdAmount));
+
+    return newHealthFactor.div(userReservesSummary.currentLiquidationThreshold);
   }, [userReservesSummary, borrowUsdAmount]);
 
   const liquidationPrice = useMemo(() => {
@@ -135,10 +137,10 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
 
       <SimpleTable>
         <SimpleTableRow
-          label={t(translations.aavePage.borrowForm.borrowApy)}
+          label={t(translations.aavePage.borrowForm.borrowApr)}
           value={
             <AmountRenderer
-              value={variableBorrowAPY}
+              value={variableBorrowAPR}
               suffix={'%'}
               precision={2}
             />
@@ -146,22 +148,7 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
         />
       </SimpleTable>
 
-      <div>
-        <div className="flex flex-row justify-between items-center mt-6 mb-3">
-          <div className="flex flex-row justify-start items-center gap-2">
-            <span>{t(translations.aavePage.borrowForm.healthFactor)}</span>
-          </div>
-          <AmountRenderer value={newHealthFactor} suffix="%" precision={2} />
-        </div>
-
-        <HealthBar
-          start={0}
-          end={4 * 25} // maximum health rate for graph 4. So multiply all by 25 to reach 100
-          middleStart={1 * 25} // health factor < 1 => liquidation
-          middleEnd={1.2 * 25}
-          value={(newHealthFactor.toNumber() ?? 0) * 25}
-        />
-      </div>
+      <CollateralRatioHealthBar ratio={collateralRatio} />
 
       <SimpleTable>
         <SimpleTableRow

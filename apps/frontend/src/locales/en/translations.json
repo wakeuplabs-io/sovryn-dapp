@@ -864,8 +864,8 @@
             "collateralToRepayWith": "Collateral to repay with"
         },
         "borrowForm": {
-            "borrowApy": "Borrow APY",
-            "healthFactor": "Health ratio",
+            "borrowApr": "Borrow APR",
+            "collateralRatio": "Collateral ratio",
             "liquidationPrice": "Liquidation price",
             "acknowledge": "I understand that my collateral may be liquidated or used to pay rollover fees if applicable.",
             "invalidAmountError": "Invalid amount",
