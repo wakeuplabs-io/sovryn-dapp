@@ -18,7 +18,7 @@ import { AssetAmountInput } from '../../../../../../2_molecules/AssetAmountInput
 import { AssetRenderer } from '../../../../../../2_molecules/AssetRenderer/AssetRenderer';
 import { useDecimalAmountInput } from '../../../../../../../hooks/useDecimalAmountInput';
 import { translations } from '../../../../../../../locales/i18n';
-import { HealthFactorBar } from '../../../HealthFactorBar/HealthFactorBar';
+import { CollateralRatioHealthBar } from '../../../CollateralRatioHealthBar/CollateralRatioHealthBar';
 
 const pageTranslations = translations.aavePage;
 
@@ -137,7 +137,7 @@ export const RepayWithCollateralForm: FC<RepayWithCollateralFormProps> = () => {
         )}
       </div>
 
-      <HealthFactorBar ratio={collateralRatio} />
+      <CollateralRatioHealthBar ratio={collateralRatio} />
 
       <SimpleTable>
         <SimpleTableRow

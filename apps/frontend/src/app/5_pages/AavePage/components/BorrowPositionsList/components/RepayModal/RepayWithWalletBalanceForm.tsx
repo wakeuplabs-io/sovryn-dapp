@@ -24,7 +24,7 @@ import { useAccount } from '../../../../../../../hooks/useAccount';
 import { useAssetBalance } from '../../../../../../../hooks/useAssetBalance';
 import { useDecimalAmountInput } from '../../../../../../../hooks/useDecimalAmountInput';
 import { translations } from '../../../../../../../locales/i18n';
-import { HealthFactorBar } from '../../../HealthFactorBar/HealthFactorBar';
+import { CollateralRatioHealthBar } from '../../../CollateralRatioHealthBar/CollateralRatioHealthBar';
 
 const pageTranslations = translations.aavePage;
 
@@ -97,13 +97,22 @@ export const RepayWithWalletBalanceForm: FC<
     return newDebtAmount.mul(reserve?.priceInUSD ?? 0);
   }, [newDebtAmount, reserve]);
 
-  const newHealthFactor = useMemo(() => {
+  const collateralRatio = useMemo(() => {
+    if (!userReservesSummary) return Decimal.from(0);
+
+    return userReservesSummary.healthFactor.div(
+      userReservesSummary.currentLiquidationThreshold,
+    );
+  }, [userReservesSummary]);
+
+  const newCollateralRatio = useMemo(() => {
     if (!userReservesSummary) return Decimal.from(0);
     if (newDebtAmountUSD.eq(0)) return Decimal.from('100000000');
 
-    return userReservesSummary.healthFactor
+    const newHealthFactor = userReservesSummary.healthFactor
       .mul(userReservesSummary.borrowBalance)
       .div(newDebtAmountUSD);
+    return newHealthFactor.div(userReservesSummary.currentLiquidationThreshold);
   }, [userReservesSummary, newDebtAmountUSD]);
 
   const isValidRepayAmount = useMemo(
@@ -135,7 +144,7 @@ export const RepayWithWalletBalanceForm: FC<
         )}
       </div>
 
-      <HealthFactorBar ratio={newHealthFactor} />
+      <CollateralRatioHealthBar ratio={newCollateralRatio} />
 
       <SimpleTable>
         <SimpleTableRow
@@ -168,18 +177,18 @@ export const RepayWithWalletBalanceForm: FC<
           }
         />
         <SimpleTableRow
-          label={t(translations.aavePage.common.healthFactor)}
+          label={t(translations.aavePage.common.collateralRatio)}
           value={
             <AmountTransition
               className="justify-end"
               from={{
-                value: userReservesSummary?.healthFactor ?? 0,
+                value: collateralRatio.mul(100),
                 suffix: '%',
                 precision: 2,
               }}
               to={{
                 precision: 2,
-                value: newHealthFactor,
+                value: newCollateralRatio.mul(100),
                 suffix: '%',
                 className: 'text-primary-10',
                 infiniteFrom: Decimal.from('10000'),
