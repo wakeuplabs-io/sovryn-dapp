@@ -24,7 +24,8 @@
             "skip": "Skip",
             "back": "Back",
             "enable": "Enable",
-            "disable": "Disable"
+            "disable": "Disable",
+            "repay": "Repay"
         },
         "na": "N/A",
         "tables": {
@@ -814,7 +815,9 @@
             "supplyTitle": "Deposit {{symbol}} to the pool",
             "supplySubtitle": "Transfers {{amount}} {{symbol}} to the pool",
             "withdrawTitle": "Withdraw {{asset}} from the pool",
-            "withdrawSubtitle": "Transfer {{amount}} {{symbol}} from the pool"
+            "withdrawSubtitle": "Transfer {{amount}} {{symbol}} from the pool",
+            "repayTitle":"Repay loan",
+            "repaySubtitle": "Repay {{amount}} {{symbol}} to the pool"
         },
         "topPanel": {
             "title": "Lend and borrow",

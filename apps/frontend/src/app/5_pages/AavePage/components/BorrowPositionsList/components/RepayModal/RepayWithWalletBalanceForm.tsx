@@ -2,6 +2,7 @@ import React, { FC, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
+import { getAssetData } from '@sovryn/contracts';
 import {
   Button,
   ErrorBadge,
@@ -16,8 +17,11 @@ import { BOB_CHAIN_ID } from '../../../../../../../config/chains';
 import { AmountTransition } from '../../../../../../2_molecules/AmountTransition/AmountTransition';
 import { AssetAmountInput } from '../../../../../../2_molecules/AssetAmountInput/AssetAmountInput';
 import { AssetRenderer } from '../../../../../../2_molecules/AssetRenderer/AssetRenderer';
+import { useAaveRepay } from '../../../../../../../hooks/aave/useAaveRepay';
 import { useAaveReservesData } from '../../../../../../../hooks/aave/useAaveReservesData';
 import { useAaveUserReservesData } from '../../../../../../../hooks/aave/useAaveUserReservesData';
+import { useAccount } from '../../../../../../../hooks/useAccount';
+import { useAssetBalance } from '../../../../../../../hooks/useAssetBalance';
 import { useDecimalAmountInput } from '../../../../../../../hooks/useDecimalAmountInput';
 import { translations } from '../../../../../../../locales/i18n';
 import { HealthFactorBar } from '../../../HealthFactorBar/HealthFactorBar';
@@ -32,10 +36,17 @@ type RepayWithWalletBalanceFormProps = {
 export const RepayWithWalletBalanceForm: FC<
   RepayWithWalletBalanceFormProps
 > = ({ asset }) => {
+  const { account } = useAccount();
+  const { handleRepay } = useAaveRepay({});
   const reserves = useAaveReservesData();
   const userReservesSummary = useAaveUserReservesData();
   const [repayAsset, setRepayAsset] = useState<string>(asset);
   const [repayAmount, setRepayAmount, repaySize] = useDecimalAmountInput('');
+  const { balance: repayAssetBalance } = useAssetBalance(
+    repayAsset,
+    BOB_CHAIN_ID,
+    account,
+  );
 
   const repayAssetsOptions = useMemo(
     () =>
@@ -61,15 +72,13 @@ export const RepayWithWalletBalanceForm: FC<
     );
   }, [userReservesSummary, repayAsset]);
 
-  // TODO: this is a mix between balance and maximum to repay
   const maximumRepayAmount = useMemo(() => {
-    return debt ? debt.borrowedUSD : Decimal.from(0);
-  }, [debt]);
-
-  const isValidRepayAmount = useMemo(
-    () => (repaySize.gt(0) ? repaySize.lte(maximumRepayAmount) : true),
-    [repaySize, maximumRepayAmount],
-  );
+    return debt
+      ? debt.borrowed.gt(repayAssetBalance)
+        ? repayAssetBalance
+        : debt.borrowed
+      : Decimal.from(0);
+  }, [debt, repayAssetBalance]);
 
   const reserve = useMemo(() => {
     return reserves.find(r => r.symbol === repayAsset);
@@ -97,10 +106,9 @@ export const RepayWithWalletBalanceForm: FC<
       .div(newDebtAmountUSD);
   }, [userReservesSummary, newDebtAmountUSD]);
 
-  // TODO: Add validations
-  const submitButtonDisabled = useMemo(
-    () => !isValidRepayAmount || repaySize.lte(0),
-    [isValidRepayAmount, repaySize],
+  const isValidRepayAmount = useMemo(
+    () => (repaySize.gt(0) ? repaySize.lte(maximumRepayAmount) : true),
+    [repaySize, maximumRepayAmount],
   );
 
   return (
@@ -182,8 +190,15 @@ export const RepayWithWalletBalanceForm: FC<
       </SimpleTable>
 
       <Button
-        disabled={submitButtonDisabled}
+        disabled={!isValidRepayAmount}
         text={t(translations.common.buttons.confirm)}
+        onClick={async () => {
+          handleRepay(
+            repaySize,
+            await getAssetData(repayAsset, BOB_CHAIN_ID),
+            debt!.type,
+          );
+        }}
       />
     </form>
   );

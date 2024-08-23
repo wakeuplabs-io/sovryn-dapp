@@ -10,9 +10,9 @@ type UserSummary = FormatUserSummaryResponse<
   ReserveDataHumanized & FormatReserveUSDResponse
 >;
 
-export enum ApyType {
-  VARIABLE = 'variable',
-  STABLE = 'stable',
+export enum LoanType {
+  STABLE = 1,
+  VARIABLE = 2,
 }
 
 export type SuppliedAsset = {
@@ -28,7 +28,7 @@ export type BorrowedAsset = {
   asset: string;
   assetAddress: string;
   apy: Decimal;
-  apyType: ApyType;
+  type: LoanType;
   borrowed: Decimal;
   borrowedUSD: Decimal;
 };
@@ -229,8 +229,8 @@ export class AaveUserReservesSummary {
         borrowed: Decimal.from(r.totalBorrows),
         borrowedUSD: Decimal.from(r.totalBorrowsUSD),
         apy: Decimal.from(r.reserve.variableBorrowAPY).mul(100),
-        apyType:
-          Number(r.variableBorrows) > 0 ? ApyType.VARIABLE : ApyType.STABLE,
+        type:
+          Number(r.variableBorrows) > 0 ? LoanType.VARIABLE : LoanType.STABLE,
       }));
   }
 }

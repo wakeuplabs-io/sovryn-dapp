@@ -63,6 +63,7 @@ export const RepayModalContainer: FC<RepayModalContainerProps> = ({
               activeClassName: 'text-primary-20',
               dataAttribute: 'collateral',
               label: t(translations.aavePage.common.collateral),
+              disabled: true,
             },
           ]}
           type={TabType.secondary}
