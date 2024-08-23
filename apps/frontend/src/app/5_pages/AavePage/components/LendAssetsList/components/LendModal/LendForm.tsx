@@ -36,7 +36,7 @@ export const LendForm: FC<LendFormProps> = ({
   onSuccess,
 }) => {
   const { account } = useAccount();
-  const { reserves } = useAaveReservesData();
+  const reserves = useAaveReservesData();
   const [lendAsset, setLendAsset] = useState<string>(initialAsset);
   const [lendAmount, setLendAmount, lendSize] = useDecimalAmountInput('');
   const { balance: lendAssetBalance } = useAssetBalance(
