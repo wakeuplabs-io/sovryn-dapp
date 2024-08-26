@@ -15,7 +15,7 @@ import { LendAssetAction } from './components/LendAssetAction/LendAssetAction';
 
 const pageTranslations = translations.aavePage;
 
-export const COLUMNS_CONFIG = [
+export const COLUMNS_CONFIG = (onLendClick: (asset: string) => unknown) => [
   {
     id: 'asset',
     sortable: true,
@@ -37,20 +37,24 @@ export const COLUMNS_CONFIG = [
   {
     id: 'walletBalance',
     sortable: true,
+    className: '[&_*]:mx-auto [&_*]:space-x-2', // center head
     align: Align.center,
     title: (
-      <span className="text-gray-30">
+      <span className="text-gray-30 text-center">
         {t(pageTranslations.lendAssetsList.walletBalance)}
       </span>
     ),
     cellRenderer: (pool: LendPoolDetails) => (
-      <AssetBalanceRenderer asset={pool.asset} />
+      <div className="flex justify-center">
+        <AssetBalanceRenderer asset={pool.asset} />
+      </div>
     ),
   },
   {
     id: 'apy',
     sortable: true,
     align: Align.center,
+    className: '[&_*]:mx-auto [&_*]:space-x-2', // center head
     title: (
       <span className="flex items-center gap-1 text-gray-30">
         {t(pageTranslations.common.apy)}
@@ -65,6 +69,7 @@ export const COLUMNS_CONFIG = [
     id: 'canBeCollateral',
     sortable: true,
     align: Align.center,
+    className: '[&_*]:mx-auto [&_*]:space-x-2', // center head
     title: (
       <span className="text-gray-30">
         {t(pageTranslations.lendAssetsList.canBeCollateral)}
@@ -84,6 +89,8 @@ export const COLUMNS_CONFIG = [
     id: 'actions',
     align: Align.center,
     title: ' ',
-    cellRenderer: (pool: LendPoolDetails) => <LendAssetAction pool={pool} />,
+    cellRenderer: (pool: LendPoolDetails) => (
+      <LendAssetAction onLendClick={() => onLendClick(pool.asset)} />
+    ),
   },
 ];

@@ -8,14 +8,18 @@ import { HelperButton, Icon, IconNames, SimpleTableRow } from '@sovryn/ui';
 import { AmountRenderer } from '../../../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { translations } from '../../../../../../../locales/i18n';
 import { LendPoolDetails } from '../../LendAssetsList.types';
-import { LendAssetAction } from '../LendAssetAction/LendAssetAction';
 import { AssetBalanceRenderer } from '../AssetBalance/AssetBalance';
+import { LendAssetAction } from '../LendAssetAction/LendAssetAction';
 
 type LendAssetDetailsProps = {
   pool: LendPoolDetails;
+  onLendClick: () => unknown;
 };
 
-export const LendAssetDetails: FC<LendAssetDetailsProps> = ({ pool }) => {
+export const LendAssetDetails: FC<LendAssetDetailsProps> = ({
+  pool,
+  onLendClick,
+}) => {
   return (
     <div className="space-y-3">
       <div>
@@ -52,7 +56,7 @@ export const LendAssetDetails: FC<LendAssetDetailsProps> = ({ pool }) => {
         />
       </div>
 
-      <LendAssetAction pool={pool} />
+      <LendAssetAction onLendClick={onLendClick} />
     </div>
   );
 };

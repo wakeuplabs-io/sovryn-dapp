@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC } from 'react';
 
 import { BOB_CHAIN_ID } from '../../../../../../../config/chains';
 
@@ -15,10 +15,6 @@ export const AssetBalanceRenderer: FC<AssetBalanceRendererProps> = ({
 }) => {
   const { account } = useAccount();
   const balance = useAssetBalance(asset, BOB_CHAIN_ID);
-
-  useEffect(() => {
-    console.log('account', account, balance);
-  }, [account, balance]);
 
   return account ? (
     <AmountRenderer
