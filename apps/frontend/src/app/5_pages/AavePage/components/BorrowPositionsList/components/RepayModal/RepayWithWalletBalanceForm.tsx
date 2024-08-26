@@ -77,7 +77,7 @@ export const RepayWithWalletBalanceForm: FC<
       ? debt.borrowed.gt(repayAssetBalance)
         ? repayAssetBalance
         : debt.borrowed
-      : Decimal.from(0);
+      : Decimal.from(1);
   }, [debt, repayAssetBalance]);
 
   const reserve = useMemo(() => {
