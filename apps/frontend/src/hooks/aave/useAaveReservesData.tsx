@@ -4,14 +4,15 @@ import {
 } from '@aave/contract-helpers';
 import { formatReserves, FormatReserveUSDResponse } from '@aave/math-utils';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
 
-import { BOB_CHAIN_ID } from '../../config/chains';
-
 import { config } from '../../constants/aave';
-import { useCachedData } from '../useCachedData';
+
+// import { BOB_CHAIN_ID } from '../../config/chains';
+// import { useAccount } from '../useAccount';
+// import { useCachedData } from '../useCachedData';
 
 export type Reserve = ReserveDataHumanized & FormatReserveUSDResponse;
 
@@ -32,10 +33,40 @@ export const useAaveReservesData = (): ReserveData => {
     [provider],
   );
 
-  const { value } = useCachedData<ReserveData>(
-    'AaveReservesData',
-    BOB_CHAIN_ID,
-    async () => {
+  // const { value } = useCachedData<ReserveData>(
+  //   'AaveReservesData',
+  //   BOB_CHAIN_ID,
+  //   async () => {
+  //     if (!uiPoolDataProvider) {
+  //       return [];
+  //     }
+
+  //     const currentTimestamp = dayjs().unix();
+  //     const reservesData = await uiPoolDataProvider.getReservesHumanized({
+  //       lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
+  //     });
+  //     const reserves = reservesData.reservesData.filter(r =>
+  //       config.assetsWhitelist.includes(r.symbol),
+  //     );
+  //     const formattedReserves = formatReserves({
+  //       reserves,
+  //       currentTimestamp,
+  //       marketReferenceCurrencyDecimals:
+  //         reservesData.baseCurrencyData.marketReferenceCurrencyDecimals,
+  //       marketReferencePriceInUsd:
+  //         reservesData.baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+  //     });
+
+  //     return formattedReserves;
+  //   },
+  //   [uiPoolDataProvider],
+  //   [],
+  //   { ttl: 1000 * 60, fallbackToPreviousResult: true },
+  // );
+
+  const [value, setValue] = useState<ReserveData>([]);
+  useEffect(() => {
+    const compute = async () => {
       if (!uiPoolDataProvider) {
         return [];
       }
@@ -54,11 +85,9 @@ export const useAaveReservesData = (): ReserveData => {
       });
 
       return formattedReserves;
-    },
-    [uiPoolDataProvider],
-    [],
-    { ttl: 1000 * 60, fallbackToPreviousResult: true },
-  );
+    };
+    compute().then(setValue);
+  }, [uiPoolDataProvider]);
 
   return value;
 };
