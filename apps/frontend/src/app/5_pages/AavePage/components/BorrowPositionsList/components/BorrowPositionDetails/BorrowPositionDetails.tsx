@@ -13,10 +13,12 @@ import { BorrowPositionAction } from '../BorrowPositionAction/BorrowPositionActi
 
 type BorrowPositionDetailsProps = {
   position: BorrowPosition;
+  onRepayClick: () => unknown;
 };
 
 export const BorrowPositionDetails: FC<BorrowPositionDetailsProps> = ({
   position,
+  onRepayClick,
 }) => {
   return (
     <div className="space-y-3">
@@ -57,7 +59,7 @@ export const BorrowPositionDetails: FC<BorrowPositionDetailsProps> = ({
         />
       </div>
 
-      <BorrowPositionAction position={position} />
+      <BorrowPositionAction onRepayClick={onRepayClick} />
     </div>
   );
 };

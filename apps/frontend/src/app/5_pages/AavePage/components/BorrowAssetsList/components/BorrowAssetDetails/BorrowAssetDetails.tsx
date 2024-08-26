@@ -14,9 +14,13 @@ const pageTranslations = translations.aavePage;
 
 type BorrowAssetDetailsProps = {
   pool: BorrowPoolDetails;
+  onBorrowClick: () => void;
 };
 
-export const BorrowAssetDetails: FC<BorrowAssetDetailsProps> = ({ pool }) => {
+export const BorrowAssetDetails: FC<BorrowAssetDetailsProps> = ({
+  pool,
+  onBorrowClick,
+}) => {
   return (
     <div className="space-y-3">
       <div>
@@ -48,7 +52,7 @@ export const BorrowAssetDetails: FC<BorrowAssetDetailsProps> = ({ pool }) => {
         />
       </div>
 
-      <BorrowAssetAction pool={pool} />
+      <BorrowAssetAction onBorrowClick={onBorrowClick} />
     </div>
   );
 };

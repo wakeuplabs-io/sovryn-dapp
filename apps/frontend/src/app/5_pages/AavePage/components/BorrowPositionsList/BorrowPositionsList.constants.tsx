@@ -15,7 +15,7 @@ import { BorrowPositionAction } from './components/BorrowPositionAction/BorrowPo
 
 const pageTranslations = translations.aavePage;
 
-export const COLUMNS_CONFIG = [
+export const COLUMNS_CONFIG = (onRepayClick: (asset: string) => unknown) => [
   {
     id: 'asset',
     sortable: true,
@@ -89,7 +89,7 @@ export const COLUMNS_CONFIG = [
     align: Align.center,
     title: ' ',
     cellRenderer: (position: BorrowPosition) => (
-      <BorrowPositionAction position={position} />
+      <BorrowPositionAction onRepayClick={() => onRepayClick(position.asset)} />
     ),
   },
 ];
