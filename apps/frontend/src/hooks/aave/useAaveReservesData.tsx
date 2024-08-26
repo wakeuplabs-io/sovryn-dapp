@@ -8,11 +8,11 @@ import { useEffect, useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
 
-import { BOB_CHAIN_ID } from '../../config/chains';
-
 import { config } from '../../constants/aave';
-import { useAccount } from '../useAccount';
-import { useCachedData } from '../useCachedData';
+
+// import { BOB_CHAIN_ID } from '../../config/chains';
+// import { useAccount } from '../useAccount';
+// import { useCachedData } from '../useCachedData';
 
 export type Reserve = ReserveDataHumanized & FormatReserveUSDResponse;
 
@@ -90,7 +90,7 @@ export const useAaveReservesData = (): ReserveData => {
 
       return formattedReserves;
     };
-    compute().then(setValue)
+    compute().then(setValue);
   }, [uiPoolDataProvider]);
 
   return value;

@@ -5,12 +5,12 @@ import { useEffect, useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
 
-import { BOB_CHAIN_ID } from '../../config/chains';
-
+// import { BOB_CHAIN_ID } from '../../config/chains';
 import { config } from '../../constants/aave';
 import { AaveUserReservesSummary } from '../../utils/aave/AaveUserReservesSummary';
 import { useAccount } from '../useAccount';
-import { useCachedData } from '../useCachedData';
+
+// import { useCachedData } from '../useCachedData';
 
 type UserReservesData = AaveUserReservesSummary | null;
 

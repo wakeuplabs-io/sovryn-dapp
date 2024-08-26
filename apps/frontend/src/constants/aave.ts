@@ -1,5 +1,6 @@
-import { Decimal } from '@sovryn/utils';
 import { ethers } from 'ethers';
+
+import { Decimal } from '@sovryn/utils';
 
 export const config = {
   chainId: 111,
@@ -11,12 +12,8 @@ export const config = {
   PoolAddressesProviderAddress: '0xAE73edfC71af8f5fb7d8840887E8EE4317989456',
   assetsWhitelist: ['DAI', 'USDC', 'USDT', 'BTC', 'WETH', 'EURS'],
 
-
-
-
   provider: new ethers.providers.JsonRpcProvider(
     // 'https://polygon-bor-rpc.publicnode.com',
     'https://testnet.rpc.gobob.xyz',
   ),
-
 };
