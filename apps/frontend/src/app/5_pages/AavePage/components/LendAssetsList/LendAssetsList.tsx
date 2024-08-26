@@ -2,13 +2,22 @@ import React, { FC, useCallback, useState } from 'react';
 
 import { t } from 'i18next';
 
-import { Accordion, Checkbox, OrderOptions, Table } from '@sovryn/ui';
+import {
+  Accordion,
+  Checkbox,
+  Dialog,
+  DialogBody,
+  DialogHeader,
+  OrderOptions,
+  Table,
+} from '@sovryn/ui';
 
 import { AaveRowTitle } from '../../../../2_molecules/AavePoolRowTitle/AavePoolRowTitle';
 import { translations } from '../../../../../locales/i18n';
 import { COLUMNS_CONFIG } from './LendAssetsList.constants';
 import { LendPoolDetails } from './LendAssetsList.types';
 import { LendAssetDetails } from './components/LendAssetDetails/LendAssetDetails';
+import { LendForm } from './components/LendForm/LendForm';
 
 const pageTranslations = translations.aavePage;
 
@@ -20,8 +29,21 @@ export const LendAssetsList: FC<LendAssetsListProps> = ({ lendPools }) => {
   const [open, setOpen] = useState<boolean>(true);
   const [showZeroBalances, setShowZeroBalances] = useState<boolean>(true);
   const [orderOptions, setOrderOptions] = useState<OrderOptions>();
+  const [lendAssetDialog, setLendAssetDialog] = useState<string | undefined>();
 
-  const mobileRenderer = useCallback(p => <LendAssetDetails pool={p} />, []);
+  const onLendClick = useCallback((asset: string) => {
+    setLendAssetDialog(asset);
+  }, []);
+
+  const onLendClose = useCallback(() => {
+    setLendAssetDialog(undefined);
+  }, []);
+
+  const mobileRenderer = useCallback(
+    p => <LendAssetDetails pool={p} onLendClick={() => onLendClick(p.asset)} />,
+    [onLendClick],
+  );
+
   const rowTitleRenderer = useCallback(
     (r: LendPoolDetails) => (
       <AaveRowTitle
@@ -55,7 +77,7 @@ export const LendAssetsList: FC<LendAssetsListProps> = ({ lendPools }) => {
       />
 
       <Table
-        columns={COLUMNS_CONFIG}
+        columns={COLUMNS_CONFIG(onLendClick)}
         rowClassName="bg-gray-80"
         accordionClassName="bg-gray-60 border border-gray-70"
         rowTitle={rowTitleRenderer}
@@ -64,6 +86,16 @@ export const LendAssetsList: FC<LendAssetsListProps> = ({ lendPools }) => {
         orderOptions={orderOptions}
         setOrderOptions={setOrderOptions}
       />
+
+      <Dialog disableFocusTrap isOpen={!!lendAssetDialog}>
+        <DialogHeader
+          title={t(translations.aavePage.lendModal.title)}
+          onClose={onLendClose}
+        />
+        <DialogBody className="flex flex-col gap-6">
+          <LendForm onSuccess={onLendClose} asset={lendAssetDialog!} />
+        </DialogBody>
+      </Dialog>
     </Accordion>
   );
 };
