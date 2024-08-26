@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
@@ -57,6 +57,13 @@ export const LendAssetsList: FC<LendAssetsListProps> = ({ lendPools }) => {
     [],
   );
 
+  const filteredLendPools = useMemo(() => {
+    if (!showZeroBalances) {
+      return lendPools.filter(p => p.walletBalance.gt(0));
+    }
+    return lendPools;
+  }, [lendPools, showZeroBalances]);
+
   return (
     <Accordion
       label={
@@ -82,7 +89,7 @@ export const LendAssetsList: FC<LendAssetsListProps> = ({ lendPools }) => {
         accordionClassName="bg-gray-60 border border-gray-70"
         rowTitle={rowTitleRenderer}
         mobileRenderer={mobileRenderer}
-        rows={lendPools}
+        rows={filteredLendPools}
         orderOptions={orderOptions}
         setOrderOptions={setOrderOptions}
       />

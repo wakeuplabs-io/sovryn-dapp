@@ -52,18 +52,19 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
     return Decimal.from(reserve.variableBorrowAPR).mul(100);
   }, [reserve]);
 
-  const maximumBorrowAmount = useMemo(() => {
-    if (!reserve || !userReservesSummary) return Decimal.from(0);
-
-    // deducted from hf=kte/borrowed => newhf=kte/borrowed+new_borrow => MinHealthFactor = newhf
-    return userReservesSummary.borrowBalance.mul(
-      userReservesSummary.healthFactor.div(config.MinHealthFactor).sub(1),
-    );
-  }, [userReservesSummary, reserve]);
-
   const borrowUsdAmount = useMemo(() => {
     return borrowSize.mul(reserve?.priceInUSD ?? 0);
   }, [borrowSize, reserve]);
+
+  const maximumBorrowAmount = useMemo(() => {
+    if (!reserve || !userReservesSummary) return Decimal.from(0);
+
+    // deducted from minCr = coll / (borrowed + maxBorrowed)
+    return userReservesSummary.collateralBalance
+      .div(config.MinCollateralRatio)
+      .sub(userReservesSummary.borrowBalance)
+      .div(reserve.priceInUSD);
+  }, [userReservesSummary, reserve]);
 
   const borrowableAssetsOptions = useMemo(
     () =>
@@ -148,7 +149,10 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
         />
       </SimpleTable>
 
-      <CollateralRatioHealthBar ratio={collateralRatio} />
+      <CollateralRatioHealthBar
+        ratio={Decimal.from(collateralRatio)}
+        minimum={config.MinCollateralRatio}
+      />
 
       <SimpleTable>
         <SimpleTableRow

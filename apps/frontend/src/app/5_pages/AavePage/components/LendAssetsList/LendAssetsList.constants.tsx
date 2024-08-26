@@ -10,7 +10,6 @@ import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRen
 import { AssetRenderer } from '../../../../2_molecules/AssetRenderer/AssetRenderer';
 import { translations } from '../../../../../locales/i18n';
 import { LendPoolDetails } from './LendAssetsList.types';
-import { AssetBalanceRenderer } from './components/AssetBalance/AssetBalance';
 import { LendAssetAction } from './components/LendAssetAction/LendAssetAction';
 
 const pageTranslations = translations.aavePage;
@@ -45,9 +44,7 @@ export const COLUMNS_CONFIG = (onLendClick: (asset: string) => unknown) => [
       </span>
     ),
     cellRenderer: (pool: LendPoolDetails) => (
-      <div className="flex justify-center">
-        <AssetBalanceRenderer asset={pool.asset} />
-      </div>
+      <AmountRenderer value={pool.walletBalance} precision={2} />
     ),
   },
   {

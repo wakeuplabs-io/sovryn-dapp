@@ -70,15 +70,25 @@ const AavePage: FC = () => {
     }
   }, [reserves, userReservesSummary]);
 
-  const lendPools: LendPoolDetails[] = useMemo(
-    () =>
-      reserves.map(r => ({
+  const lendPools: LendPoolDetails[] = useMemo(() => {
+    if (!userReservesSummary) {
+      return reserves.map(r => ({
         asset: r.symbol,
         apy: Decimal.from(r.supplyAPY).mul(100),
         canBeCollateral: r.usageAsCollateralEnabled,
-      })),
-    [reserves],
-  );
+        walletBalance: Decimal.from(0),
+      }));
+    } else {
+      return reserves.map(r => ({
+        asset: r.symbol,
+        apy: Decimal.from(r.supplyAPY).mul(100),
+        canBeCollateral: r.usageAsCollateralEnabled,
+        walletBalance:
+          userReservesSummary.balances.find(b => b.asset.symbol === r.symbol)
+            ?.balanceDecimal || Decimal.from(0),
+      }));
+    }
+  }, [reserves, userReservesSummary]);
 
   return (
     <div className="w-full pb-6 2xl:px-12">

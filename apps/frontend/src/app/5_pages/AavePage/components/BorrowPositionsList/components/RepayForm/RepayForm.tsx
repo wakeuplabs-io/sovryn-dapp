@@ -22,7 +22,7 @@ export const RepayForm: FC<RepayFormProps> = ({ asset, onSuccess }) => {
   const [activeTab, setActiveTab] = useState<RepayWith>(RepayWith.BALANCE);
 
   return (
-    <div>
+    <div className="space-y-2">
       <Paragraph
         size={ParagraphSize.small}
         className="font-medium text-gray-30"

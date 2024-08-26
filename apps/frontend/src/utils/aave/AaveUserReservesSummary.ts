@@ -4,11 +4,20 @@ import {
   FormatUserSummaryResponse,
 } from '@aave/math-utils';
 
+import { BigNumber } from 'ethers';
+
+import { AssetDetailsData } from '@sovryn/contracts';
 import { Decimal } from '@sovryn/utils';
 
-type UserSummary = FormatUserSummaryResponse<
+export type UserSummary = FormatUserSummaryResponse<
   ReserveDataHumanized & FormatReserveUSDResponse
 >;
+
+export type AssetBalance = {
+  asset: AssetDetailsData;
+  balance: BigNumber;
+  balanceDecimal: Decimal;
+};
 
 export enum LoanType {
   STABLE = 1,
@@ -47,10 +56,15 @@ export class AaveUserReservesSummary {
   public borrowPowerUsed: Decimal;
   public suppliedAssets: SuppliedAsset[];
   public borrowedAssets: BorrowedAsset[];
+  public balances: AssetBalance[];
   public eModeEnabled: boolean;
 
-  constructor(private readonly userSummary: UserSummary) {
+  constructor(
+    private readonly userSummary: UserSummary,
+    balances: AssetBalance[],
+  ) {
     // balances
+    this.balances = balances;
     this.netWorth = Decimal.from(this.userSummary.netWorthUSD);
     this.borrowBalance = Decimal.from(this.userSummary.totalBorrowsUSD);
     this.supplyBalance = this.computeSuppliedBalance(
@@ -109,8 +123,9 @@ export class AaveUserReservesSummary {
     userSummary: FormatUserSummaryResponse<
       ReserveDataHumanized & FormatReserveUSDResponse
     >,
+    balances: AssetBalance[],
   ) {
-    return new AaveUserReservesSummary(userSummary);
+    return new AaveUserReservesSummary(userSummary, balances);
   }
 
   private computeNetApy(

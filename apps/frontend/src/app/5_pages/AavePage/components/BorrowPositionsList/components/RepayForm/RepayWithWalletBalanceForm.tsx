@@ -17,6 +17,7 @@ import { BOB_CHAIN_ID } from '../../../../../../../config/chains';
 import { AmountTransition } from '../../../../../../2_molecules/AmountTransition/AmountTransition';
 import { AssetAmountInput } from '../../../../../../2_molecules/AssetAmountInput/AssetAmountInput';
 import { AssetRenderer } from '../../../../../../2_molecules/AssetRenderer/AssetRenderer';
+import { config } from '../../../../../../../constants/aave';
 import { useAaveRepay } from '../../../../../../../hooks/aave/useAaveRepay';
 import { useAaveReservesData } from '../../../../../../../hooks/aave/useAaveReservesData';
 import { useAaveUserReservesData } from '../../../../../../../hooks/aave/useAaveUserReservesData';
@@ -77,7 +78,7 @@ export const RepayWithWalletBalanceForm: FC<
       ? debt.borrowed.gt(repayAssetBalance)
         ? repayAssetBalance
         : debt.borrowed
-      : Decimal.from(1);
+      : Decimal.from(0);
   }, [debt, repayAssetBalance]);
 
   const reserve = useMemo(() => {
@@ -109,10 +110,9 @@ export const RepayWithWalletBalanceForm: FC<
     if (!userReservesSummary) return Decimal.from(0);
     if (newDebtAmountUSD.eq(0)) return Decimal.from('100000000');
 
-    const newHealthFactor = userReservesSummary.healthFactor
-      .mul(userReservesSummary.borrowBalance)
-      .div(newDebtAmountUSD);
-    return newHealthFactor.div(userReservesSummary.currentLiquidationThreshold);
+    return userReservesSummary.collateralBalance.div(
+      userReservesSummary.borrowBalance.add(newDebtAmountUSD),
+    );
   }, [userReservesSummary, newDebtAmountUSD]);
 
   const isValidRepayAmount = useMemo(
@@ -144,7 +144,10 @@ export const RepayWithWalletBalanceForm: FC<
         )}
       </div>
 
-      <CollateralRatioHealthBar ratio={newCollateralRatio} />
+      <CollateralRatioHealthBar
+        ratio={newCollateralRatio}
+        minimum={config.MinCollateralRatio}
+      />
 
       <SimpleTable>
         <SimpleTableRow
