@@ -29,17 +29,14 @@ export const LendAssetsList: FC<LendAssetsListProps> = ({ lendPools }) => {
   const [open, setOpen] = useState<boolean>(true);
   const [showZeroBalances, setShowZeroBalances] = useState<boolean>(true);
   const [orderOptions, setOrderOptions] = useState<OrderOptions>();
-  const [lendFormDialog, setLendFormDialog] = useState<{
-    asset: string;
-    open: boolean;
-  }>({ open: false, asset: '' });
+  const [lendAssetDialog, setLendAssetDialog] = useState<string | undefined>();
 
   const onLendClick = useCallback((asset: string) => {
-    setLendFormDialog({ asset, open: true });
+    setLendAssetDialog(asset);
   }, []);
 
   const onLendClose = useCallback(() => {
-    setLendFormDialog({ open: false, asset: '' });
+    setLendAssetDialog(undefined);
   }, []);
 
   const mobileRenderer = useCallback(
@@ -90,13 +87,13 @@ export const LendAssetsList: FC<LendAssetsListProps> = ({ lendPools }) => {
         setOrderOptions={setOrderOptions}
       />
 
-      <Dialog disableFocusTrap isOpen={lendFormDialog.open}>
+      <Dialog disableFocusTrap isOpen={!!lendAssetDialog}>
         <DialogHeader
           title={t(translations.aavePage.lendModal.title)}
           onClose={onLendClose}
         />
         <DialogBody className="flex flex-col gap-6">
-          <LendForm onSuccess={onLendClose} asset={lendFormDialog.asset} />
+          <LendForm onSuccess={onLendClose} asset={lendAssetDialog!} />
         </DialogBody>
       </Dialog>
     </Accordion>

@@ -13,10 +13,12 @@ import { ToggleCollateralAction } from '../ToggleCollateralAction/ToggleCollater
 
 type LendPositionDetailsProps = {
   position: LendPosition;
+  onWithdrawClick: (asset: string) => void;
 };
 
 export const LendPositionDetails: FC<LendPositionDetailsProps> = ({
   position,
+  onWithdrawClick,
 }) => {
   return (
     <div className="space-y-3">
@@ -54,7 +56,9 @@ export const LendPositionDetails: FC<LendPositionDetailsProps> = ({
         />
       </div>
 
-      <LendPositionAction position={position} />
+      <LendPositionAction
+        onWithdrawClick={() => onWithdrawClick(position.asset)}
+      />
     </div>
   );
 };
