@@ -10,7 +10,7 @@ import { translations } from '../../../../../../../locales/i18n';
 const pageTranslations = translations.aavePage;
 
 type BorrowAssetActionProps = {
-  onBorrowClick: () => unknown;
+  onBorrowClick: () => void;
 };
 
 export const BorrowAssetAction: FC<BorrowAssetActionProps> = ({

@@ -15,7 +15,7 @@ import { BorrowAssetAction } from './components/BorrowAssetAction/BorrowAssetAct
 
 const pageTranslations = translations.aavePage;
 
-export const COLUMNS_CONFIG = (onBorrowClick: (asset: string) => unknown) => [
+export const COLUMNS_CONFIG = (onBorrowClick: (asset: string) => void) => [
   {
     id: 'asset',
     sortable: true,
