@@ -54,17 +54,26 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
 
   const borrowUsdAmount = useMemo(() => {
     return borrowSize.mul(reserve?.priceInUSD ?? 0);
-  }, [borrowSize, reserve]);
+  }, [borrowSize, reserve?.priceInUSD]);
 
   const maximumBorrowAmount = useMemo(() => {
-    if (!reserve || !userReservesSummary) return Decimal.from(0);
+    if (
+      !reserve?.priceInUSD ||
+      !userReservesSummary?.collateralBalance ||
+      !userReservesSummary?.borrowBalance
+    )
+      return Decimal.from(0);
 
     // deducted from minCr = coll / (borrowed + maxBorrowed)
     return userReservesSummary.collateralBalance
       .div(config.MinCollateralRatio)
       .sub(userReservesSummary.borrowBalance)
       .div(reserve.priceInUSD);
-  }, [userReservesSummary, reserve]);
+  }, [
+    reserve?.priceInUSD,
+    userReservesSummary?.collateralBalance,
+    userReservesSummary?.borrowBalance,
+  ]);
 
   const borrowableAssetsOptions = useMemo(
     () =>
