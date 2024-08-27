@@ -5,11 +5,16 @@ import { t } from 'i18next';
 import { Helmet } from 'react-helmet-async';
 
 import { Tabs, TabSize, TabType } from '@sovryn/ui';
-import { Decimal } from '@sovryn/utils';
 
 import { useAaveReservesData } from '../../../hooks/aave/useAaveReservesData';
 import { useAaveUserReservesData } from '../../../hooks/aave/useAaveUserReservesData';
 import { translations } from '../../../locales/i18n';
+import {
+  normalizeBorrowPoolDetails,
+  normalizeBorrowPositions,
+  normalizeLendPoolDetails,
+  normalizeLendPositions,
+} from './AavePage.utils';
 import { BorrowAssetsList } from './components/BorrowAssetsList/BorrowAssetsList';
 import { BorrowPoolDetails } from './components/BorrowAssetsList/BorrowAssetsList.types';
 import { BorrowPositionsList } from './components/BorrowPositionsList/BorrowPositionsList';
@@ -32,63 +37,37 @@ const AavePage: FC = () => {
   const userReservesSummary = useAaveUserReservesData();
   const [activeTab, setActiveTab] = useState<ActiveTab>(ActiveTab.LEND);
 
-  const lendPositions: LendPosition[] = useMemo(() => {
-    if (!userReservesSummary) return [];
-    return userReservesSummary.suppliedAssets.map(s => ({
-      asset: s.asset,
-      apy: s.apy,
-      supplied: s.supplied,
-      suppliedUSD: s.suppliedUSD,
-      collateral: s.isCollateral,
-    }));
-  }, [userReservesSummary]);
+  const lendPositions: LendPosition[] =
+    normalizeLendPositions(userReservesSummary);
 
-  const borrowPositions: BorrowPosition[] = useMemo(() => {
-    if (!userReservesSummary) return [];
-    return userReservesSummary.borrowedAssets.map(ba => ({
-      asset: ba.asset,
-      apy: ba.apy,
-      borrowed: ba.borrowed,
-      borrowedUSD: ba.borrowedUSD,
-      type: ba.type,
-    }));
-  }, [userReservesSummary]);
+  const borrowPositions: BorrowPosition[] =
+    normalizeBorrowPositions(userReservesSummary);
 
-  const borrowPools: BorrowPoolDetails[] = useMemo(() => {
-    if (!userReservesSummary) {
-      return reserves.map(r => ({
-        asset: r.symbol,
-        apy: Decimal.from(r.variableBorrowAPY).mul(100),
-      }));
-    } else {
-      return reserves.map(r => ({
-        asset: r.symbol,
-        apy: Decimal.from(r.variableBorrowAPY).mul(100),
-        available: userReservesSummary.borrowPower.div(r.priceInUSD),
-        availableUSD: userReservesSummary.borrowPower,
-      }));
-    }
-  }, [reserves, userReservesSummary]);
+  const borrowPools: BorrowPoolDetails[] = normalizeBorrowPoolDetails(
+    reserves,
+    userReservesSummary,
+  );
 
-  const lendPools: LendPoolDetails[] = useMemo(() => {
-    if (!userReservesSummary) {
-      return reserves.map(r => ({
-        asset: r.symbol,
-        apy: Decimal.from(r.supplyAPY).mul(100),
-        canBeCollateral: r.usageAsCollateralEnabled,
-        walletBalance: Decimal.from(0),
-      }));
-    } else {
-      return reserves.map(r => ({
-        asset: r.symbol,
-        apy: Decimal.from(r.supplyAPY).mul(100),
-        canBeCollateral: r.usageAsCollateralEnabled,
-        walletBalance:
-          userReservesSummary.balances.find(b => b.asset.symbol === r.symbol)
-            ?.balanceDecimal || Decimal.from(0),
-      }));
-    }
-  }, [reserves, userReservesSummary]);
+  const lendPools: LendPoolDetails[] = normalizeLendPoolDetails(
+    reserves,
+    userReservesSummary,
+  );
+
+  const items = useMemo(
+    () => [
+      {
+        activeClassName: 'text-primary-20',
+        dataAttribute: 'lending',
+        label: t(pageTranslations.common.lend),
+      },
+      {
+        activeClassName: 'text-primary-20',
+        dataAttribute: 'borrowing',
+        label: t(pageTranslations.common.borrow),
+      },
+    ],
+    [],
+  );
 
   return (
     <div className="w-full pb-6 2xl:px-12">
@@ -107,18 +86,7 @@ const AavePage: FC = () => {
         <Tabs
           className="w-full bg-gray-80 rounded p-1 border border-gray-60 2xl:hidden"
           index={activeTab}
-          items={[
-            {
-              activeClassName: 'text-primary-20',
-              dataAttribute: 'lending',
-              label: t(pageTranslations.common.lend),
-            },
-            {
-              activeClassName: 'text-primary-20',
-              dataAttribute: 'borrowing',
-              label: t(pageTranslations.common.borrow),
-            },
-          ]}
+          items={items}
           onChange={e => setActiveTab(e)}
           size={TabSize.normal}
           type={TabType.secondary}
@@ -162,4 +130,5 @@ const AavePage: FC = () => {
     </div>
   );
 };
+
 export default AavePage;
