@@ -8,7 +8,7 @@ import { Button, ButtonStyle } from '@sovryn/ui';
 import { translations } from '../../../../../../../locales/i18n';
 
 type LendAssetActionProps = {
-  onLendClick: () => unknown;
+  onLendClick: () => void;
 };
 
 export const LendAssetAction: FC<LendAssetActionProps> = ({ onLendClick }) => {
