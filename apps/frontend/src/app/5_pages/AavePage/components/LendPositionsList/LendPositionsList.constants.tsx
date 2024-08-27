@@ -16,7 +16,7 @@ import { ToggleCollateralAction } from './components/ToggleCollateralAction/Togg
 
 const pageTranslations = translations.aavePage;
 
-export const COLUMNS_CONFIG = (onWithdrawClick: (asset: string) => unknown) => [
+export const COLUMNS_CONFIG = (onWithdrawClick: (asset: string) => void) => [
   {
     id: 'asset',
     sortable: true,
