@@ -85,10 +85,12 @@ export const RepayWithWalletBalanceForm: FC<
   }, [repaySize, repayReserve]);
 
   const newDebtAmount = useMemo(() => {
-    const nd = repayReserve?.borrowed
+    const newDebt = repayReserve?.borrowed
       ? repayReserve.borrowed.sub(repaySize)
       : Decimal.from(0);
-    return nd.gt(0) ? nd : Decimal.from(0);
+
+    // avoid negatives:
+    return newDebt.gt(0) ? newDebt : Decimal.from(0);
   }, [repayReserve?.borrowed, repaySize]);
 
   const newDebtAmountUSD = useMemo(() => {
