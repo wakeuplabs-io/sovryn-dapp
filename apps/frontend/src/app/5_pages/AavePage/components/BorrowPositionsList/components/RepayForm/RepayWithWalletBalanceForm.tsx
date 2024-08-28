@@ -96,15 +96,9 @@ export const RepayWithWalletBalanceForm: FC<
   }, [newDebtAmount, repayReserve]);
 
   const newCollateralRatio = useMemo(() => {
-    const newTotalDebtUsd =
-      userReservesSummary.borrowBalance.add(newDebtAmountUSD);
-    if (newTotalDebtUsd.eq(0)) {
-      return Decimal.from('100000000'); // div/0 -> inf
-    }
-
     return AaveCalculations.computeCollateralRatio(
       userReservesSummary.collateralBalance,
-      newTotalDebtUsd,
+      userReservesSummary.borrowBalance.add(newDebtAmountUSD),
     );
   }, [userReservesSummary, newDebtAmountUSD]);
 
