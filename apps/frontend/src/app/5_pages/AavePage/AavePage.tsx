@@ -88,7 +88,7 @@ const AavePage: FC = () => {
           className="w-full bg-gray-80 rounded p-1 border border-gray-60 2xl:hidden"
           index={activeTab}
           items={tabsItems}
-          onChange={e => setActiveTab(e)}
+          onChange={setActiveTab}
           size={TabSize.normal}
           type={TabType.secondary}
         />

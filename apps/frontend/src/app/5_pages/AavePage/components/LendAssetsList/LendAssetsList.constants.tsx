@@ -19,6 +19,7 @@ export const COLUMNS_CONFIG = (onLendClick: (asset: string) => unknown) => [
     id: 'asset',
     sortable: true,
     align: Align.center,
+    className: '[&_*]:mx-auto [&_*]:space-x-2', // center head
     title: (
       <span className="text-gray-30">{t(pageTranslations.common.asset)}</span>
     ),

@@ -31,7 +31,7 @@ const pageTranslations = translations.aavePage;
 
 type RepayWithWalletBalanceFormProps = {
   asset: string;
-  onSuccess: () => unknown;
+  onSuccess: () => void;
 };
 
 export const RepayWithWalletBalanceForm: FC<

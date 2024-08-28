@@ -26,8 +26,8 @@ type LendAssetsListProps = {
 };
 
 export const LendAssetsList: FC<LendAssetsListProps> = ({ lendPools }) => {
-  const [open, setOpen] = useState<boolean>(true);
-  const [showZeroBalances, setShowZeroBalances] = useState<boolean>(true);
+  const [open, setOpen] = useState(true);
+  const [showZeroBalances, setShowZeroBalances] = useState(true);
   const [orderOptions, setOrderOptions] = useState<OrderOptions>();
   const [lendAssetDialog, setLendAssetDialog] = useState<string | undefined>();
 
@@ -45,12 +45,12 @@ export const LendAssetsList: FC<LendAssetsListProps> = ({ lendPools }) => {
   );
 
   const rowTitleRenderer = useCallback(
-    (r: LendPoolDetails) => (
+    row => (
       <AaveRowTitle
-        asset={r.asset}
-        value={r.apy}
+        asset={row.asset}
+        value={row.apy}
         suffix="%"
-        label={translations.aavePage.common.apy}
+        label={t(translations.aavePage.common.apy)}
         precision={2}
       />
     ),

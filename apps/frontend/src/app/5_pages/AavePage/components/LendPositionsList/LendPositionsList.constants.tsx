@@ -63,7 +63,7 @@ export const COLUMNS_CONFIG = (onWithdrawClick: (asset: string) => void) => [
       </span>
     ),
     cellRenderer: (position: LendPosition) => (
-      <AmountRenderer value={position.apy} suffix={'%'} precision={2} />
+      <AmountRenderer value={position.apy} suffix="%" precision={2} />
     ),
   },
   {

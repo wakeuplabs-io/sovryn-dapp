@@ -12,15 +12,13 @@ type BorrowPositionActionProps = {
 
 export const BorrowPositionAction: FC<BorrowPositionActionProps> = ({
   onRepayClick,
-}) => {
-  return (
-    <div className="flex items-center justify-center lg:justify-end space-x-2">
-      <Button
-        style={ButtonStyle.secondary}
-        className="flex-grow"
-        text={t(translations.aavePage.borrowPositionsList.repay)}
-        onClick={onRepayClick}
-      />
-    </div>
-  );
-};
+}) => (
+  <div className="flex items-center justify-center lg:justify-end space-x-2">
+    <Button
+      style={ButtonStyle.secondary}
+      className="flex-grow"
+      text={t(translations.aavePage.borrowPositionsList.repay)}
+      onClick={onRepayClick}
+    />
+  </div>
+);

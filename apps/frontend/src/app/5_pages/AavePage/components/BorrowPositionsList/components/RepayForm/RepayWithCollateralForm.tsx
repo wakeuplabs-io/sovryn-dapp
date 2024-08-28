@@ -24,7 +24,7 @@ import { CollateralRatioHealthBar } from '../../../CollateralRatioHealthBar/Coll
 const pageTranslations = translations.aavePage;
 
 type RepayWithCollateralFormProps = {
-  onSuccess: () => unknown;
+  onSuccess: () => void;
 };
 
 export const RepayWithCollateralForm: FC<RepayWithCollateralFormProps> = () => {
@@ -180,7 +180,7 @@ export const RepayWithCollateralForm: FC<RepayWithCollateralFormProps> = () => {
               />
             </div>
           }
-          value={<AmountRenderer value={assetPrice} prefix={'$'} />}
+          value={<AmountRenderer value={assetPrice} prefix="$" />}
         />
       </SimpleTable>
 
