@@ -1,4 +1,5 @@
 import { Decimal } from '@sovryn/utils';
+
 import { UserSummary } from './AaveUserReservesSummary';
 
 export class AaveCalculations {
@@ -44,6 +45,9 @@ export class AaveCalculations {
     borrowedBalance: Decimal,
     borrowPower: Decimal,
   ) {
+    if (borrowPower.eq(0)) {
+      return Decimal.from(100); // all used
+    }
     return Decimal.from(borrowedBalance).div(borrowPower).mul(100);
   }
 
@@ -62,12 +66,15 @@ export class AaveCalculations {
     currentLiquidationThreshold: Decimal,
     borrowedBalance: Decimal,
   ): Decimal {
+    if (borrowedBalance.eq(0)) {
+      return Decimal.from(Infinity);
+    }
     return collateral.mul(currentLiquidationThreshold).div(borrowedBalance);
   }
 
   static computeCollateralRatio(collateral: Decimal, borrowedBalance: Decimal) {
     if (borrowedBalance.eq(0)) {
-      return Decimal.from(10000000000); // -> inf
+      return Decimal.from(Infinity);
     }
     return collateral.div(borrowedBalance);
   }
@@ -88,26 +95,32 @@ export class AaveCalculations {
       totalBorrowedUSD = totalBorrowedUSD.add(borrowedAmountUSD);
     });
 
+    if (totalBorrowedUSD.eq(0) || weightedBorrowAPYSum.eq(0)) {
+      return Decimal.from(0);
+    }
     return weightedBorrowAPYSum.div(totalBorrowedUSD).mul(100);
   }
 
   static computeWeightedSupplyApy(
     reserves: UserSummary['userReservesData'],
   ): Decimal {
-    let totalBorrowedUSD = Decimal.from(0);
-    let weightedBorrowAPYSum = Decimal.from(0);
+    let totalSuppliedUSD = Decimal.from(0);
+    let weightedSupplyAPYSum = Decimal.from(0);
 
     reserves.forEach(reserve => {
-      const borrowedAmountUSD = Decimal.from(reserve.totalBorrowsUSD);
-      const borrowAPY = Decimal.from(reserve.reserve.supplyAPY);
+      const suppliedAmountUSD = Decimal.from(reserve.underlyingBalanceUSD);
+      const supplyAPY = Decimal.from(reserve.reserve.supplyAPY);
 
-      weightedBorrowAPYSum = weightedBorrowAPYSum.add(
-        borrowAPY.mul(borrowedAmountUSD),
+      weightedSupplyAPYSum = weightedSupplyAPYSum.add(
+        supplyAPY.mul(suppliedAmountUSD),
       );
-      totalBorrowedUSD = totalBorrowedUSD.add(borrowedAmountUSD);
+      totalSuppliedUSD = totalSuppliedUSD.add(suppliedAmountUSD);
     });
 
-    return weightedBorrowAPYSum.div(totalBorrowedUSD).mul(100);
+    if (totalSuppliedUSD.eq(0) || weightedSupplyAPYSum.eq(0)) {
+      return Decimal.from(0);
+    }
+    return weightedSupplyAPYSum.div(totalSuppliedUSD).mul(100);
   }
 
   static computeLiquidationPrice(
@@ -116,7 +129,7 @@ export class AaveCalculations {
     collateralBalance: Decimal,
   ) {
     if (collateralBalance.eq(0)) {
-      return Decimal.from("1000000000"); // -> inf
+      return Decimal.from(Infinity);
     }
     return borrowSize.mul(currentLiquidationThreshold).div(collateralBalance);
   }
