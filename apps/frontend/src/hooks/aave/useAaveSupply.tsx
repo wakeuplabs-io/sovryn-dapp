@@ -58,8 +58,6 @@ export const useAaveSupply = () => {
         return;
       }
 
-      console.log('asset', asset.address, useAsCollateral);
-
       setTransactions(
         await aaveSupplyTransactionsFactory.collateralSwitch(
           asset,
