@@ -41,7 +41,7 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
   eModeEnabled,
 }) => {
   const { account } = useAccount();
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState(true);
   const [orderOptions, setOrderOptions] = useState<OrderOptions>();
   const [repayAssetDialog, setRepayAssetDialog] = useState<
     string | undefined

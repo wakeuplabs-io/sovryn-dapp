@@ -828,6 +828,19 @@
             "disableAssetAsCollateral": "Disable {{symbol}} as collateral",
             "disableAssetAsCollateralSubtitle": "Disabling {{symbol}} as collateral will decrease your borrowing power and potentially risk you to liquidation"
         },
+        "eMode": {
+            "availableAssets": "Available assets",
+            "selectCategory": "Select category",
+            "maxLoanToValue": "Max loan to value",
+            "positionsMustBeClosed": "To enable E-mode for the {{category}} category, all borrow positions outside of this category must be closed.",
+            "limitationsWarning": "Enabling E-Mode only allows you to borrow assets belonging to the selected category.",
+            "enableEMode": "Enable E-mode",
+            "disableEMode": "Disable E-mode",
+            "liquidationRiskWarning": "Liquidation risk. This action will reduce your health factor. Please be mindful of the increased risk of collateral liquidation.",
+            "eModeCategory": "E-mode category",
+            "switchCategory": "Switch E-mode",
+            "assetCategory": "Asset category"
+        },
         "topPanel": {
             "title": "Lend and borrow",
             "subtitle": "Borrow and earn interest by providing liquidity",
