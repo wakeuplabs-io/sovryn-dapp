@@ -25,17 +25,17 @@ import { useAaveUserReservesData } from '../../../../../../../hooks/aave/useAave
 import { useDecimalAmountInput } from '../../../../../../../hooks/useDecimalAmountInput';
 import { translations } from '../../../../../../../locales/i18n';
 import { BorrowRateMode } from '../../../../../../../types/aave';
-import { CollateralRatioHealthBar } from '../../../CollateralRatioHealthBar/CollateralRatioHealthBar';
 import { AaveCalculations } from '../../../../../../../utils/aave/AaveCalculations';
+import { CollateralRatioHealthBar } from '../../../CollateralRatioHealthBar/CollateralRatioHealthBar';
 
 const pageTranslations = translations.aavePage;
 
 type BorrowFormProps = {
   asset: string;
-  onSuccess: () => unknown;
+  onSuccess: () => void;
 };
 
-export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
+export const BorrowForm: FC<BorrowFormProps> = ({ asset, onSuccess }) => {
   const userReservesSummary = useAaveUserReservesData();
   const [borrowAsset, setBorrowAsset] = useState<string>(asset);
   const [borrowAmount, setBorrowAmount, borrowSize] = useDecimalAmountInput('');
@@ -133,7 +133,7 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
           value={
             <AmountRenderer
               value={borrowReserve?.reserve.variableBorrowAPR ?? 0}
-              suffix={'%'}
+              suffix="%"
               precision={2}
             />
           }
@@ -149,11 +149,7 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
         <SimpleTableRow
           label={t(translations.aavePage.borrowForm.liquidationPrice)}
           value={
-            <AmountRenderer
-              value={liquidationPrice}
-              precision={2}
-              prefix={'$'}
-            />
+            <AmountRenderer value={liquidationPrice} precision={2} prefix="$" />
           }
         />
         <SimpleTableRow
@@ -164,7 +160,7 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
             <AmountRenderer
               value={borrowReserve?.reserve.priceInUSD ?? 0}
               precision={2}
-              prefix={'$'}
+              prefix="$"
             />
           }
         />
@@ -188,6 +184,7 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset }) => {
             borrowSize,
             await getAssetData(borrowReserve!.reserve.symbol, BOB_CHAIN_ID),
             BorrowRateMode.VARIABLE,
+            { onComplete: onSuccess },
           );
         }}
         disabled={

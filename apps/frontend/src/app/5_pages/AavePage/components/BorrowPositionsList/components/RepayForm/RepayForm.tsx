@@ -21,7 +21,7 @@ enum RepayWith {
 export const RepayForm: FC<RepayFormProps> = ({ asset, onSuccess }) => {
   const [activeTab, setActiveTab] = useState<RepayWith>(RepayWith.BALANCE);
 
-  const items = useMemo(() => {
+  const tabItems = useMemo(() => {
     return [
       {
         activeClassName: 'text-primary-20',
@@ -51,7 +51,7 @@ export const RepayForm: FC<RepayFormProps> = ({ asset, onSuccess }) => {
         contentClassName="p-4"
         index={activeTab}
         onChange={setActiveTab}
-        items={items}
+        items={tabItems}
         type={TabType.secondary}
       />
 

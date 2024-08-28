@@ -50,7 +50,7 @@ export const LendAssetsList: FC<LendAssetsListProps> = ({ lendPools }) => {
         asset={r.asset}
         value={r.apy}
         suffix="%"
-        label="APY"
+        label={translations.aavePage.common.apy}
         precision={2}
       />
     ),

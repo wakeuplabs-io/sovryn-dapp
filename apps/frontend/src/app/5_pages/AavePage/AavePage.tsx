@@ -103,9 +103,9 @@ const AavePage: FC = () => {
           >
             <LendPositionsList
               lendPositions={lendPositions}
-              supplyBalance={userReservesSummary?.supplyBalance}
-              collateralBalance={userReservesSummary?.collateralBalance}
-              supplyWeightedApy={userReservesSummary?.supplyWeightedApy}
+              supplyBalance={userReservesSummary.supplyBalance}
+              collateralBalance={userReservesSummary.collateralBalance}
+              supplyWeightedApy={userReservesSummary.supplyWeightedApy}
             />
             <LendAssetsList lendPools={lendPools} />
           </div>
@@ -118,11 +118,11 @@ const AavePage: FC = () => {
             )}
           >
             <BorrowPositionsList
-              eModeEnabled={userReservesSummary?.eModeEnabled ?? false}
               borrowPositions={borrowPositions}
-              borrowBalance={userReservesSummary?.borrowBalance}
-              borrowPowerUsed={userReservesSummary?.borrowPowerUsed}
-              borrowWeightedApy={userReservesSummary?.borrowWeightedApy}
+              eModeEnabled={userReservesSummary.eModeEnabled}
+              borrowBalance={userReservesSummary.borrowBalance}
+              borrowPowerUsed={userReservesSummary.borrowPowerUsed}
+              borrowWeightedApy={userReservesSummary.borrowWeightedApy}
             />
             <BorrowAssetsList borrowPools={borrowPools} />
           </div>

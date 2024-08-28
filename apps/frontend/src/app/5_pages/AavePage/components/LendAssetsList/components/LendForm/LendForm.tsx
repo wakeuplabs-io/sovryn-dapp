@@ -46,10 +46,6 @@ export const LendForm: FC<LendFormProps> = ({
   );
   const { handleDeposit } = useAaveSupply();
 
-  const reserve = useMemo(() => {
-    return reserves.find(r => r.symbol === lendAsset) ?? reserves[0];
-  }, [reserves, lendAsset]);
-
   const lendAssetsOptions = useMemo(
     () =>
       reserves.map(r => ({
@@ -65,6 +61,10 @@ export const LendForm: FC<LendFormProps> = ({
       })),
     [reserves],
   );
+
+  const reserve = useMemo(() => {
+    return reserves.find(r => r.symbol === lendAsset) ?? reserves[0];
+  }, [reserves, lendAsset]);
 
   const assetUsdValue: Decimal = useMemo(() => {
     return Decimal.from(reserve?.priceInUSD ?? 0).mul(lendSize);

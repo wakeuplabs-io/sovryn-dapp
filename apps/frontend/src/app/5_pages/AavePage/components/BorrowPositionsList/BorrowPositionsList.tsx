@@ -27,9 +27,9 @@ const pageTranslations = translations.aavePage;
 
 type BorrowPositionsListProps = {
   borrowPositions: BorrowPosition[];
-  borrowBalance?: Decimal;
-  borrowWeightedApy?: Decimal;
-  borrowPowerUsed?: Decimal;
+  borrowBalance: Decimal;
+  borrowWeightedApy: Decimal;
+  borrowPowerUsed: Decimal;
   eModeEnabled: boolean;
 };
 
@@ -102,19 +102,19 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
           <div className="flex flex-col gap-2 mb-2 lg:flex-row lg:gap-6 lg:mb-6">
             <PoolPositionStat
               label={t(pageTranslations.common.balance)}
-              value={borrowBalance ?? 0}
+              value={borrowBalance}
               prefix="$"
               precision={2}
             />
             <PoolPositionStat
               label={t(pageTranslations.common.apy)}
-              value={borrowWeightedApy ?? 0}
+              value={borrowWeightedApy}
               suffix="%"
               precision={2}
             />
             <PoolPositionStat
               label={t(pageTranslations.borrowPositionsList.borrowPowerUsed)}
-              value={borrowPowerUsed ?? 0}
+              value={borrowPowerUsed}
               suffix="%"
               precision={2}
             />

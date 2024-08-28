@@ -36,7 +36,7 @@ type RepayWithWalletBalanceFormProps = {
 
 export const RepayWithWalletBalanceForm: FC<
   RepayWithWalletBalanceFormProps
-> = ({ asset }) => {
+> = ({ asset, onSuccess }) => {
   const { account } = useAccount();
   const { handleRepay } = useAaveRepay();
   const userReservesSummary = useAaveUserReservesData();
@@ -202,6 +202,7 @@ export const RepayWithWalletBalanceForm: FC<
             repaySize,
             await getAssetData(repayAsset, BOB_CHAIN_ID),
             repayReserve!.borrowRateMode,
+            { onComplete: onSuccess },
           );
         }}
       />
