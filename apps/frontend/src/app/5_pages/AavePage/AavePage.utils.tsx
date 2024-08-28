@@ -1,10 +1,8 @@
 import { Decimal } from '@sovryn/utils';
 
 import { ReserveData } from '../../../hooks/aave/useAaveReservesData';
-import {
-  AaveUserReservesSummary,
-  LoanType,
-} from '../../../utils/aave/AaveUserReservesSummary';
+import { BorrowRateMode } from '../../../types/aave';
+import { AaveUserReservesSummary } from '../../../utils/aave/AaveUserReservesSummary';
 import { BorrowPosition } from './components/BorrowPositionsList/BorrowPositionsList.types';
 import { LendPosition } from './components/LendPositionsList/LendPositionsList.types';
 
@@ -30,13 +28,13 @@ export function normalizeBorrowPositions(
     .map(r => ({
       asset: r.reserve.symbol,
       apy: Decimal.from(
-        r.borrowMode === LoanType.STABLE
+        r.borrowRateMode === BorrowRateMode.STABLE
           ? Decimal.from(r.reserve.stableBorrowAPY).mul(100)
           : Decimal.from(r.reserve.variableBorrowAPY).mul(100),
       ),
       borrowed: r.borrowed,
       borrowedUSD: r.borrowedUSD,
-      type: r.borrowMode,
+      type: r.borrowRateMode,
     }));
 }
 
@@ -44,7 +42,7 @@ export function normalizeBorrowPoolDetails(
   reserves: ReserveData,
   userReservesSummary: AaveUserReservesSummary,
 ) {
-  if (!userReservesSummary) {
+  if (userReservesSummary.reserves.length === 0) {
     return reserves
       .filter(r => r.borrowingEnabled)
       .map(r => ({
@@ -65,9 +63,9 @@ export function normalizeBorrowPoolDetails(
 
 export function normalizeLendPoolDetails(
   reserves: ReserveData,
-  userReservesSummary: AaveUserReservesSummary | null,
+  userReservesSummary: AaveUserReservesSummary,
 ) {
-  if (!userReservesSummary) {
+  if (userReservesSummary.reserves.length === 0) {
     return reserves.map(r => ({
       asset: r.symbol,
       apy: Decimal.from(r.supplyAPY).mul(100),

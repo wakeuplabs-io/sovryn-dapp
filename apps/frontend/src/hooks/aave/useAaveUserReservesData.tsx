@@ -1,7 +1,10 @@
 import { UiPoolDataProvider } from '@aave/contract-helpers';
 import { formatReserves, formatUserSummary } from '@aave/math-utils';
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import dayjs from 'dayjs';
+
 import { config } from '../../constants/aave';
 import {
   AaveUserReservesSummary,
@@ -11,8 +14,7 @@ import { useAccount } from '../useAccount';
 import { useBlockNumber } from '../useBlockNumber';
 
 export const useAaveUserReservesData = (): AaveUserReservesSummary => {
-  const provider = config.provider;
-  const { account } = useAccount();
+  const { account, provider } = useAccount();
   const [value, setValue] = useState<AaveUserReservesSummary>(
     AaveUserReservesSummaryFactory.buildZeroSummary([]),
   );

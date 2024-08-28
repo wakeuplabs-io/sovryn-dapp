@@ -41,23 +41,20 @@ const AavePage: FC = () => {
     () => normalizeLendPositions(userReservesSummary),
     [userReservesSummary],
   );
-
   const borrowPositions: BorrowPosition[] = useMemo(
     () => normalizeBorrowPositions(userReservesSummary),
     [userReservesSummary],
   );
-
   const borrowPools: BorrowPoolDetails[] = useMemo(
     () => normalizeBorrowPoolDetails(reserves, userReservesSummary),
     [reserves, userReservesSummary],
   );
-
-  const lendPools: LendPoolDetails[] = normalizeLendPoolDetails(
-    reserves,
-    userReservesSummary,
+  const lendPools: LendPoolDetails[] = useMemo(
+    () => normalizeLendPoolDetails(reserves, userReservesSummary),
+    [reserves, userReservesSummary],
   );
 
-  const items = useMemo(
+  const tabsItems = useMemo(
     () => [
       {
         activeClassName: 'text-primary-20',
@@ -90,7 +87,7 @@ const AavePage: FC = () => {
         <Tabs
           className="w-full bg-gray-80 rounded p-1 border border-gray-60 2xl:hidden"
           index={activeTab}
-          items={items}
+          items={tabsItems}
           onChange={e => setActiveTab(e)}
           size={TabSize.normal}
           type={TabType.secondary}

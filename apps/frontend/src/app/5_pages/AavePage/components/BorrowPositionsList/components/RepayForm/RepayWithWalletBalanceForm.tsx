@@ -24,8 +24,8 @@ import { useAccount } from '../../../../../../../hooks/useAccount';
 import { useAssetBalance } from '../../../../../../../hooks/useAssetBalance';
 import { useDecimalAmountInput } from '../../../../../../../hooks/useDecimalAmountInput';
 import { translations } from '../../../../../../../locales/i18n';
-import { CollateralRatioHealthBar } from '../../../CollateralRatioHealthBar/CollateralRatioHealthBar';
 import { AaveCalculations } from '../../../../../../../utils/aave/AaveCalculations';
+import { CollateralRatioHealthBar } from '../../../CollateralRatioHealthBar/CollateralRatioHealthBar';
 
 const pageTranslations = translations.aavePage;
 
@@ -201,7 +201,7 @@ export const RepayWithWalletBalanceForm: FC<
           handleRepay(
             repaySize,
             await getAssetData(repayAsset, BOB_CHAIN_ID),
-            repayReserve!.borrowMode,
+            repayReserve!.borrowRateMode,
           );
         }}
       />

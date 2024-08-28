@@ -10,9 +10,8 @@ import {
   TransactionType,
 } from '../../app/3_organisms/TransactionStepDialog/TransactionStepDialog.types';
 import { translations } from '../../locales/i18n';
-import { TransactionFactoryOptions } from '../../types/aave';
+import { BorrowRateMode, TransactionFactoryOptions } from '../../types/aave';
 import { prepareApproveTransaction } from '../transactions';
-import { LoanType } from './AaveUserReservesSummary';
 
 export class AaveRepayTransactionsFactory {
   private readonly Pool: ethers.Contract;
@@ -43,17 +42,17 @@ export class AaveRepayTransactionsFactory {
   async repay(
     token: AssetDetailsData,
     amount: BigNumber,
-    loanType: LoanType,
+    borrowRateMode: BorrowRateMode,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
-    if (token.isNative) return this.repayNative(amount, loanType, opts);
-    else return this.repayToken(token, amount, loanType, opts);
+    if (token.isNative) return this.repayNative(amount, borrowRateMode, opts);
+    else return this.repayToken(token, amount, borrowRateMode, opts);
   }
 
   private async repayToken(
     asset: AssetDetailsData,
     amount: BigNumber,
-    loanType: LoanType,
+    borrowRateMode: BorrowRateMode,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
     const approval = await prepareApproveTransaction({
@@ -78,7 +77,7 @@ export class AaveRepayTransactionsFactory {
         args: [
           asset.address,
           amount.toString(),
-          loanType,
+          borrowRateMode,
           await this.signer.getAddress(),
         ],
         contract: this.Pool,
@@ -93,7 +92,7 @@ export class AaveRepayTransactionsFactory {
 
   private async repayNative(
     amount: BigNumber,
-    loanType: LoanType,
+    borrowRateMode: BorrowRateMode,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
     const nativeAsset = await getAssetDataByAddress(
@@ -115,7 +114,7 @@ export class AaveRepayTransactionsFactory {
           args: [
             this.PoolAddress,
             amount.toString(),
-            loanType,
+            borrowRateMode,
             await this.signer.getAddress(),
           ],
           contract: this.WETHGateway,

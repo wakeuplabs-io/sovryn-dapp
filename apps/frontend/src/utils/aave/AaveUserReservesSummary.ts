@@ -8,25 +8,17 @@ import { BigNumber, ethers } from 'ethers';
 
 import { AssetDetailsData, getAssetData } from '@sovryn/contracts';
 import { Decimal } from '@sovryn/utils';
-import { Reserve } from '../../hooks/aave/useAaveReservesData';
+
 import { BOB_CHAIN_ID } from '../../config/chains';
+
+import { Reserve } from '../../hooks/aave/useAaveReservesData';
+import { BorrowRateMode } from '../../types/aave';
 import { decimalic, fromWei } from '../math';
 import { AaveCalculations } from './AaveCalculations';
 
 export type UserSummary = FormatUserSummaryResponse<
   ReserveDataHumanized & FormatReserveUSDResponse
 >;
-
-export type AssetBalance = {
-  asset: AssetDetailsData;
-  balance: BigNumber;
-  balanceDecimal: Decimal;
-};
-
-export enum LoanType {
-  STABLE = 1,
-  VARIABLE = 2,
-}
 
 export type ReserveSummary = {
   reserve: Reserve;
@@ -39,7 +31,7 @@ export type ReserveSummary = {
   suppliedUSD: Decimal;
   borrowed: Decimal;
   borrowedUSD: Decimal;
-  borrowMode: LoanType;
+  borrowRateMode: BorrowRateMode;
   availableToBorrow: Decimal;
 };
 
@@ -96,7 +88,7 @@ export class AaveUserReservesSummaryFactory {
         availableToSupply: Decimal.ZERO,
         borrowed: Decimal.ZERO,
         borrowedUSD: Decimal.ZERO,
-        borrowMode: LoanType.VARIABLE,
+        borrowRateMode: BorrowRateMode.VARIABLE,
         availableToBorrow: Decimal.ZERO,
       })),
     };
@@ -175,12 +167,6 @@ export class AaveUserReservesSummaryFactory {
           const balance = await getBalance(asset, account, provider);
           const decimalBalance = decimalic(fromWei(balance, asset.decimals));
 
-          const supplied = Decimal.from(r.underlyingBalance)
-          const suppliedUSD = Decimal.from(r.underlyingBalanceUSD)
-
-          const borrowed = Decimal.from(r.totalBorrows)
-          const borrowedUSD = Decimal.from(r.totalBorrowsUSD)
-
           const availableToBorrow = borrowPower.div(r.reserve.priceInUSD);
 
           return {
@@ -190,13 +176,13 @@ export class AaveUserReservesSummaryFactory {
             walletBalance: decimalBalance,
             walletBalanceUsd: decimalBalance.mul(r.reserve.priceInUSD),
             collateral: r.usageAsCollateralEnabledOnUser,
-            supplied,
-            suppliedUSD,
-            borrowed,
-            borrowedUSD,
-            borrowMode: Decimal.from(r.variableBorrows).gt(0)
-              ? LoanType.VARIABLE
-              : LoanType.STABLE,
+            supplied: Decimal.from(r.underlyingBalance),
+            suppliedUSD: Decimal.from(r.underlyingBalanceUSD),
+            borrowed: Decimal.from(r.totalBorrows),
+            borrowedUSD: Decimal.from(r.totalBorrowsUSD),
+            borrowRateMode: Decimal.from(r.variableBorrows).gt(0)
+              ? BorrowRateMode.VARIABLE
+              : BorrowRateMode.STABLE,
             availableToBorrow,
           };
         }),
