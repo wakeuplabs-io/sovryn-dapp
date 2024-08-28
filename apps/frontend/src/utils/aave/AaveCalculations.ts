@@ -10,6 +10,10 @@ export class AaveCalculations {
     borrowedBalance: Decimal,
     netWorthUsd: Decimal,
   ): Decimal {
+    if (netWorthUsd.eq(0)) {
+      return Decimal.from(0);
+    }
+
     return weightedSupplyApy
       .mul(suppliedBalance)
       .div(netWorthUsd)
@@ -129,7 +133,7 @@ export class AaveCalculations {
     collateralBalance: Decimal,
   ) {
     if (collateralBalance.eq(0)) {
-      return Decimal.from(Infinity);
+      return Decimal.from(Infinity); // get liquidated right away
     }
     return borrowSize.mul(currentLiquidationThreshold).div(collateralBalance);
   }
