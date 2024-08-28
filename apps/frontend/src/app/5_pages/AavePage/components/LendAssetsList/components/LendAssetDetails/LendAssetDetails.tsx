@@ -54,6 +54,6 @@ export const LendAssetDetails: FC<LendAssetDetailsProps> = ({
       />
     </div>
 
-    <LendAssetAction onLendClick={onLendClick} />
+    <LendAssetAction onLendClick={onLendClick} asset={pool.asset} />
   </div>
 );

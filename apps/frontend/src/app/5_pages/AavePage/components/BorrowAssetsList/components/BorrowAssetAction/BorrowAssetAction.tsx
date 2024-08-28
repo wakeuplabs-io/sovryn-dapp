@@ -11,10 +11,12 @@ const pageTranslations = translations.aavePage;
 
 type BorrowAssetActionProps = {
   onBorrowClick: () => void;
+  asset: string;
 };
 
 export const BorrowAssetAction: FC<BorrowAssetActionProps> = ({
   onBorrowClick,
+  asset,
 }) => {
   const navigate = useNavigate();
 
@@ -30,7 +32,7 @@ export const BorrowAssetAction: FC<BorrowAssetActionProps> = ({
         className="flex-grow"
         text={t(pageTranslations.common.details)}
         style={ButtonStyle.secondary}
-        onClick={() => navigate('/aave/reserve-overview')}
+        onClick={() => navigate(`/aave/reserve-overview?asset=${asset}`)}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
@@ -15,8 +15,14 @@ import { MockData } from './components/Chart/Chart.types';
 
 const pageTranslations = translations.aaveReserveOverviewPage.interestRateModel;
 
-export const InterestRateModelGraph: FC = () => {
-  const [open, setOpen] = useState(true);
+type InterestRateModelGraphProps = {
+  rates: any;
+};
+
+export const InterestRateModelGraph: FC<InterestRateModelGraphProps> = ({
+  rates,
+}) => {
+  const [open, setOpen] = useState<boolean>(true);
   const { isMobile } = useIsMobile();
 
   // TODO: mocked amounts
@@ -34,6 +40,11 @@ export const InterestRateModelGraph: FC = () => {
       xLabels: data.map(() => ''),
     };
   }, []);
+
+  useEffect(() => {
+    console.log('rates', rates);
+  }, [rates]);
+
   return (
     <Accordion
       label={
@@ -57,7 +68,7 @@ export const InterestRateModelGraph: FC = () => {
           <Link href="#" text={t(pageTranslations.interestRateStrategy)} />
         </div>
 
-        <Chart mockData={mockData} yLabel1="" />
+        {rates && <Chart mockData={mockData} yLabel1="" rates={rates} />}
         {/* statistics */}
         <div className="flex gap-8">
           <StatisticsCard

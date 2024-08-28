@@ -1,11 +1,14 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
 import classNames from 'classnames';
 import { t } from 'i18next';
 import { Helmet } from 'react-helmet-async';
+import { useSearchParams } from 'react-router-dom';
 
 import { Paragraph, Tabs, TabSize, TabType } from '@sovryn/ui';
 
+import { getAaveInterestRatesData } from '../../../hooks/aave/useAaveRates';
+import { useAaveReservesData } from '../../../hooks/aave/useAaveReservesData';
 import { translations } from '../../../locales/i18n';
 import { BorrowDetailsGraph } from './components/BorrowDetailsGraph/BorrowDetailsGraph';
 import { EModeDetails } from './components/EModeDetails/EModeDetails';
@@ -22,10 +25,31 @@ enum OverviewTab {
 }
 
 const AaveReserveOverviewPage: FC = () => {
-  const [asset] = useState({ symbol: 'BTC', name: 'Bitcoin' }); // TODO: mock
+  const [searchParams] = useSearchParams();
+  const symbol = searchParams.get('asset') || '';
+  const reserves = useAaveReservesData();
+
+  const reserveAsset = reserves.find(r => r.symbol === symbol);
+  //const userReservesSummary = useAaveUserReservesData();
+
+  /*   console.log(
+    'userReserve',
+    userReservesSummary?.suppliedAssets.find(s => s.asset === symbol),
+  ); */
+
   const [activeOverviewTab, setActiveOverviewTab] = useState<OverviewTab>(
     OverviewTab.RESERVE,
   );
+
+  const [interestRatesData, setInterestRatesData] = useState(null);
+
+  useEffect(() => {
+    if (reserveAsset) {
+      getAaveInterestRatesData(reserveAsset).then(data =>
+        setInterestRatesData(data),
+      );
+    }
+  }, [reserveAsset]);
 
   return (
     <div className="w-full pb-6 2xl:px-12">
@@ -33,8 +57,21 @@ const AaveReserveOverviewPage: FC = () => {
         <title>{t(pageTranslations.meta.title)}</title>
       </Helmet>
 
-      <TopPanel asset={asset} className="lg:mb-[110px] lg:mt-[52px]" />
-      <Paragraph className="text-base mb-4">
+      <TopPanel
+        reserve={
+          reserveAsset
+            ? {
+                symbol: reserveAsset.symbol,
+                name: reserveAsset.name,
+                availableLiquidity: reserveAsset.formattedAvailableLiquidity,
+                liquidityRate: reserveAsset.liquidityRate,
+                priceOracle: '0', // priceOracle
+              }
+            : null
+        }
+        className="lg:mb-[110px] lg:mt-[52px]"
+      />
+      <Paragraph className="text-base mb-4 hidden md:block">
         {t(pageTranslations.reserveStatusTab.fullTitle)}
       </Paragraph>
 
@@ -70,7 +107,7 @@ const AaveReserveOverviewPage: FC = () => {
             <SupplyDetailsGraph />
             <BorrowDetailsGraph />
             <EModeDetails />
-            <InterestRateModelGraph />
+            <InterestRateModelGraph rates={interestRatesData} />
           </div>
 
           {/* wallet column */}
@@ -80,7 +117,7 @@ const AaveReserveOverviewPage: FC = () => {
               'lg:block space-y-4 w-[450px] shrink-0',
             )}
           >
-            <WalletOverview asset={asset} />
+            <WalletOverview asset={{ symbol: 'btc', name: 'bitcoin' }} />
           </div>
         </div>
       </div>

@@ -88,7 +88,10 @@ export const COLUMNS_CONFIG = (onLendClick: (asset: string) => unknown) => [
     align: Align.center,
     title: ' ',
     cellRenderer: (pool: LendPoolDetails) => (
-      <LendAssetAction onLendClick={() => onLendClick(pool.asset)} />
+      <LendAssetAction
+        onLendClick={() => onLendClick(pool.asset)}
+        asset={pool.asset}
+      />
     ),
   },
 ];

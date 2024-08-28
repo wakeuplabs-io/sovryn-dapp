@@ -9,25 +9,22 @@ import { WalletIcon } from '../../../../1_atoms/Icons/Icons';
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { AssetRenderer } from '../../../../2_molecules/AssetRenderer/AssetRenderer';
 import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/StatisticsCard';
+import { Reserve } from '../../../../../hooks/aave/useAaveReservesData';
 import { translations } from '../../../../../locales/i18n';
 
 const pageTranslations = translations.aaveReserveOverviewPage.topPanel;
 
+type CompactReserve = Pick<
+  Reserve,
+  'symbol' | 'name' | 'availableLiquidity' | 'liquidityRate' | 'priceOracle'
+>;
+
 type TopPanelProps = {
-  asset: {
-    name: string;
-    symbol: string;
-  };
+  reserve: CompactReserve | null;
   className?: string;
 };
 
-export const TopPanel: FC<TopPanelProps> = ({ asset, className }) => {
-  // TODO: Mocked data
-  const reserveSizeInM = 1234.58;
-  const availableLiquidityM = 1234.58;
-  const utilizationRate = 2.79;
-  const oraclePrice = 11.5;
-
+export const TopPanel: FC<TopPanelProps> = ({ reserve, className }) => {
   return (
     <div className={classNames('w-full flex flex-col gap-6', className)}>
       <div className="text-center py-6 px-10 space-y-3 lg:hidden">
@@ -43,13 +40,13 @@ export const TopPanel: FC<TopPanelProps> = ({ asset, className }) => {
         <div className="col-span-2 flex items-center lg:items-start gap-3">
           <div className="flex items-center gap-1">
             <AssetRenderer
-              asset={asset.symbol}
+              asset={reserve?.symbol || ''}
               showAssetLogo
               assetClassName="text-base"
               logoClassName="[&>svg]:h-8 [&>svg]:w-8 [&>svg]:mr-[10px]"
             />
             <span className="text-gray-40 text-base font-medium">
-              {asset.name}
+              {reserve?.name || ''}
             </span>
           </div>
 
@@ -73,7 +70,7 @@ export const TopPanel: FC<TopPanelProps> = ({ asset, className }) => {
             <AmountRenderer
               prefix="$"
               suffix="M"
-              value={reserveSizeInM}
+              value={'1234.56'} //@todo map this value
               className="text-2xl"
             />
           }
@@ -84,7 +81,7 @@ export const TopPanel: FC<TopPanelProps> = ({ asset, className }) => {
             <AmountRenderer
               prefix="$"
               suffix="M"
-              value={availableLiquidityM}
+              value={reserve?.availableLiquidity ?? '0'} //@todo ask this value
               className="text-2xl"
             />
           }
@@ -94,7 +91,7 @@ export const TopPanel: FC<TopPanelProps> = ({ asset, className }) => {
           value={
             <AmountRenderer
               suffix="%"
-              value={utilizationRate}
+              value={reserve?.liquidityRate || 0} //@todo ask this value
               className="text-2xl"
             />
           }
@@ -105,7 +102,7 @@ export const TopPanel: FC<TopPanelProps> = ({ asset, className }) => {
           value={
             <AmountRenderer
               prefix="$"
-              value={oraclePrice}
+              value={reserve?.priceOracle || 0} //@todo ask this value
               className="text-2xl"
             />
           }

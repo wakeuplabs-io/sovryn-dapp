@@ -51,6 +51,6 @@ export const BorrowAssetDetails: FC<BorrowAssetDetailsProps> = ({
       />
     </div>
 
-    <BorrowAssetAction onBorrowClick={onBorrowClick} />
+    <BorrowAssetAction onBorrowClick={onBorrowClick} asset={pool.asset} />
   </div>
 );
