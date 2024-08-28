@@ -37,15 +37,19 @@ const AavePage: FC = () => {
   const userReservesSummary = useAaveUserReservesData();
   const [activeTab, setActiveTab] = useState<ActiveTab>(ActiveTab.LEND);
 
-  const lendPositions: LendPosition[] =
-    normalizeLendPositions(userReservesSummary);
+  const lendPositions: LendPosition[] = useMemo(
+    () => normalizeLendPositions(userReservesSummary),
+    [userReservesSummary],
+  );
 
-  const borrowPositions: BorrowPosition[] =
-    normalizeBorrowPositions(userReservesSummary);
+  const borrowPositions: BorrowPosition[] = useMemo(
+    () => normalizeBorrowPositions(userReservesSummary),
+    [userReservesSummary],
+  );
 
-  const borrowPools: BorrowPoolDetails[] = normalizeBorrowPoolDetails(
-    reserves,
-    userReservesSummary,
+  const borrowPools: BorrowPoolDetails[] = useMemo(
+    () => normalizeBorrowPoolDetails(reserves, userReservesSummary),
+    [reserves, userReservesSummary],
   );
 
   const lendPools: LendPoolDetails[] = normalizeLendPoolDetails(

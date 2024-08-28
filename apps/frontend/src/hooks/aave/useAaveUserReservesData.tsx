@@ -1,29 +1,21 @@
 import { UiPoolDataProvider } from '@aave/contract-helpers';
 import { formatReserves, formatUserSummary } from '@aave/math-utils';
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import dayjs from 'dayjs';
-import { BigNumber } from 'ethers';
-
-import { getAssetData } from '@sovryn/contracts';
-import { Decimal } from '@sovryn/utils';
-
-import { BOB_CHAIN_ID } from '../../config/chains';
-
 import { config } from '../../constants/aave';
 import {
   AaveUserReservesSummary,
-  AssetBalance,
+  AaveUserReservesSummaryFactory,
 } from '../../utils/aave/AaveUserReservesSummary';
-import { decimalic, fromWei } from '../../utils/math';
 import { useAccount } from '../useAccount';
 import { useBlockNumber } from '../useBlockNumber';
 
-export const useAaveUserReservesData = (): AaveUserReservesSummary | null => {
+export const useAaveUserReservesData = (): AaveUserReservesSummary => {
   const provider = config.provider;
   const { account } = useAccount();
-  const [value, setValue] = useState<AaveUserReservesSummary | null>(null);
+  const [value, setValue] = useState<AaveUserReservesSummary>(
+    AaveUserReservesSummaryFactory.buildZeroSummary([]),
+  );
   const { value: blockNumber } = useBlockNumber();
   const [processedBlock, setProcessedBlock] = useState<number | undefined>();
 
@@ -40,7 +32,7 @@ export const useAaveUserReservesData = (): AaveUserReservesSummary | null => {
   );
 
   const loadUserReservesData = useCallback(async () => {
-    if (!account || !uiPoolDataProvider || !provider || !blockNumber) {
+    if (!account || !provider || !uiPoolDataProvider || !blockNumber) {
       return null;
     }
 
@@ -58,49 +50,25 @@ export const useAaveUserReservesData = (): AaveUserReservesSummary | null => {
       marketReferenceCurrencyPriceInUsd: marketReferencePriceInUsd,
     } = reservesData.baseCurrencyData;
     const currentTimestamp = dayjs().unix();
-
-    const balances: AssetBalance[] = await Promise.all(
-      reservesData.reservesData.map(async r => {
-        const asset = await getAssetData(r.symbol, BOB_CHAIN_ID);
-
-        try {
-          const balance = asset.isNative
-            ? await provider.getBalance(account)
-            : await asset.contract(provider).balanceOf(account);
-
-          return {
-            asset,
-            balance: BigNumber.from(balance),
-            balanceDecimal: decimalic(
-              fromWei(balance.toString(), asset.decimals),
-            ),
-          };
-        } catch (e) {
-          return {
-            asset,
-            balance: BigNumber.from(0),
-            balanceDecimal: Decimal.ZERO,
-          };
-        }
+    const userSummary = formatUserSummary({
+      currentTimestamp,
+      marketReferencePriceInUsd,
+      marketReferenceCurrencyDecimals,
+      userReserves: userReservesData.userReserves,
+      userEmodeCategoryId: userReservesData.userEmodeCategoryId,
+      formattedReserves: formatReserves({
+        currentTimestamp,
+        marketReferencePriceInUsd,
+        marketReferenceCurrencyDecimals,
+        reserves: reservesData.reservesData,
       }),
-    );
+    });
 
     setValue(
-      AaveUserReservesSummary.from(
-        formatUserSummary({
-          currentTimestamp,
-          marketReferencePriceInUsd,
-          marketReferenceCurrencyDecimals,
-          userReserves: userReservesData.userReserves,
-          userEmodeCategoryId: userReservesData.userEmodeCategoryId,
-          formattedReserves: formatReserves({
-            currentTimestamp,
-            marketReferencePriceInUsd,
-            marketReferenceCurrencyDecimals,
-            reserves: reservesData.reservesData,
-          }),
-        }),
-        balances,
+      await AaveUserReservesSummaryFactory.buildSummary(
+        provider,
+        account,
+        userSummary,
       ),
     );
     setProcessedBlock(blockNumber);

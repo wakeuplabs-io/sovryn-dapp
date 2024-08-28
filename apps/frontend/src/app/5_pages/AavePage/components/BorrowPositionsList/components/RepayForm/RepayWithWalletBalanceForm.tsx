@@ -19,13 +19,13 @@ import { AssetAmountInput } from '../../../../../../2_molecules/AssetAmountInput
 import { AssetRenderer } from '../../../../../../2_molecules/AssetRenderer/AssetRenderer';
 import { config } from '../../../../../../../constants/aave';
 import { useAaveRepay } from '../../../../../../../hooks/aave/useAaveRepay';
-import { useAaveReservesData } from '../../../../../../../hooks/aave/useAaveReservesData';
 import { useAaveUserReservesData } from '../../../../../../../hooks/aave/useAaveUserReservesData';
 import { useAccount } from '../../../../../../../hooks/useAccount';
 import { useAssetBalance } from '../../../../../../../hooks/useAssetBalance';
 import { useDecimalAmountInput } from '../../../../../../../hooks/useDecimalAmountInput';
 import { translations } from '../../../../../../../locales/i18n';
 import { CollateralRatioHealthBar } from '../../../CollateralRatioHealthBar/CollateralRatioHealthBar';
+import { AaveCalculations } from '../../../../../../../utils/aave/AaveCalculations';
 
 const pageTranslations = translations.aavePage;
 
@@ -39,7 +39,6 @@ export const RepayWithWalletBalanceForm: FC<
 > = ({ asset }) => {
   const { account } = useAccount();
   const { handleRepay } = useAaveRepay();
-  const reserves = useAaveReservesData();
   const userReservesSummary = useAaveUserReservesData();
   const [repayAsset, setRepayAsset] = useState<string>(asset);
   const [repayAmount, setRepayAmount, repaySize] = useDecimalAmountInput('');
@@ -51,67 +50,61 @@ export const RepayWithWalletBalanceForm: FC<
 
   const repayAssetsOptions = useMemo(
     () =>
-      userReservesSummary
-        ? userReservesSummary.borrowedAssets.map(ba => ({
-            value: ba.asset,
-            label: (
-              <AssetRenderer
-                showAssetLogo
-                asset={ba.asset}
-                assetClassName="font-medium"
-                chainId={BOB_CHAIN_ID}
-              />
-            ),
-          }))
-        : [],
+      userReservesSummary.reserves
+        .filter(r => r.borrowed.gt(0))
+        .map(ba => ({
+          value: ba.asset,
+          label: (
+            <AssetRenderer
+              showAssetLogo
+              asset={ba.asset}
+              assetClassName="font-medium"
+              chainId={BOB_CHAIN_ID}
+            />
+          ),
+        })),
     [userReservesSummary],
   );
 
-  const debt = useMemo(() => {
-    return userReservesSummary?.borrowedAssets.find(
-      a => a.asset === repayAsset,
+  const repayReserve = useMemo(() => {
+    return userReservesSummary.reserves.find(
+      r => r.reserve.symbol === repayAsset,
     );
-  }, [userReservesSummary, repayAsset]);
+  }, [userReservesSummary.reserves, repayAsset]);
 
   const maximumRepayAmount = useMemo(() => {
-    return debt
-      ? debt.borrowed.gt(repayAssetBalance)
+    return repayReserve
+      ? repayReserve.borrowed.gt(repayAssetBalance)
         ? repayAssetBalance
-        : debt.borrowed
+        : repayReserve.borrowed
       : Decimal.from(0);
-  }, [debt, repayAssetBalance]);
-
-  const reserve = useMemo(() => {
-    return reserves.find(r => r.symbol === repayAsset);
-  }, [reserves, repayAsset]);
+  }, [repayReserve, repayAssetBalance]);
 
   const repayUsdAmount = useMemo(() => {
-    return repaySize.mul(reserve?.priceInUSD ?? 0);
-  }, [repaySize, reserve]);
+    return repaySize.mul(repayReserve?.reserve.priceInUSD ?? 0);
+  }, [repaySize, repayReserve]);
 
   const newDebtAmount = useMemo(() => {
-    const nd = debt?.borrowed ? debt.borrowed.sub(repaySize) : Decimal.from(0);
+    const nd = repayReserve?.borrowed
+      ? repayReserve.borrowed.sub(repaySize)
+      : Decimal.from(0);
     return nd.gt(0) ? nd : Decimal.from(0);
-  }, [debt, repaySize]);
+  }, [repayReserve?.borrowed, repaySize]);
 
   const newDebtAmountUSD = useMemo(() => {
-    return newDebtAmount.mul(reserve?.priceInUSD ?? 0);
-  }, [newDebtAmount, reserve]);
-
-  const collateralRatio = useMemo(() => {
-    if (!userReservesSummary) return Decimal.from(0);
-
-    return userReservesSummary.healthFactor.div(
-      userReservesSummary.currentLiquidationThreshold,
-    );
-  }, [userReservesSummary]);
+    return newDebtAmount.mul(repayReserve?.reserve.priceInUSD ?? 0);
+  }, [newDebtAmount, repayReserve]);
 
   const newCollateralRatio = useMemo(() => {
-    if (!userReservesSummary) return Decimal.from(0);
-    if (newDebtAmountUSD.eq(0)) return Decimal.from('100000000');
+    const newTotalDebtUsd =
+      userReservesSummary.borrowBalance.add(newDebtAmountUSD);
+    if (newTotalDebtUsd.eq(0)) {
+      return Decimal.from('100000000'); // div/0 -> inf
+    }
 
-    return userReservesSummary.collateralBalance.div(
-      userReservesSummary.borrowBalance.add(newDebtAmountUSD),
+    return AaveCalculations.computeCollateralRatio(
+      userReservesSummary.collateralBalance,
+      newTotalDebtUsd,
     );
   }, [userReservesSummary, newDebtAmountUSD]);
 
@@ -158,7 +151,7 @@ export const RepayWithWalletBalanceForm: FC<
                 className="justify-end"
                 from={{
                   precision: 2,
-                  value: debt?.borrowed ?? Decimal.from(0),
+                  value: repayReserve?.borrowed ?? Decimal.from(0),
                   suffix: repayAsset,
                 }}
                 to={{ value: newDebtAmount, suffix: repayAsset, precision: 2 }}
@@ -167,7 +160,7 @@ export const RepayWithWalletBalanceForm: FC<
                 className="justify-end text-gray-40"
                 from={{
                   precision: 2,
-                  value: debt?.borrowedUSD ?? Decimal.from(0),
+                  value: repayReserve?.borrowedUSD ?? Decimal.from(0),
                   prefix: '$',
                 }}
                 to={{
@@ -185,7 +178,7 @@ export const RepayWithWalletBalanceForm: FC<
             <AmountTransition
               className="justify-end"
               from={{
-                value: collateralRatio.mul(100),
+                value: userReservesSummary.collateralRatio.mul(100),
                 suffix: '%',
                 precision: 2,
               }}
@@ -208,7 +201,7 @@ export const RepayWithWalletBalanceForm: FC<
           handleRepay(
             repaySize,
             await getAssetData(repayAsset, BOB_CHAIN_ID),
-            debt!.type,
+            repayReserve!.borrowMode,
           );
         }}
       />
