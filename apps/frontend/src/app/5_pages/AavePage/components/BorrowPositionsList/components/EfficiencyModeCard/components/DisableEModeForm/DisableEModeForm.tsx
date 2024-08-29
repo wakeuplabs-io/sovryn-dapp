@@ -30,7 +30,7 @@ type DisableEModeFormProps = {
 
 export const DisableEModeForm: FC<DisableEModeFormProps> = ({ current }) => {
   const { handleDisableUserEMode } = useAaveSetUserEMode();
-  const { summary, userReservesData, reservesData, timestamp } =
+  const { userReservesData, reservesData, timestamp } =
     useAaveUserReservesData();
 
   const onConfirm = useCallback(() => {
@@ -72,6 +72,9 @@ export const DisableEModeForm: FC<DisableEModeFormProps> = ({ current }) => {
   }, [newSummary]);
 
   const liquidationRisk = useMemo(() => {
+    if (newSummary?.healthFactor === '-1') {
+      return false;
+    }
     return Decimal.from(newSummary?.healthFactor ?? 0).lte(1);
   }, [newSummary?.healthFactor]);
 
@@ -131,7 +134,7 @@ export const DisableEModeForm: FC<DisableEModeFormProps> = ({ current }) => {
           value={
             <div className={'flex items-center justify-end gap-1'}>
               <AmountRenderer
-                value={Decimal.from(summary?.currentLoanToValue ?? 0).mul(100)}
+                value={Decimal.from(current?.ltv ?? 0).div(100)}
                 precision={2}
                 suffix="%"
               />

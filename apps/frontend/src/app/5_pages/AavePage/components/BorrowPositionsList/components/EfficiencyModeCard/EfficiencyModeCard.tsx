@@ -60,7 +60,7 @@ export const EfficiencyModeCard: FC<EfficiencyModeCardProps> = ({
       <Tooltip
         className={classNames('flex flex-row gap-2 items-center', className)}
         tooltipClassName="p-1 bg-gray-80"
-        trigger={TooltipTrigger.hover}
+        trigger={TooltipTrigger.click}
         content={
           <div className="max-w-52 ">
             <div className="p-[10px] text-white space-y-1">

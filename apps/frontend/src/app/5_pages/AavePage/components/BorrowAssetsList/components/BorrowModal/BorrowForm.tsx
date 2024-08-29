@@ -167,7 +167,7 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset, onSuccess }) => {
           <span>
             {t(translations.aavePage.borrowForm.acknowledge)}{' '}
             <Link
-              text={translations.aavePage.borrowForm.learnMore}
+              text={t(translations.aavePage.borrowForm.learnMore)}
               href="#learn-more"
             />
             {/* TODO: Add proper learn more href */}

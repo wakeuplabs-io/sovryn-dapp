@@ -36,16 +36,18 @@ export const SwitchEModeForm: FC<SwitchEModeFormProps> = ({
   categories,
 }) => {
   const { handleSetUserEMode } = useAaveSetUserEMode();
-  const [category, setCategory] = useState(String(categories[0].id));
+  const [category, setCategory] = useState<string>('');
   const { summary, userReservesData, reservesData, timestamp } =
     useAaveUserReservesData();
 
   const categoriesOptions = useMemo(() => {
-    return categories.map(category => ({
-      label: category.label,
-      value: String(category.id),
-    }));
-  }, [categories]);
+    return categories
+      .filter(c => c.id !== current.id)
+      .map(category => ({
+        label: category.label,
+        value: String(category.id),
+      }));
+  }, [categories, current?.id]);
 
   const selectedCategory = useMemo(() => {
     return categories.find(c => c.id === Number(category));
@@ -61,7 +63,7 @@ export const SwitchEModeForm: FC<SwitchEModeFormProps> = ({
       marketReferenceCurrencyPriceInUsd: marketReferencePriceInUsd,
     } = reservesData.baseCurrencyData;
     return formatUserSummary({
-      userEmodeCategoryId: 0, // disable mode
+      userEmodeCategoryId: selectedCategory?.id ?? 0,
       currentTimestamp: timestamp,
       marketReferencePriceInUsd,
       marketReferenceCurrencyDecimals,
@@ -73,7 +75,7 @@ export const SwitchEModeForm: FC<SwitchEModeFormProps> = ({
         reserves: reservesData.reservesData,
       }),
     });
-  }, [userReservesData, reservesData, timestamp]);
+  }, [userReservesData, reservesData, timestamp, selectedCategory?.id]);
 
   const newCollateralRatio = useMemo(() => {
     if (!newSummary) {
@@ -86,19 +88,19 @@ export const SwitchEModeForm: FC<SwitchEModeFormProps> = ({
   }, [newSummary]);
 
   const positionsInOtherCategories = useMemo(() => {
-    return summary.reserves.find(
-      r =>
-        r.borrowed.gt(0) && r.reserve.eModeCategoryId !== selectedCategory?.id,
+    return summary.reserves.some(
+      r => r.reserve.eModeCategoryId !== Number(category) && r.borrowed.gt(0),
     );
-  }, [summary.reserves, selectedCategory?.id]);
+  }, [summary, category]);
 
   const confirmEnabled = useMemo(() => {
     // cannot switch if undercollateralized or have positions in other categories
     return (
-      Decimal.from(newSummary?.healthFactor ?? 0).gt(1) &&
-      !positionsInOtherCategories
+      Decimal.from(newSummary?.healthFactor ?? 0).lte(1) &&
+      !positionsInOtherCategories &&
+      selectedCategory
     );
-  }, [newSummary, positionsInOtherCategories]);
+  }, [newSummary, positionsInOtherCategories, selectedCategory]);
 
   const onConfirm = useCallback(() => {
     if (!selectedCategory) return;
@@ -135,7 +137,9 @@ export const SwitchEModeForm: FC<SwitchEModeFormProps> = ({
                 icon={IconNames.ARROW_RIGHT}
                 className="h-2 flex-shrink-0"
               />
-              <span className="text-primary-10">{selectedCategory?.label}</span>
+              <span className="text-primary-10">
+                {selectedCategory?.label ?? '-'}
+              </span>
             </div>
           }
         />

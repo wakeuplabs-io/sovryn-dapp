@@ -99,7 +99,7 @@ export const EnableEModeForm: FC<EnableEModeFormProps> = ({ categories }) => {
 
       <Button
         className="w-full"
-        disabled={!!positionsInOtherCategories}
+        disabled={positionsInOtherCategories}
         text={t(translations.common.buttons.confirm)}
         onClick={onConfirmClick}
       />
