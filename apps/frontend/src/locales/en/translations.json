@@ -826,7 +826,9 @@
             "enableAssetAsCollateral": "Enable {{symbol}} as collateral",
             "enableAssetAsCollateralSubtitle": "Enabling {{symbol}} as collateral will increase your borrowing power",
             "disableAssetAsCollateral": "Disable {{symbol}} as collateral",
-            "disableAssetAsCollateralSubtitle": "Disabling {{symbol}} as collateral will decrease your borrowing power and potentially risk you to liquidation"
+            "disableAssetAsCollateralSubtitle": "Disabling {{symbol}} as collateral will decrease your borrowing power and potentially risk you to liquidation",
+            "setUserEModeTitle": "Set E-Mode to {{category}}",
+            "setUserEModeSubtitle": "Set E-Mode to {{category}} category"
         },
         "eMode": {
             "availableAssets": "Available assets",

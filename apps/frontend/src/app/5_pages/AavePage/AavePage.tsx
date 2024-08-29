@@ -119,7 +119,7 @@ const AavePage: FC = () => {
           >
             <BorrowPositionsList
               borrowPositions={borrowPositions}
-              eModeEnabled={userReservesSummary.eModeEnabled}
+              eModeCategoryId={userReservesSummary.eModeCategoryId}
               borrowBalance={userReservesSummary.borrowBalance}
               borrowPowerUsed={userReservesSummary.borrowPowerUsed}
               borrowWeightedApy={userReservesSummary.borrowWeightedApy}

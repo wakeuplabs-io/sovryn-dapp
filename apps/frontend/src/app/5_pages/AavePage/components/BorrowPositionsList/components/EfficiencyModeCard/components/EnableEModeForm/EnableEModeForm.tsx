@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
@@ -11,39 +11,43 @@ import {
   SimpleTable,
   SimpleTableRow,
 } from '@sovryn/ui';
-import { Decimal } from '@sovryn/utils';
 
-import { config } from '../../../../../../../../../constants/aave';
+import { AmountRenderer } from '../../../../../../../../2_molecules/AmountRenderer/AmountRenderer';
+import { useAaveSetUserEMode } from '../../../../../../../../../hooks/aave/useAaveSetUserEMode';
+import { useAaveUserReservesData } from '../../../../../../../../../hooks/aave/useAaveUserReservesData';
 import { translations } from '../../../../../../../../../locales/i18n';
-import { CollateralRatioHealthBar } from '../../../../../CollateralRatioHealthBar/CollateralRatioHealthBar';
+import { EModeCategory } from '../../../../../../../../../types/aave';
 
-type EnableEModeFormProps = {};
+type EnableEModeFormProps = {
+  categories: EModeCategory[];
+};
 
-const categories = [
-  { label: 'Stablecoins', categoryId: 1, availableAssets: ['USDC', 'USDT'] },
-];
-
-export const EnableEModeForm: FC<EnableEModeFormProps> = () => {
-  const [category, setCategory] = useState(String(categories[0].categoryId));
+export const EnableEModeForm: FC<EnableEModeFormProps> = ({ categories }) => {
+  const [category, setCategory] = useState(String(categories[0].id));
+  const userReserves = useAaveUserReservesData();
+  const { handleSetUserEMode } = useAaveSetUserEMode();
 
   const categoriesOptions = useMemo(() => {
     return categories.map(category => ({
       label: category.label,
-      value: String(category.categoryId),
+      value: String(category.id),
     }));
-  }, []);
+  }, [categories]);
 
   const selectedCategory = useMemo(() => {
-    return categories.find(c => c.categoryId === Number(category));
-  }, [category]);
-
-  const confirmEnabled = useMemo(() => {
-    return true;
-  }, []);
+    return categories.find(c => c.id === Number(category));
+  }, [category, categories]);
 
   const positionsInOtherCategories = useMemo(() => {
-    return false;
-  }, []);
+    return userReserves.reserves.some(
+      r => r.reserve.eModeCategoryId !== Number(category) && r.borrowed.gt(0),
+    );
+  }, [userReserves, category]);
+
+  const onConfirmClick = useCallback(() => {
+    if (!selectedCategory) return;
+    handleSetUserEMode(selectedCategory);
+  }, [handleSetUserEMode, selectedCategory]);
 
   return (
     <div className="space-y-6">
@@ -66,19 +70,20 @@ export const EnableEModeForm: FC<EnableEModeFormProps> = () => {
         />
       </div>
 
-      <CollateralRatioHealthBar
-        ratio={Decimal.from(1.5)}
-        minimum={config.MinCollateralRatio}
-      />
-
       <SimpleTable>
         <SimpleTableRow
           label={t(translations.aavePage.eMode.availableAssets)}
-          value={selectedCategory?.availableAssets.join(', ')}
+          value={selectedCategory?.assets.join(', ')}
         />
         <SimpleTableRow
           label={t(translations.aavePage.eMode.maxLoanToValue)}
-          value={''}
+          value={
+            <AmountRenderer
+              value={selectedCategory ? selectedCategory.ltv.div(100) : 0}
+              suffix="%"
+              precision={2}
+            />
+          }
         />
       </SimpleTable>
 
@@ -86,7 +91,7 @@ export const EnableEModeForm: FC<EnableEModeFormProps> = () => {
         <ErrorBadge
           level={ErrorLevel.Critical}
           message={t(translations.aavePage.eMode.positionsMustBeClosed, {
-            category,
+            category: selectedCategory?.label,
           })}
           dataAttribute="positions-must-be-closed-error"
         />
@@ -94,9 +99,9 @@ export const EnableEModeForm: FC<EnableEModeFormProps> = () => {
 
       <Button
         className="w-full"
-        disabled={!confirmEnabled}
+        disabled={!!positionsInOtherCategories}
         text={t(translations.common.buttons.confirm)}
-        onClick={async () => {}}
+        onClick={onConfirmClick}
       />
     </div>
   );
