@@ -20,6 +20,7 @@ import {
 import { EModeIcon } from '../../../../../../1_atoms/Icons/Icons';
 import { useAaveEModeCategories } from '../../../../../../../hooks/aave/useAaveEModeCategories';
 import { translations } from '../../../../../../../locales/i18n';
+import { EModeCategory } from '../../../../../../../types/aave';
 import { DisableEModeForm } from './components/DisableEModeForm/DisableEModeForm';
 import { EnableEModeForm } from './components/EnableEModeForm/EnableEModeForm';
 import { SwitchEModeForm } from './components/SwitchEModeForm/SwitchEModeForm';
@@ -145,7 +146,10 @@ export const EfficiencyModeCard: FC<EfficiencyModeCardProps> = ({
           onClose={onSwitchEModeClose}
         />
         <DialogBody>
-          <SwitchEModeForm />
+          <SwitchEModeForm
+            categories={eModeCategories}
+            current={currentCategory as EModeCategory}
+          />
         </DialogBody>
       </Dialog>
 
@@ -155,7 +159,7 @@ export const EfficiencyModeCard: FC<EfficiencyModeCardProps> = ({
           onClose={onDisableEModeClose}
         />
         <DialogBody>
-          <DisableEModeForm />
+          <DisableEModeForm current={currentCategory as EModeCategory} />
         </DialogBody>
       </Dialog>
     </>

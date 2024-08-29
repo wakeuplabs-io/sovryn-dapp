@@ -44,4 +44,20 @@ export class AaveEModeTransactionsFactory {
       },
     ];
   }
+
+  async disableEMode(opts?: TransactionFactoryOptions): Promise<Transaction[]> {
+    return [
+      {
+        title: t(translations.aavePage.tx.disableEModeTitle),
+        subtitle: t(translations.aavePage.tx.disableEModeSubtitle),
+        request: {
+          type: TransactionType.signTransaction,
+          args: [0],
+          contract: this.Pool,
+          fnName: 'setUserEMode',
+        },
+        onComplete: opts?.onComplete,
+      },
+    ];
+  }
 }

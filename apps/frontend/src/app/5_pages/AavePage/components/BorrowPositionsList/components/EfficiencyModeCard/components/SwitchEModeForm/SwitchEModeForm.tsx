@@ -1,4 +1,6 @@
-import React, { FC, useMemo, useState } from 'react';
+import { formatReserves, formatUserSummary } from '@aave/math-utils';
+
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
@@ -6,6 +8,8 @@ import {
   Button,
   ErrorBadge,
   ErrorLevel,
+  Icon,
+  IconNames,
   Paragraph,
   Select,
   SimpleTable,
@@ -13,37 +17,93 @@ import {
 } from '@sovryn/ui';
 import { Decimal } from '@sovryn/utils';
 
+import { AmountRenderer } from '../../../../../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { config } from '../../../../../../../../../constants/aave';
+import { useAaveSetUserEMode } from '../../../../../../../../../hooks/aave/useAaveSetUserEMode';
+import { useAaveUserReservesData } from '../../../../../../../../../hooks/aave/useAaveUserReservesData';
 import { translations } from '../../../../../../../../../locales/i18n';
+import { EModeCategory } from '../../../../../../../../../types/aave';
+import { AaveCalculations } from '../../../../../../../../../utils/aave/AaveCalculations';
 import { CollateralRatioHealthBar } from '../../../../../CollateralRatioHealthBar/CollateralRatioHealthBar';
 
-type SwitchEModeFormProps = {};
+type SwitchEModeFormProps = {
+  current: EModeCategory;
+  categories: EModeCategory[];
+};
 
-const categories = [
-  { label: 'Stablecoins', categoryId: 1, availableAssets: ['USDC', 'USDT'] },
-];
-
-export const SwitchEModeForm: FC<SwitchEModeFormProps> = () => {
-  const [category, setCategory] = useState(String(categories[0].categoryId));
+export const SwitchEModeForm: FC<SwitchEModeFormProps> = ({
+  current,
+  categories,
+}) => {
+  const { handleSetUserEMode } = useAaveSetUserEMode();
+  const [category, setCategory] = useState(String(categories[0].id));
+  const { summary, userReservesData, reservesData, timestamp } =
+    useAaveUserReservesData();
 
   const categoriesOptions = useMemo(() => {
     return categories.map(category => ({
       label: category.label,
-      value: String(category.categoryId),
+      value: String(category.id),
     }));
-  }, []);
+  }, [categories]);
 
   const selectedCategory = useMemo(() => {
-    return categories.find(c => c.categoryId === Number(category));
-  }, [category]);
+    return categories.find(c => c.id === Number(category));
+  }, [category, categories]);
 
-  const confirmEnabled = useMemo(() => {
-    return true;
-  }, []);
+  const newSummary = useMemo(() => {
+    if (!userReservesData || !reservesData) {
+      return;
+    }
+
+    const {
+      marketReferenceCurrencyDecimals,
+      marketReferenceCurrencyPriceInUsd: marketReferencePriceInUsd,
+    } = reservesData.baseCurrencyData;
+    return formatUserSummary({
+      userEmodeCategoryId: 0, // disable mode
+      currentTimestamp: timestamp,
+      marketReferencePriceInUsd,
+      marketReferenceCurrencyDecimals,
+      userReserves: userReservesData.userReserves,
+      formattedReserves: formatReserves({
+        currentTimestamp: timestamp,
+        marketReferencePriceInUsd,
+        marketReferenceCurrencyDecimals,
+        reserves: reservesData.reservesData,
+      }),
+    });
+  }, [userReservesData, reservesData, timestamp]);
+
+  const newCollateralRatio = useMemo(() => {
+    if (!newSummary) {
+      return Decimal.from(0);
+    }
+    return AaveCalculations.computeCollateralRatio(
+      Decimal.from(newSummary.totalCollateralUSD),
+      Decimal.from(newSummary.totalBorrowsUSD),
+    );
+  }, [newSummary]);
 
   const positionsInOtherCategories = useMemo(() => {
-    return false;
-  }, []);
+    return summary.reserves.find(
+      r =>
+        r.borrowed.gt(0) && r.reserve.eModeCategoryId !== selectedCategory?.id,
+    );
+  }, [summary.reserves, selectedCategory?.id]);
+
+  const confirmEnabled = useMemo(() => {
+    // cannot switch if undercollateralized or have positions in other categories
+    return (
+      Decimal.from(newSummary?.healthFactor ?? 0).gt(1) &&
+      !positionsInOtherCategories
+    );
+  }, [newSummary, positionsInOtherCategories]);
+
+  const onConfirm = useCallback(() => {
+    if (!selectedCategory) return;
+    handleSetUserEMode(selectedCategory);
+  }, [handleSetUserEMode, selectedCategory]);
 
   return (
     <div className="space-y-6">
@@ -61,22 +121,48 @@ export const SwitchEModeForm: FC<SwitchEModeFormProps> = () => {
       </div>
 
       <CollateralRatioHealthBar
-        ratio={Decimal.from(1.5)}
+        ratio={newCollateralRatio}
         minimum={config.MinCollateralRatio}
       />
 
       <SimpleTable>
         <SimpleTableRow
           label={t(translations.aavePage.eMode.eModeCategory)}
-          value={'from -> to'}
+          value={
+            <div className={'flex items-center justify-end gap-1'}>
+              <span>{current?.label}</span>
+              <Icon
+                icon={IconNames.ARROW_RIGHT}
+                className="h-2 flex-shrink-0"
+              />
+              <span className="text-primary-10">{selectedCategory?.label}</span>
+            </div>
+          }
         />
         <SimpleTableRow
           label={t(translations.aavePage.eMode.availableAssets)}
-          value={selectedCategory?.availableAssets.join(', ')}
+          value={selectedCategory?.assets.join(', ')}
         />
         <SimpleTableRow
           label={t(translations.aavePage.eMode.maxLoanToValue)}
-          value={''}
+          value={
+            <div className={'flex items-center justify-end gap-1'}>
+              <AmountRenderer
+                value={current?.ltv.div(100)}
+                precision={2}
+                suffix="%"
+              />
+              <Icon
+                icon={IconNames.ARROW_RIGHT}
+                className="h-2 flex-shrink-0"
+              />
+              <AmountRenderer
+                value={Decimal.from(selectedCategory?.ltv ?? 0).div(100)}
+                precision={2}
+                suffix="%"
+              />
+            </div>
+          }
         />
       </SimpleTable>
 
@@ -94,7 +180,7 @@ export const SwitchEModeForm: FC<SwitchEModeFormProps> = () => {
         className="w-full"
         disabled={!confirmEnabled}
         text={t(translations.aavePage.eMode.switchCategory)}
-        onClick={async () => {}}
+        onClick={onConfirm}
       />
     </div>
   );

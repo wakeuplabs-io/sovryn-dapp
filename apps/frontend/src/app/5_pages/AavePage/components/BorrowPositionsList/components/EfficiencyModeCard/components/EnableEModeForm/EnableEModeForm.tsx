@@ -23,26 +23,26 @@ type EnableEModeFormProps = {
 };
 
 export const EnableEModeForm: FC<EnableEModeFormProps> = ({ categories }) => {
-  const [category, setCategory] = useState(String(categories[0].id));
-  const userReserves = useAaveUserReservesData();
+  const [category, setCategory] = useState(String(categories[0]?.id));
+  const { summary } = useAaveUserReservesData();
   const { handleSetUserEMode } = useAaveSetUserEMode();
 
   const categoriesOptions = useMemo(() => {
     return categories.map(category => ({
       label: category.label,
-      value: String(category.id),
+      value: String(category?.id),
     }));
   }, [categories]);
 
   const selectedCategory = useMemo(() => {
-    return categories.find(c => c.id === Number(category));
+    return categories.find(c => c?.id === Number(category));
   }, [category, categories]);
 
   const positionsInOtherCategories = useMemo(() => {
-    return userReserves.reserves.some(
+    return summary.reserves.some(
       r => r.reserve.eModeCategoryId !== Number(category) && r.borrowed.gt(0),
     );
-  }, [userReserves, category]);
+  }, [summary, category]);
 
   const onConfirmClick = useCallback(() => {
     if (!selectedCategory) return;

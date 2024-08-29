@@ -27,11 +27,28 @@ export const useAaveSetUserEMode = () => {
       setTransactions(
         await aaveEModeTransactionsFactory.setUserEMode(category, opts),
       );
-      setTitle(t(translations.aavePage.tx.setUserEModeTitle, { category }));
+      setTitle(
+        t(translations.aavePage.tx.setUserEModeTitle, {
+          category: category.label,
+        }),
+      );
       setIsOpen(true);
     },
     [setIsOpen, setTitle, setTransactions, aaveEModeTransactionsFactory],
   );
 
-  return { handleSetUserEMode };
+  const handleDisableUserEMode = useCallback(
+    async (opts?: TransactionFactoryOptions) => {
+      if (!aaveEModeTransactionsFactory) {
+        return;
+      }
+
+      setTransactions(await aaveEModeTransactionsFactory.disableEMode(opts));
+      setTitle(t(translations.aavePage.tx.disableEModeTitle));
+      setIsOpen(true);
+    },
+    [aaveEModeTransactionsFactory, setIsOpen, setTitle, setTransactions],
+  );
+
+  return { handleSetUserEMode, handleDisableUserEMode };
 };
