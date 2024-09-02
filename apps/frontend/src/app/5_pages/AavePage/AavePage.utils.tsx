@@ -32,9 +32,11 @@ export function normalizeBorrowPositions(
           ? Decimal.from(r.reserve.stableBorrowAPY).mul(100)
           : Decimal.from(r.reserve.variableBorrowAPY).mul(100),
       ),
+      borrowRateMode: r.borrowRateMode,
+      stableApy: Decimal.from(r.reserve.stableBorrowAPY).mul(100),
+      variableApy: Decimal.from(r.reserve.variableBorrowAPY).mul(100),
       borrowed: r.borrowed,
       borrowedUSD: r.borrowedUSD,
-      type: r.borrowRateMode,
     }));
 }
 
