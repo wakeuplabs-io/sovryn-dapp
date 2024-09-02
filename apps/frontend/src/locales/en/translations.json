@@ -919,7 +919,8 @@
             "collateralization": "Collateralization",
             "lendApy": "Lend APY",
             "deposit": "Deposit",
-            "enabled": "Enabled"
+            "enabled": "Enabled",
+            "disabled": "Disabled"
         },
         "eModeCard": {
             "title": "Efficiency mode (E-Mode)",

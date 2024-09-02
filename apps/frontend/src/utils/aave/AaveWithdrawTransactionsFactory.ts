@@ -40,7 +40,9 @@ export class AaveWithdrawTransactionsFactory {
     amount: BigNumber,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
-    if (token.isNative) return this.withdrawNative(amount, opts);
+    const WETH = await getAssetData('WETH', BOB_CHAIN_ID);
+    if (token.address.toLowerCase() === WETH.address.toLowerCase())
+      return this.withdrawNative(amount, opts);
     else return this.withdrawToken(token, amount, opts);
   }
 

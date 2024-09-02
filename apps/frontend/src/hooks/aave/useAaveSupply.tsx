@@ -3,8 +3,10 @@ import { useCallback, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import { t } from 'i18next';
 
-import { AssetDetailsData } from '@sovryn/contracts';
+import { AssetDetailsData, getAssetDataByAddress } from '@sovryn/contracts';
 import { Decimal } from '@sovryn/utils';
+
+import { BOB_CHAIN_ID } from '../../config/chains';
 
 import { config } from '../../constants/aave';
 import { useTransactionContext } from '../../contexts/TransactionContext';
@@ -60,7 +62,9 @@ export const useAaveSupply = () => {
 
       setTransactions(
         await aaveSupplyTransactionsFactory.collateralSwitch(
-          asset,
+          asset.isNative
+            ? await getAssetDataByAddress(config.WETHAddress, BOB_CHAIN_ID)
+            : asset,
           useAsCollateral,
           opts,
         ),

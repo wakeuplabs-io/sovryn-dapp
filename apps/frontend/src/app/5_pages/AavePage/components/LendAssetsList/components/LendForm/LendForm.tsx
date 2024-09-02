@@ -2,7 +2,7 @@ import React, { FC, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
-import { getAssetData } from '@sovryn/contracts';
+import { getAssetDataByAddress } from '@sovryn/contracts';
 import {
   Button,
   ErrorBadge,
@@ -66,7 +66,7 @@ export const LendForm: FC<LendFormProps> = ({
     return reserves.find(r => r.symbol === lendAsset) ?? reserves[0];
   }, [reserves, lendAsset]);
 
-  const assetUsdValue: Decimal = useMemo(() => {
+  const assetUsdValue = useMemo(() => {
     return Decimal.from(reserve?.priceInUSD ?? 0).mul(lendSize);
   }, [reserve, lendSize]);
 
@@ -114,22 +114,22 @@ export const LendForm: FC<LendFormProps> = ({
         <SimpleTableRow
           label={t(translations.aavePage.lendModal.collateralization)}
           value={t(
-            translations.aavePage.lendModal[
-              reserve?.usageAsCollateralEnabled ? 'enabled' : 'disabled'
-            ],
+            reserve?.usageAsCollateralEnabled
+              ? translations.aavePage.lendModal.enabled
+              : translations.aavePage.lendModal.disabled,
           )}
         />
       </SimpleTable>
 
       <Button
         disabled={!isValidLendAmount || lendSize.lte(0)}
-        onClick={async () =>
+        onClick={async () => {
           handleDeposit(
             lendSize,
-            await getAssetData(reserve.symbol, BOB_CHAIN_ID),
+            await getAssetDataByAddress(reserve.underlyingAsset, BOB_CHAIN_ID),
             { onComplete: onSuccess },
-          )
-        }
+          );
+        }}
         text={t(translations.aavePage.lendModal.deposit)}
       />
     </form>

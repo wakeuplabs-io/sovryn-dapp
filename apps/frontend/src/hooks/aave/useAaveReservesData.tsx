@@ -53,7 +53,9 @@ export const useAaveReservesData = (): ReserveData => {
           reservesData.baseCurrencyData.marketReferenceCurrencyPriceInUsd,
       });
 
-      return formattedReserves;
+      return formattedReserves.map(r =>
+        r.symbol === 'WETH' ? { ...r, symbol: 'ETH' } : r,
+      );
     },
     [uiPoolDataProvider],
     [],
