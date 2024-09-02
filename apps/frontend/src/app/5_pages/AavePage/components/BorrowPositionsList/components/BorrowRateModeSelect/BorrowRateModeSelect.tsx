@@ -46,8 +46,8 @@ export const BorrowRateModeSelect: FC<BorrowRateModeSelectProps> = ({
     async (rateMode: string) => {
       handleSwapBorrowRateMode(
         await getAssetData(position.asset, BOB_CHAIN_ID),
-        Number(rateMode),
-        { onComplete: () => setRateMode(Number(rateMode)) }, // TODO: recheck
+        position.borrowRateMode,
+        { onComplete: () => setRateMode(Number(rateMode)) },
       );
     },
     [handleSwapBorrowRateMode, position],

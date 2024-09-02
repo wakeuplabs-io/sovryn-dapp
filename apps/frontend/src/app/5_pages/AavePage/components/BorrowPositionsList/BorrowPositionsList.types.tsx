@@ -9,5 +9,6 @@ export type BorrowPosition = {
   apy: Decimal;
   variableApy: Decimal;
   stableApy: Decimal;
+  stableBorrowEnabled: boolean;
   borrowRateMode: BorrowRateMode;
 };

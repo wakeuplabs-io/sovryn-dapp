@@ -59,7 +59,7 @@ export class AaveBorrowTransactionsFactory {
 
   async swapBorrowRateMode(
     asset: AssetDetailsData,
-    rateMode: BorrowRateMode,
+    currentRateMode: BorrowRateMode,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
     return [
@@ -67,11 +67,12 @@ export class AaveBorrowTransactionsFactory {
         title: t(translations.aavePage.tx.swapBorrowRateModeTitle),
         subtitle: t(translations.aavePage.tx.swapBorrowRateModeSubtitle, {
           symbol: asset.symbol,
-          mode: rateMode === 1 ? 'stable' : 'variable',
+          mode:
+            currentRateMode === BorrowRateMode.VARIABLE ? 'stable' : 'variable',
         }),
         request: {
           type: TransactionType.signTransaction,
-          args: [asset.address, rateMode],
+          args: [asset.address, currentRateMode],
           contract: this.Pool,
           fnName: 'swapBorrowRateMode',
         },

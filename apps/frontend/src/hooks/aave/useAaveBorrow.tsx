@@ -58,7 +58,7 @@ export const useAaveBorrow = () => {
   const handleSwapBorrowRateMode = useCallback(
     async (
       asset: AssetDetailsData,
-      rateMode: BorrowRateMode,
+      currentRateMode: BorrowRateMode,
       opts?: TransactionFactoryOptions,
     ) => {
       if (!aaveBorrowTransactionsFactory) {
@@ -68,7 +68,7 @@ export const useAaveBorrow = () => {
       setTransactions(
         await aaveBorrowTransactionsFactory.swapBorrowRateMode(
           asset,
-          rateMode,
+          currentRateMode,
           opts,
         ),
       );
