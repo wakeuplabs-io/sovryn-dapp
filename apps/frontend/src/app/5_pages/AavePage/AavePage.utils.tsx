@@ -43,6 +43,7 @@ export function normalizeBorrowPositions(
         stableBorrowEnabled: r.reserve.stableBorrowRateEnabled,
         borrowed: r.borrowed,
         borrowedUSD: r.borrowedUSD,
+        isCollateral: r.reserve.usageAsCollateralEnabled && r.supplied.gt(0),
       });
     }
     return acc;

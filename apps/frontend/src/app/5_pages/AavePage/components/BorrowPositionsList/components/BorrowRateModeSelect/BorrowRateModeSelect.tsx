@@ -24,23 +24,26 @@ export const BorrowRateModeSelect: FC<BorrowRateModeSelectProps> = ({
     position.borrowRateMode,
   );
 
-  const options = useMemo(
-    () => [
-      {
-        label: t(translations.aavePage.borrowPositionsList.selectStableApy, {
-          apy: position.stableApy.toString(2),
-        }),
-        value: String(BorrowRateMode.STABLE),
-      },
+  const options = useMemo(() => {
+    const borrowRateModeOptions = [
       {
         label: t(translations.aavePage.borrowPositionsList.selectVariableApy, {
           apy: position.variableApy.toString(2),
         }),
         value: String(BorrowRateMode.VARIABLE),
       },
-    ],
-    [position],
-  );
+    ];
+
+    if (position.stableBorrowEnabled && !position.isCollateral) {
+      borrowRateModeOptions.push({
+        label: t(translations.aavePage.borrowPositionsList.selectStableApy, {
+          apy: position.stableApy.toString(2),
+        }),
+        value: String(BorrowRateMode.STABLE),
+      });
+    }
+    return borrowRateModeOptions;
+  }, [position]);
 
   const onRateModeChange = useCallback(
     async (rateMode: string) => {
@@ -54,12 +57,10 @@ export const BorrowRateModeSelect: FC<BorrowRateModeSelectProps> = ({
   );
 
   return (
-    <div>
-      <Select
-        onChange={onRateModeChange}
-        options={options}
-        value={rateMode.toString()}
-      />
-    </div>
+    <Select
+      onChange={onRateModeChange}
+      options={options}
+      value={rateMode.toString()}
+    />
   );
 };

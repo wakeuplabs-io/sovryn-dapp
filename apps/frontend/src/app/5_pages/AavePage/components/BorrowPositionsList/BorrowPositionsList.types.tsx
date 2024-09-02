@@ -11,4 +11,5 @@ export type BorrowPosition = {
   stableApy: Decimal;
   stableBorrowEnabled: boolean;
   borrowRateMode: BorrowRateMode;
+  isCollateral: boolean;
 };
