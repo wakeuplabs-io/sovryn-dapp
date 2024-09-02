@@ -20,9 +20,6 @@ export const BorrowRateModeSelect: FC<BorrowRateModeSelectProps> = ({
   position,
 }) => {
   const { handleSwapBorrowRateMode } = useAaveBorrow();
-  const [rateMode, setRateMode] = React.useState<BorrowRateMode>(
-    position.borrowRateMode,
-  );
 
   const options = useMemo(() => {
     const borrowRateModeOptions = [
@@ -34,7 +31,10 @@ export const BorrowRateModeSelect: FC<BorrowRateModeSelectProps> = ({
       },
     ];
 
-    if (position.stableBorrowEnabled && !position.isCollateral) {
+    if (
+      (position.stableBorrowEnabled && !position.isCollateral) ||
+      position.borrowRateMode === BorrowRateMode.STABLE
+    ) {
       borrowRateModeOptions.push({
         label: t(translations.aavePage.borrowPositionsList.selectStableApy, {
           apy: position.stableApy.toString(2),
@@ -50,7 +50,6 @@ export const BorrowRateModeSelect: FC<BorrowRateModeSelectProps> = ({
       handleSwapBorrowRateMode(
         await getAssetData(position.asset, BOB_CHAIN_ID),
         position.borrowRateMode,
-        { onComplete: () => setRateMode(Number(rateMode)) },
       );
     },
     [handleSwapBorrowRateMode, position],
@@ -60,7 +59,7 @@ export const BorrowRateModeSelect: FC<BorrowRateModeSelectProps> = ({
     <Select
       onChange={onRateModeChange}
       options={options}
-      value={rateMode.toString()}
+      value={position.borrowRateMode.toString()}
     />
   );
 };
