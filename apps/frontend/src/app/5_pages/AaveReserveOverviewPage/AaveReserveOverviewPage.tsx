@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useState } from 'react';
 
 import classNames from 'classnames';
 import { t } from 'i18next';
@@ -7,7 +7,7 @@ import { useSearchParams } from 'react-router-dom';
 
 import { Paragraph, Tabs, TabSize, TabType } from '@sovryn/ui';
 
-import { getAaveInterestRatesData } from '../../../hooks/aave/useAaveRates';
+import { useAaveInterestRatesData } from '../../../hooks/aave/useAaveRates';
 import { useAaveReservesData } from '../../../hooks/aave/useAaveReservesData';
 import { translations } from '../../../locales/i18n';
 import { BorrowDetailsGraph } from './components/BorrowDetailsGraph/BorrowDetailsGraph';
@@ -28,28 +28,14 @@ const AaveReserveOverviewPage: FC = () => {
   const [searchParams] = useSearchParams();
   const symbol = searchParams.get('asset') || '';
   const reserves = useAaveReservesData();
-
-  const reserveAsset = reserves.find(r => r.symbol === symbol);
-  //const userReservesSummary = useAaveUserReservesData();
-
-  /*   console.log(
-    'userReserve',
-    userReservesSummary?.suppliedAssets.find(s => s.asset === symbol),
-  ); */
+  const { data: interestRatesData } = useAaveInterestRatesData();
+  const reserveAsset = reserves.find(
+    r => r.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase(),
+  );
 
   const [activeOverviewTab, setActiveOverviewTab] = useState<OverviewTab>(
     OverviewTab.RESERVE,
   );
-
-  const [interestRatesData, setInterestRatesData] = useState(null);
-
-  useEffect(() => {
-    if (reserveAsset) {
-      getAaveInterestRatesData(reserveAsset).then(data =>
-        setInterestRatesData(data),
-      );
-    }
-  }, [reserveAsset]);
 
   return (
     <div className="w-full pb-6 2xl:px-12">
@@ -107,7 +93,9 @@ const AaveReserveOverviewPage: FC = () => {
             <SupplyDetailsGraph />
             <BorrowDetailsGraph />
             <EModeDetails />
-            <InterestRateModelGraph rates={interestRatesData} />
+            {interestRatesData && (
+              <InterestRateModelGraph rates={interestRatesData} />
+            )}
           </div>
 
           {/* wallet column */}

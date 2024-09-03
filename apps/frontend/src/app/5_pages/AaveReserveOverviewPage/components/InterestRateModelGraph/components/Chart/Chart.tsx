@@ -3,15 +3,22 @@ import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 import ChartLibrary from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 
+import { theme } from '@sovryn/tailwindcss-config';
+
 import { IRatesDataResult } from '../../../../../../../hooks/aave/useAaveRates';
-import { CUSTOM_CANVAS_BACKGROUND_COLOR } from './Chart.constants';
-import { MockData } from './Chart.types';
+import {
+  CUSTOM_CANVAS_BACKGROUND_COLOR,
+  GRID_COLOR,
+  TICK_COLOR,
+} from './Chart.constants';
 import { htmlLegendPlugin } from './Chart.utils';
 
 type ChartProps = {
-  mockData: MockData<{ x: number; y: number }>;
+  meta: {
+    label: string;
+    lineColor: string;
+  };
   rates: IRatesDataResult;
-  yLabel1: string;
 };
 
 const calcInterestRateModel = (
@@ -36,19 +43,37 @@ const calcVariableInterestRateModel = (u: number, rates: IRatesDataResult) => {
 
   return calcInterestRateModel(u, base, optimal, slope1, slope2);
 };
-const CHART_PERCENTAGES = [0, 0.05, 0.25, 0.5, 0.75, 1];
+const CHART_PERCENTAGES = [0, 0.25, 0.5, 0.75, 1];
 
-export const Chart: FC<ChartProps> = ({ mockData, rates }) => {
+export const Chart: FC<ChartProps> = ({ meta, rates }) => {
   const canvas = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<ChartLibrary | null>(null);
 
   const variableValues = useMemo(
     () =>
-      CHART_PERCENTAGES.map(x => calcVariableInterestRateModel(x, rates) * 100),
+      CHART_PERCENTAGES.map(x => ({
+        x: x * 100,
+        y: calcVariableInterestRateModel(x, rates) * 100,
+      })),
     [rates],
   );
 
-  console.log('variableValues', variableValues);
+  const optimalPercentage = parseFloat(rates.optimalUsageRatio) * 100;
+  const currentPercentage = parseFloat(rates.currentUsageRatio) * 100;
+
+  const optimalValue = useMemo(() => {
+    return [
+      { x: optimalPercentage, y: 0 },
+      { x: optimalPercentage, y: 75 },
+    ];
+  }, [optimalPercentage]);
+
+  const currentValue = useMemo(() => {
+    return [
+      { x: currentPercentage, y: 0 },
+      { x: currentPercentage, y: 75 },
+    ];
+  }, [currentPercentage]);
 
   useEffect(() => {
     if (chartRef.current) {
@@ -62,41 +87,72 @@ export const Chart: FC<ChartProps> = ({ mockData, rates }) => {
     chartRef.current = new ChartLibrary(canvas.current, {
       type: 'line',
       data: {
-        labels: ['0%', '50%', '100%'],
+        labels: ['0 %', '25 %', '50 %', '75 %', '100 %'],
         datasets: [
           {
             type: 'line',
-            label: mockData.label1,
+            label: meta.label,
             data: variableValues,
-            backgroundColor: mockData.lineColor,
-            borderColor: mockData.lineColor,
+            backgroundColor: meta.lineColor,
+            borderColor: meta.lineColor,
             borderWidth: 2,
             fill: false,
             pointRadius: 0,
           },
-          /*           {
-            label: 'Current 78.64%',
+          {
+            label: `Optimal ${optimalPercentage}%`,
             type: 'scatter',
-            data: mockData.data2,
+            data: optimalValue,
+            borderColor: theme.colors.success,
+            backgroundColor: theme.colors.success,
+            showLine: true,
+            borderDash: [1, 2],
+            pointRadius: 0,
+          },
+          {
+            label: `Current ${currentPercentage}%`,
+            type: 'scatter',
+            data: currentValue,
             borderColor: theme.colors.positive,
             backgroundColor: theme.colors.positive,
             showLine: true,
             borderDash: [1, 2],
             pointRadius: 0,
           },
-          {
-            label: 'Optimal 92%',
-            type: 'scatter',
-            data: mockData.data3,
-            borderColor: theme.colors.success,
-            backgroundColor: theme.colors.success,
-            showLine: true,
-            borderDash: [1, 2],
-            pointRadius: 0,
-          }, */
         ],
       },
       options: {
+        scales: {
+          x: {
+            type: 'linear',
+            min: 0,
+            max: 100,
+            ticks: {
+              color: TICK_COLOR,
+              callback: function (value) {
+                return value + '%';
+              },
+              //maxTicksLimit: 5,
+            },
+          },
+          y: {
+            min: 0,
+            max: 100,
+            ticks: {
+              color: '#b6bac1',
+              callback: function (value) {
+                return value + '%';
+              },
+              maxTicksLimit: 5,
+              align: 'center',
+            },
+            grid: {
+              color: GRID_COLOR,
+              tickBorderDash: [5, 5],
+              drawTicks: false,
+            },
+          },
+        },
         responsive: true,
         plugins: {
           legend: {
@@ -112,7 +168,14 @@ export const Chart: FC<ChartProps> = ({ mockData, rates }) => {
         chartRef.current.destroy();
       }
     };
-  }, [mockData, variableValues]);
+  }, [
+    meta,
+    variableValues,
+    currentPercentage,
+    optimalPercentage,
+    optimalValue,
+    currentValue,
+  ]);
 
   const stopPropagation = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
