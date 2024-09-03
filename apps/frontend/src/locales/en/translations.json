@@ -807,7 +807,6 @@
             "borrow": "Borrow",
             "lend": "Lend",
             "variable": "Variable",
-            "stable": "Stable",
             "fixed": "Fixed",
             "withdraw": "Withdraw",
             "healthFactor": "Health factor"
@@ -831,9 +830,7 @@
             "setUserEModeTitle": "Set E-Mode to {{category}}",
             "setUserEModeSubtitle": "Set E-Mode to {{category}} category",
             "disableEModeTitle": "Disable E-Mode",
-            "disableEModeSubtitle": "Disable E-Mode",
-            "swapBorrowRateModeTitle": "Swap borrow rate mode",
-            "swapBorrowRateModeSubtitle": "Swap borrow rate mode for {{symbol}} to {{mode}}"
+            "disableEModeSubtitle": "Disable E-Mode"
         },
         "eMode": {
             "availableAssets": "Available assets",
@@ -866,9 +863,7 @@
             "title": "Your loans",
             "repay": "Repay",
             "borrowPowerUsed": "Borrow power used",
-            "eMode": "E-Mode",
-            "selectVariableApy": "APY, variable {{apy}}",
-            "selectStableApy": "APY, stable {{apy}}"
+            "eMode": "E-Mode"
         },
         "borrowAssetsList": {
             "title": "Assets to borrow",

@@ -7,9 +7,5 @@ export type BorrowPosition = {
   borrowed: Decimal;
   borrowedUSD: Decimal;
   apy: Decimal;
-  variableApy: Decimal;
-  stableApy: Decimal;
-  stableBorrowEnabled: boolean;
-  borrowRateMode: BorrowRateMode;
-  isCollateral: boolean;
+  type: BorrowRateMode;
 };
