@@ -45,7 +45,8 @@ export class AaveRepayTransactionsFactory {
     borrowRateMode: BorrowRateMode,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
-    if (token.isNative) return this.repayNative(amount, borrowRateMode, opts);
+    if (token.isNative || token.symbol === 'WETH')
+      return this.repayNative(amount, borrowRateMode, opts);
     else return this.repayToken(token, amount, borrowRateMode, opts);
   }
 

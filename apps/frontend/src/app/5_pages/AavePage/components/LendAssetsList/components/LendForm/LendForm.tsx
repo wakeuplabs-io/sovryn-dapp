@@ -2,7 +2,7 @@ import React, { FC, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
-import { getAssetDataByAddress } from '@sovryn/contracts';
+import { getAssetData } from '@sovryn/contracts';
 import {
   Button,
   ErrorBadge,
@@ -126,7 +126,7 @@ export const LendForm: FC<LendFormProps> = ({
         onClick={async () => {
           handleDeposit(
             lendSize,
-            await getAssetDataByAddress(reserve.underlyingAsset, BOB_CHAIN_ID),
+            await getAssetData(reserve.symbol, BOB_CHAIN_ID),
             { onComplete: onSuccess },
           );
         }}

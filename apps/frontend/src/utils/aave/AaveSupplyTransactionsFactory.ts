@@ -1,7 +1,11 @@
 import { BigNumber, constants, Contract, ethers } from 'ethers';
 import { t } from 'i18next';
 
-import { AssetDetailsData, getAssetDataByAddress } from '@sovryn/contracts';
+import {
+  AssetDetailsData,
+  getAssetData,
+  getAssetDataByAddress,
+} from '@sovryn/contracts';
 
 import { BOB_CHAIN_ID } from '../../config/chains';
 
@@ -45,7 +49,8 @@ export class AaveSupplyTransactionsFactory {
     amount: BigNumber,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
-    if (token.isNative) return this.supplyNative(amount, opts);
+    if (token.isNative || token.symbol === 'WETH')
+      return this.supplyNative(amount, opts);
     else return this.supplyToken(token, amount, opts);
   }
 
@@ -54,6 +59,10 @@ export class AaveSupplyTransactionsFactory {
     useAsCollateral: boolean,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
+    const tokenAddress = token.isNative
+      ? (await getAssetData('WETH', BOB_CHAIN_ID)).address
+      : token.address;
+
     return [
       {
         title: useAsCollateral
@@ -72,7 +81,7 @@ export class AaveSupplyTransactionsFactory {
             }),
         request: {
           type: TransactionType.signTransaction,
-          args: [token.address, useAsCollateral],
+          args: [tokenAddress, useAsCollateral],
           contract: this.Pool,
           fnName: 'setUserUseReserveAsCollateral',
         },

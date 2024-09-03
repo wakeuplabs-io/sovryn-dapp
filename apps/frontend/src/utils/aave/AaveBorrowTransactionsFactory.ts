@@ -53,7 +53,8 @@ export class AaveBorrowTransactionsFactory {
     rateMode: BorrowRateMode,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
-    if (asset.isNative) return this.borrowNative(amount, rateMode, opts);
+    if (asset.isNative || asset.symbol === 'WETH')
+      return this.borrowNative(amount, rateMode, opts);
     else return this.borrowToken(asset, amount, rateMode, opts);
   }
 
