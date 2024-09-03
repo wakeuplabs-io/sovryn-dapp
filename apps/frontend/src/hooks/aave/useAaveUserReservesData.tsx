@@ -32,7 +32,7 @@ export const useAaveUserReservesData = (): {
   const [summary, setSummary] = useState<AaveUserReservesSummary>(
     AaveUserReservesSummaryFactory.buildZeroSummary([]),
   );
-  const [loading, setLoading] = useState(account ? true : false);
+  const [loading, setLoading] = useState(false);
 
   const uiPoolDataProvider = useMemo(
     () =>
@@ -84,6 +84,11 @@ export const useAaveUserReservesData = (): {
       loadUserReservesData().finally(() => setLoading(false));
     }
   }, [loadUserReservesData, processedBlock, blockNumber]);
+
+  useEffect(() => {
+    setLoading(true);
+    setProcessedBlock(undefined);
+  }, [account]);
 
   return { summary, reservesData, userReservesData, timestamp, loading };
 };
