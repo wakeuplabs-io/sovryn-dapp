@@ -22,7 +22,10 @@ export const useAaveEModeCategories = (): EModeCategory[] => {
       return;
     }
 
-    eModeCategoriesFetcher.getAllEModeCategories(reserves).then(setCategories);
+    eModeCategoriesFetcher
+      .getAllEModeCategories(reserves)
+      .then(setCategories)
+      .catch(console.error);
   }, [eModeCategoriesFetcher, reserves]);
 
   return categories;

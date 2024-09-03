@@ -51,31 +51,35 @@ export const useAaveUserReservesData = (): {
       return null;
     }
 
-    const [reservesData, userReservesData] = await Promise.all([
-      uiPoolDataProvider.getReservesHumanized({
-        lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
-      }),
-      uiPoolDataProvider.getUserReservesHumanized({
-        lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
-        user: account,
-      }),
-    ]);
-    const currentTimestamp = dayjs().unix();
+    try {
+      const [reservesData, userReservesData] = await Promise.all([
+        uiPoolDataProvider.getReservesHumanized({
+          lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
+        }),
+        uiPoolDataProvider.getUserReservesHumanized({
+          lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
+          user: account,
+        }),
+      ]);
+      const currentTimestamp = dayjs().unix();
 
-    setReservesData(reservesData);
-    setUserReservesData(userReservesData);
-    setTimeStamp(currentTimestamp);
+      setReservesData(reservesData);
+      setUserReservesData(userReservesData);
+      setTimeStamp(currentTimestamp);
 
-    setSummary(
-      await AaveUserReservesSummaryFactory.buildSummary({
-        provider,
-        account,
-        reservesData,
-        userReservesData,
-        currentTimestamp,
-      }),
-    );
-    setProcessedBlock(blockNumber);
+      setSummary(
+        await AaveUserReservesSummaryFactory.buildSummary({
+          provider,
+          account,
+          reservesData,
+          userReservesData,
+          currentTimestamp,
+        }),
+      );
+      setProcessedBlock(blockNumber);
+    } catch (e) {
+      console.error(e);
+    }
   }, [account, uiPoolDataProvider, blockNumber, provider]);
 
   useEffect(() => {

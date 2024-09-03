@@ -14,9 +14,11 @@ import { translations } from '../../locales/i18n';
 import { TransactionFactoryOptions } from '../../types/aave';
 import { AaveWithdrawTransactionsFactory } from '../../utils/aave/AaveWithdrawTransactionsFactory';
 import { useAccount } from '../useAccount';
+import { useNotifyError } from '../useNotifyError';
 
 export const useAaveWithdraw = () => {
   const { signer } = useAccount();
+  const { notifyError } = useNotifyError();
   const { setTransactions, setIsOpen, setTitle } = useTransactionContext();
 
   const aaveWithdrawTransactionsFactory = useMemo(() => {
@@ -35,27 +37,37 @@ export const useAaveWithdraw = () => {
       isMaxAmount: boolean,
       opts?: TransactionFactoryOptions,
     ) => {
-      if (!aaveWithdrawTransactionsFactory) {
-        return;
-      }
+      try {
+        if (!aaveWithdrawTransactionsFactory) {
+          throw new Error('Transactions factory not available');
+        }
 
-      const asset = await getAssetData(symbol, BOB_CHAIN_ID);
-      const bnAmount = BigNumber.from(
-        amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
-      );
+        const asset = await getAssetData(symbol, BOB_CHAIN_ID);
+        const bnAmount = BigNumber.from(
+          amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
+        );
 
-      setTransactions(
-        await aaveWithdrawTransactionsFactory.withdraw(
+        const transactions = await aaveWithdrawTransactionsFactory.withdraw(
           asset,
           bnAmount,
           isMaxAmount,
           opts,
-        ),
-      );
-      setTitle(t(translations.common.withdraw));
-      setIsOpen(true);
+        );
+
+        setTransactions(transactions);
+        setTitle(t(translations.common.withdraw));
+        setIsOpen(true);
+      } catch (e) {
+        notifyError(e);
+      }
     },
-    [setIsOpen, setTitle, setTransactions, aaveWithdrawTransactionsFactory],
+    [
+      setIsOpen,
+      setTitle,
+      setTransactions,
+      aaveWithdrawTransactionsFactory,
+      notifyError,
+    ],
   );
 
   return { handleWithdraw };

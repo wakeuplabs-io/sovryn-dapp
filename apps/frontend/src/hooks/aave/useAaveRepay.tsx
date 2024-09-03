@@ -14,9 +14,11 @@ import { translations } from '../../locales/i18n';
 import { BorrowRateMode, TransactionFactoryOptions } from '../../types/aave';
 import { AaveRepayTransactionsFactory } from '../../utils/aave/AaveRepayTransactionsFactory';
 import { useAccount } from '../useAccount';
+import { useNotifyError } from '../useNotifyError';
 
 export const useAaveRepay = () => {
   const { signer } = useAccount();
+  const { notifyError } = useNotifyError();
   const { setTransactions, setIsOpen, setTitle } = useTransactionContext();
 
   const aaveRepayTransactionsFactory = useMemo(() => {
@@ -36,28 +38,38 @@ export const useAaveRepay = () => {
       borrowRateMode: BorrowRateMode,
       opts?: TransactionFactoryOptions,
     ) => {
-      if (!aaveRepayTransactionsFactory) {
-        return;
-      }
+      try {
+        if (!aaveRepayTransactionsFactory) {
+          throw new Error('Transactions factory not available');
+        }
 
-      const asset = await getAssetData(symbol, BOB_CHAIN_ID);
-      const bnAmount = BigNumber.from(
-        amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
-      );
+        const asset = await getAssetData(symbol, BOB_CHAIN_ID);
+        const bnAmount = BigNumber.from(
+          amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
+        );
 
-      setTransactions(
-        await aaveRepayTransactionsFactory.repay(
+        const transactions = await aaveRepayTransactionsFactory.repay(
           asset,
           bnAmount,
           isEntireDebt,
           borrowRateMode,
           opts,
-        ),
-      );
-      setTitle(t(translations.common.buttons.repay));
-      setIsOpen(true);
+        );
+
+        setTransactions(transactions);
+        setTitle(t(translations.common.buttons.repay));
+        setIsOpen(true);
+      } catch (e) {
+        notifyError(e);
+      }
     },
-    [setIsOpen, setTitle, setTransactions, aaveRepayTransactionsFactory],
+    [
+      setIsOpen,
+      setTitle,
+      setTransactions,
+      aaveRepayTransactionsFactory,
+      notifyError,
+    ],
   );
 
   return { handleRepay };

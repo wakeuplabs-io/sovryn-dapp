@@ -14,9 +14,11 @@ import { translations } from '../../locales/i18n';
 import { TransactionFactoryOptions } from '../../types/aave';
 import { AaveSupplyTransactionsFactory } from '../../utils/aave/AaveSupplyTransactionsFactory';
 import { useAccount } from '../useAccount';
+import { useNotifyError } from '../useNotifyError';
 
 export const useAaveSupply = () => {
   const { signer } = useAccount();
+  const { notifyError } = useNotifyError();
   const { setTransactions, setIsOpen, setTitle } = useTransactionContext();
 
   const aaveSupplyTransactionsFactory = useMemo(() => {
@@ -34,22 +36,35 @@ export const useAaveSupply = () => {
       symbol: string,
       opts?: TransactionFactoryOptions,
     ) => {
-      if (!aaveSupplyTransactionsFactory) {
-        return;
+      try {
+        if (!aaveSupplyTransactionsFactory) {
+          throw new Error('Transactions factory not available');
+        }
+
+        const asset = await getAssetData(symbol, BOB_CHAIN_ID);
+        const bnAmount = BigNumber.from(
+          amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
+        );
+
+        const transactions = await aaveSupplyTransactionsFactory.supply(
+          asset,
+          bnAmount,
+          opts,
+        );
+        setTransactions(transactions);
+        setTitle(t(translations.common.deposit));
+        setIsOpen(true);
+      } catch (e) {
+        notifyError(e);
       }
-
-      const asset = await getAssetData(symbol, BOB_CHAIN_ID);
-      const bnAmount = BigNumber.from(
-        amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
-      );
-
-      setTransactions(
-        await aaveSupplyTransactionsFactory.supply(asset, bnAmount, opts),
-      );
-      setTitle(t(translations.common.deposit));
-      setIsOpen(true);
     },
-    [setIsOpen, setTitle, setTransactions, aaveSupplyTransactionsFactory],
+    [
+      setIsOpen,
+      setTitle,
+      setTransactions,
+      aaveSupplyTransactionsFactory,
+      notifyError,
+    ],
   );
 
   const handleSwitchCollateral = useCallback(
@@ -58,22 +73,33 @@ export const useAaveSupply = () => {
       useAsCollateral: boolean,
       opts?: TransactionFactoryOptions,
     ) => {
-      if (!aaveSupplyTransactionsFactory) {
-        return;
-      }
+      try {
+        if (!aaveSupplyTransactionsFactory) {
+          throw new Error('Transactions factory not available');
+        }
 
-      const asset = await getAssetData(symbol, BOB_CHAIN_ID);
-      setTransactions(
-        await aaveSupplyTransactionsFactory.collateralSwitch(
-          asset,
-          useAsCollateral,
-          opts,
-        ),
-      );
-      setTitle(t(translations.aavePage.tx.toggleAssetAsCollateral));
-      setIsOpen(true);
+        const asset = await getAssetData(symbol, BOB_CHAIN_ID);
+        const transactions =
+          await aaveSupplyTransactionsFactory.collateralSwitch(
+            asset,
+            useAsCollateral,
+            opts,
+          );
+
+        setTransactions(transactions);
+        setTitle(t(translations.aavePage.tx.toggleAssetAsCollateral));
+        setIsOpen(true);
+      } catch (e) {
+        notifyError(e);
+      }
     },
-    [setIsOpen, setTitle, setTransactions, aaveSupplyTransactionsFactory],
+    [
+      setIsOpen,
+      setTitle,
+      setTransactions,
+      aaveSupplyTransactionsFactory,
+      notifyError,
+    ],
   );
 
   return { handleDeposit, handleSwitchCollateral };
