@@ -3,8 +3,10 @@ import { useCallback, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import { t } from 'i18next';
 
-import { AssetDetailsData } from '@sovryn/contracts';
+import { AssetDetailsData, getAssetData } from '@sovryn/contracts';
 import { Decimal } from '@sovryn/utils';
+
+import { BOB_CHAIN_ID } from '../../config/chains';
 
 import { config } from '../../constants/aave';
 import { useTransactionContext } from '../../contexts/TransactionContext';
@@ -30,13 +32,15 @@ export const useAaveBorrow = () => {
   const handleBorrow = useCallback(
     async (
       amount: Decimal,
-      asset: AssetDetailsData,
+      symbol: string,
       rateMode: BorrowRateMode,
       opts?: TransactionFactoryOptions,
     ) => {
       if (!aaveBorrowTransactionsFactory) {
         return;
       }
+
+      const asset = await getAssetData(symbol, BOB_CHAIN_ID);
       const bnAmount = BigNumber.from(
         amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
       );
@@ -55,5 +59,28 @@ export const useAaveBorrow = () => {
     [setIsOpen, setTitle, setTransactions, aaveBorrowTransactionsFactory],
   );
 
-  return { handleBorrow };
+  const handleSwapBorrowRateMode = useCallback(
+    async (
+      asset: AssetDetailsData,
+      currentRateMode: BorrowRateMode,
+      opts?: TransactionFactoryOptions,
+    ) => {
+      if (!aaveBorrowTransactionsFactory) {
+        return;
+      }
+
+      setTransactions(
+        await aaveBorrowTransactionsFactory.swapBorrowRateMode(
+          asset,
+          currentRateMode,
+          opts,
+        ),
+      );
+      setTitle(t(translations.aavePage.tx.swapBorrowRateModeTitle));
+      setIsOpen(true);
+    },
+    [setIsOpen, setTitle, setTransactions, aaveBorrowTransactionsFactory],
+  );
+
+  return { handleBorrow, handleSwapBorrowRateMode };
 };

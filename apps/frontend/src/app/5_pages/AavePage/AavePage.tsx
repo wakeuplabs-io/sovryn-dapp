@@ -33,25 +33,25 @@ enum ActiveTab {
 }
 
 const AavePage: FC = () => {
-  const reserves = useAaveReservesData();
-  const userReservesSummary = useAaveUserReservesData();
+  const { reserves, loading: reservesLoading } = useAaveReservesData();
+  const { summary, loading: summaryLoading } = useAaveUserReservesData();
   const [activeTab, setActiveTab] = useState<ActiveTab>(ActiveTab.LEND);
 
   const lendPositions: LendPosition[] = useMemo(
-    () => normalizeLendPositions(userReservesSummary),
-    [userReservesSummary],
+    () => normalizeLendPositions(summary),
+    [summary],
   );
   const borrowPositions: BorrowPosition[] = useMemo(
-    () => normalizeBorrowPositions(userReservesSummary),
-    [userReservesSummary],
+    () => normalizeBorrowPositions(summary),
+    [summary],
   );
   const borrowPools: BorrowPoolDetails[] = useMemo(
-    () => normalizeBorrowPoolDetails(reserves, userReservesSummary),
-    [reserves, userReservesSummary],
+    () => normalizeBorrowPoolDetails(reserves, summary),
+    [reserves, summary],
   );
   const lendPools: LendPoolDetails[] = useMemo(
-    () => normalizeLendPoolDetails(reserves, userReservesSummary),
-    [reserves, userReservesSummary],
+    () => normalizeLendPoolDetails(reserves, summary),
+    [reserves, summary],
   );
 
   const tabsItems = useMemo(
@@ -77,9 +77,9 @@ const AavePage: FC = () => {
       </Helmet>
 
       <TopPanel
-        healthFactor={userReservesSummary?.healthFactor}
-        netApy={userReservesSummary?.netApy}
-        netWorth={userReservesSummary?.netWorth}
+        healthFactor={summary?.healthFactor}
+        netApy={summary?.netApy}
+        netWorth={summary?.netWorth}
       />
 
       <div className="pt-6 mt-6 space-y-6 2xl:pt-0 2xl:mt-0 2xl:space-y-0">
@@ -103,11 +103,15 @@ const AavePage: FC = () => {
           >
             <LendPositionsList
               lendPositions={lendPositions}
-              supplyBalance={userReservesSummary.supplyBalance}
-              collateralBalance={userReservesSummary.collateralBalance}
-              supplyWeightedApy={userReservesSummary.supplyWeightedApy}
+              supplyBalance={summary.supplyBalance}
+              collateralBalance={summary.collateralBalance}
+              supplyWeightedApy={summary.supplyWeightedApy}
+              loading={summaryLoading}
             />
-            <LendAssetsList lendPools={lendPools} />
+            <LendAssetsList
+              lendPools={lendPools}
+              loading={reservesLoading || summaryLoading}
+            />
           </div>
 
           {/* Borrowing column */}
@@ -119,12 +123,17 @@ const AavePage: FC = () => {
           >
             <BorrowPositionsList
               borrowPositions={borrowPositions}
-              eModeEnabled={userReservesSummary.eModeEnabled}
-              borrowBalance={userReservesSummary.borrowBalance}
-              borrowPowerUsed={userReservesSummary.borrowPowerUsed}
-              borrowWeightedApy={userReservesSummary.borrowWeightedApy}
+              eModeCategoryId={summary.eModeCategoryId}
+              borrowBalance={summary.borrowBalance}
+              borrowPowerUsed={summary.borrowPowerUsed}
+              borrowWeightedApy={summary.borrowWeightedApy}
+              loading={summaryLoading}
             />
-            <BorrowAssetsList borrowPools={borrowPools} />
+            <BorrowAssetsList
+              borrowPools={borrowPools}
+              eModeEnabled={summary.eModeEnabled}
+              loading={reservesLoading || summaryLoading}
+            />
           </div>
         </div>
       </div>

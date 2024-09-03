@@ -1,18 +1,12 @@
-import { ethers } from 'ethers';
-
 import { decimalic } from '../utils/math';
 
 export const config = {
   chainId: 111,
   MinCollateralRatio: decimalic(1.5),
-  PoolAddress: '0xD0Fb3Eb747A368f01d1598faF1F1C55a33416429',
-  WETHGatewayAddress: '0x5723D6ABA3e46375C343A82fEC9e05a465dE387B',
-  VariableDebtWETHAddress: '0x1F016249e1bCa541f4BFb1268aF3f4f293eAf082',
-  UiPoolDataProviderV3Address: '0xf185Ee9FE1DA4F36b9a53194c83E657fEC8D0FA9',
-  PoolAddressesProviderAddress: '0xAE73edfC71af8f5fb7d8840887E8EE4317989456',
-  assetsWhitelist: ['DAI', 'USDC', 'USDT', 'BTC', 'WETH', 'EURS'],
-
-  provider: new ethers.providers.JsonRpcProvider(
-    'https://testnet.rpc.gobob.xyz',
-  ),
+  PoolAddress: '0x7be5F1b198f0c1fd21D426C225Ce02a9DD787930',
+  WETHGatewayAddress: '0x34A49CCb345FF2351641F0b807f2352FeB07fff2',
+  UiPoolDataProviderV3Address: '0x6D377E4b191AA0A658900DB6FC594Ae765299877',
+  PoolAddressesProviderAddress: '0x54C5E489B929a875F66162B3a6A7AEDD9b1F3798',
+  VariableDebtWETHAddress: '0xe18D591F3d8aB2Fe573AB20503faB6A02670B709',
+  WETHAddress: '0x5546cB953770BA6Aa78FdbaEFB3450F87d97dDBC',
 };

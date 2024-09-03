@@ -30,7 +30,8 @@ type BorrowPositionsListProps = {
   borrowBalance: Decimal;
   borrowWeightedApy: Decimal;
   borrowPowerUsed: Decimal;
-  eModeEnabled: boolean;
+  eModeCategoryId: Number;
+  loading: boolean;
 };
 
 export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
@@ -38,10 +39,11 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
   borrowBalance,
   borrowPowerUsed,
   borrowWeightedApy,
-  eModeEnabled,
+  eModeCategoryId,
+  loading,
 }) => {
   const { account } = useAccount();
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState(true);
   const [orderOptions, setOrderOptions] = useState<OrderOptions>();
   const [repayAssetDialog, setRepayAssetDialog] = useState<
     string | undefined
@@ -86,7 +88,7 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
             <span className="text-gray-30 font-medium text-sm">
               {t(pageTranslations.borrowPositionsList.eMode)}
             </span>
-            <EfficiencyModeCard enabled={eModeEnabled} />
+            <EfficiencyModeCard eModeCategoryId={eModeCategoryId} />
           </div>
         </div>
       }
@@ -98,7 +100,7 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
       {account ? (
         <>
           <EfficiencyModeCard
-            enabled={eModeEnabled}
+            eModeCategoryId={eModeCategoryId}
             className="lg:hidden mb-3"
           />
           <div className="flex flex-col gap-2 mb-2 lg:flex-row lg:gap-6 lg:mb-6">
@@ -123,6 +125,7 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
           </div>
 
           <Table
+            isLoading={loading}
             columns={COLUMNS_CONFIG(onRepayClick)}
             rowClassName="bg-gray-80"
             accordionClassName="bg-gray-60 border border-gray-70"
@@ -139,7 +142,7 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
               onClose={onRepayClose}
             />
             <DialogBody className="space-y-3">
-              <RepayForm asset={repayAssetDialog!} onSuccess={onRepayClose} />
+              <RepayForm asset={repayAssetDialog!} onComplete={onRepayClose} />
             </DialogBody>
           </Dialog>
         </>

@@ -1,11 +1,14 @@
-import { UiPoolDataProvider } from '@aave/contract-helpers';
-import { formatReserves, formatUserSummary } from '@aave/math-utils';
+import {
+  ReservesDataHumanized,
+  UiPoolDataProvider,
+} from '@aave/contract-helpers';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
 
 import { config } from '../../constants/aave';
+import { UserReservesData } from '../../types/aave';
 import {
   AaveUserReservesSummary,
   AaveUserReservesSummaryFactory,
@@ -13,13 +16,23 @@ import {
 import { useAccount } from '../useAccount';
 import { useBlockNumber } from '../useBlockNumber';
 
-export const useAaveUserReservesData = (): AaveUserReservesSummary => {
+export const useAaveUserReservesData = (): {
+  summary: AaveUserReservesSummary;
+  reservesData: ReservesDataHumanized | undefined;
+  userReservesData: UserReservesData | undefined;
+  timestamp: number;
+  loading: boolean;
+} => {
   const { account, provider } = useAccount();
-  const [value, setValue] = useState<AaveUserReservesSummary>(
-    AaveUserReservesSummaryFactory.buildZeroSummary([]),
-  );
   const { value: blockNumber } = useBlockNumber();
   const [processedBlock, setProcessedBlock] = useState<number | undefined>();
+  const [timestamp, setTimeStamp] = useState<number>(0);
+  const [reservesData, setReservesData] = useState<ReservesDataHumanized>();
+  const [userReservesData, setUserReservesData] = useState<UserReservesData>();
+  const [summary, setSummary] = useState<AaveUserReservesSummary>(
+    AaveUserReservesSummaryFactory.buildZeroSummary([]),
+  );
+  const [loading, setLoading] = useState(false);
 
   const uiPoolDataProvider = useMemo(
     () =>
@@ -47,40 +60,35 @@ export const useAaveUserReservesData = (): AaveUserReservesSummary => {
         user: account,
       }),
     ]);
-    const {
-      marketReferenceCurrencyDecimals,
-      marketReferenceCurrencyPriceInUsd: marketReferencePriceInUsd,
-    } = reservesData.baseCurrencyData;
     const currentTimestamp = dayjs().unix();
-    const userSummary = formatUserSummary({
-      currentTimestamp,
-      marketReferencePriceInUsd,
-      marketReferenceCurrencyDecimals,
-      userReserves: userReservesData.userReserves,
-      userEmodeCategoryId: userReservesData.userEmodeCategoryId,
-      formattedReserves: formatReserves({
-        currentTimestamp,
-        marketReferencePriceInUsd,
-        marketReferenceCurrencyDecimals,
-        reserves: reservesData.reservesData,
-      }),
-    });
 
-    setValue(
-      await AaveUserReservesSummaryFactory.buildSummary(
+    setReservesData(reservesData);
+    setUserReservesData(userReservesData);
+    setTimeStamp(currentTimestamp);
+
+    setSummary(
+      await AaveUserReservesSummaryFactory.buildSummary({
         provider,
         account,
-        userSummary,
-      ),
+        reservesData,
+        userReservesData,
+        currentTimestamp,
+      }),
     );
     setProcessedBlock(blockNumber);
   }, [account, uiPoolDataProvider, blockNumber, provider]);
 
   useEffect(() => {
     if (blockNumber !== processedBlock) {
-      loadUserReservesData();
+      setLoading(true);
+      loadUserReservesData().finally(() => setLoading(false));
     }
   }, [loadUserReservesData, processedBlock, blockNumber]);
 
-  return value;
+  useEffect(() => {
+    setLoading(true);
+    setProcessedBlock(undefined);
+  }, [account]);
+
+  return { summary, reservesData, userReservesData, timestamp, loading };
 };

@@ -1,6 +1,11 @@
-import { ReserveDataHumanized } from '@aave/contract-helpers';
 import {
+  ReserveDataHumanized,
+  ReservesDataHumanized,
+} from '@aave/contract-helpers';
+import {
+  formatReserves,
   FormatReserveUSDResponse,
+  formatUserSummary,
   FormatUserSummaryResponse,
 } from '@aave/math-utils';
 
@@ -11,8 +16,9 @@ import { Decimal } from '@sovryn/utils';
 
 import { BOB_CHAIN_ID } from '../../config/chains';
 
+import { config } from '../../constants/aave';
 import { Reserve } from '../../hooks/aave/useAaveReservesData';
-import { BorrowRateMode } from '../../types/aave';
+import { BorrowRateMode, UserReservesData } from '../../types/aave';
 import { decimalic, fromWei } from '../math';
 import { AaveCalculations } from './AaveCalculations';
 
@@ -45,6 +51,7 @@ export type AaveUserReservesSummary = {
   supplyWeightedApy: Decimal;
   collateralBalance: Decimal;
   currentLiquidationThreshold: Decimal;
+  currentLoanToValue: Decimal;
 
   borrowBalance: Decimal;
   borrowWeightedApy: Decimal;
@@ -68,6 +75,7 @@ export class AaveUserReservesSummaryFactory {
       supplyWeightedApy: Decimal.ZERO,
       collateralBalance: Decimal.ZERO,
       currentLiquidationThreshold: Decimal.ZERO,
+      currentLoanToValue: Decimal.ZERO,
 
       borrowBalance: Decimal.ZERO,
       borrowWeightedApy: Decimal.ZERO,
@@ -94,11 +102,37 @@ export class AaveUserReservesSummaryFactory {
     };
   }
 
-  static async buildSummary(
-    provider: ethers.providers.Provider,
-    account: string,
-    userSummary: UserSummary,
-  ): Promise<AaveUserReservesSummary> {
+  static async buildSummary({
+    provider,
+    account,
+    reservesData,
+    userReservesData,
+    currentTimestamp,
+  }: {
+    provider: ethers.providers.Provider;
+    account: string;
+    reservesData: ReservesDataHumanized;
+    userReservesData: UserReservesData;
+    currentTimestamp: number;
+  }): Promise<AaveUserReservesSummary> {
+    const {
+      marketReferenceCurrencyDecimals,
+      marketReferenceCurrencyPriceInUsd: marketReferencePriceInUsd,
+    } = reservesData.baseCurrencyData;
+    const userSummary = formatUserSummary({
+      currentTimestamp,
+      marketReferencePriceInUsd,
+      marketReferenceCurrencyDecimals,
+      userReserves: userReservesData.userReserves,
+      userEmodeCategoryId: userReservesData.userEmodeCategoryId,
+      formattedReserves: formatReserves({
+        currentTimestamp,
+        marketReferencePriceInUsd,
+        marketReferenceCurrencyDecimals,
+        reserves: reservesData.reservesData,
+      }),
+    });
+
     const netWorth = Decimal.from(userSummary.netWorthUSD);
     const borrowBalance = Decimal.from(userSummary.totalBorrowsUSD);
     const supplyBalance = AaveCalculations.computeSuppliedBalance(
@@ -126,8 +160,8 @@ export class AaveUserReservesSummaryFactory {
       userSummary.currentLiquidationThreshold,
     );
     const borrowPower = AaveCalculations.computeBorrowPower(
-      Decimal.from(userSummary.availableBorrowsUSD),
-      borrowBalance,
+      config.MinCollateralRatio,
+      collateralBalance,
     );
     const borrowPowerUsed = AaveCalculations.computeBorrowPowerUsed(
       borrowBalance,
@@ -153,6 +187,7 @@ export class AaveUserReservesSummaryFactory {
       supplyWeightedApy,
       collateralBalance,
       currentLiquidationThreshold,
+      currentLoanToValue: Decimal.from(userSummary.currentLoanToValue),
 
       borrowBalance,
       borrowWeightedApy,
@@ -163,27 +198,28 @@ export class AaveUserReservesSummaryFactory {
 
       reserves: await Promise.all(
         userSummary.userReservesData.map(async r => {
-          const asset = await getAssetData(r.reserve.symbol, BOB_CHAIN_ID);
+          const symbol = r.reserve.symbol === 'WETH' ? 'ETH' : r.reserve.symbol;
+          const asset = await getAssetData(symbol, BOB_CHAIN_ID);
           const balance = await getBalance(asset, account, provider);
           const decimalBalance = decimalic(fromWei(balance, asset.decimals));
 
-          const availableToBorrow = borrowPower.div(r.reserve.priceInUSD);
-
           return {
-            asset: r.reserve.symbol,
-            reserve: r.reserve,
+            asset: symbol,
+            reserve: { ...r.reserve, symbol },
 
             walletBalance: decimalBalance,
             walletBalanceUsd: decimalBalance.mul(r.reserve.priceInUSD),
             collateral: r.usageAsCollateralEnabledOnUser,
+
             supplied: Decimal.from(r.underlyingBalance),
             suppliedUSD: Decimal.from(r.underlyingBalanceUSD),
             borrowed: Decimal.from(r.totalBorrows),
             borrowedUSD: Decimal.from(r.totalBorrowsUSD),
+            availableToBorrow: borrowPower.div(r.reserve.priceInUSD),
+
             borrowRateMode: Decimal.from(r.variableBorrows).gt(0)
               ? BorrowRateMode.VARIABLE
               : BorrowRateMode.STABLE,
-            availableToBorrow,
           };
         }),
       ),

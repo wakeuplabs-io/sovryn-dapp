@@ -1,8 +1,7 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
-import { getAssetData } from '@sovryn/contracts';
 import {
   Button,
   Checkbox,
@@ -32,11 +31,11 @@ const pageTranslations = translations.aavePage;
 
 type BorrowFormProps = {
   asset: string;
-  onSuccess: () => void;
+  onComplete: () => void;
 };
 
-export const BorrowForm: FC<BorrowFormProps> = ({ asset, onSuccess }) => {
-  const userReservesSummary = useAaveUserReservesData();
+export const BorrowForm: FC<BorrowFormProps> = ({ asset, onComplete }) => {
+  const { summary } = useAaveUserReservesData();
   const [borrowAsset, setBorrowAsset] = useState<string>(asset);
   const [borrowAmount, setBorrowAmount, borrowSize] = useDecimalAmountInput('');
   const [acknowledge, setAcknowledge] = useState<boolean>(false);
@@ -44,27 +43,28 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset, onSuccess }) => {
 
   const borrowableAssetsOptions = useMemo(
     () =>
-      userReservesSummary.reserves
-        .filter(r => r.reserve.borrowingEnabled)
-        .map(r => ({
-          value: r.reserve.symbol,
-          label: (
-            <AssetRenderer
-              showAssetLogo
-              asset={r.reserve.symbol}
-              chainId={BOB_CHAIN_ID}
-              assetClassName="font-medium"
-            />
-          ),
-        })),
-    [userReservesSummary.reserves],
+      summary.reserves.reduce((acc, r) => {
+        if (r.reserve.borrowingEnabled) {
+          acc.push({
+            value: r.reserve.symbol,
+            label: (
+              <AssetRenderer
+                showAssetLogo
+                asset={r.reserve.symbol}
+                chainId={BOB_CHAIN_ID}
+                assetClassName="font-medium"
+              />
+            ),
+          });
+        }
+        return acc;
+      }, [] as { value: string; label: JSX.Element }[]),
+    [summary.reserves],
   );
 
   const borrowReserve = useMemo(() => {
-    return userReservesSummary.reserves.find(
-      r => r.reserve.symbol === borrowAsset,
-    );
-  }, [userReservesSummary.reserves, borrowAsset]);
+    return summary.reserves.find(r => r.reserve.symbol === borrowAsset);
+  }, [summary.reserves, borrowAsset]);
 
   const borrowUsdAmount = useMemo(() => {
     return borrowSize.mul(borrowReserve?.reserve.priceInUSD ?? 0);
@@ -76,31 +76,36 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset, onSuccess }) => {
 
   const newCollateralRatio = useMemo(() => {
     return AaveCalculations.computeCollateralRatio(
-      userReservesSummary.collateralBalance,
-      userReservesSummary.borrowBalance.add(borrowUsdAmount),
+      summary.collateralBalance,
+      summary.borrowBalance.add(borrowUsdAmount),
     );
-  }, [
-    userReservesSummary.collateralBalance,
-    userReservesSummary.borrowBalance,
-    borrowUsdAmount,
-  ]);
+  }, [summary.collateralBalance, summary.borrowBalance, borrowUsdAmount]);
 
   const liquidationPrice = useMemo(() => {
     return AaveCalculations.computeLiquidationPrice(
       borrowSize,
-      userReservesSummary.currentLiquidationThreshold,
-      userReservesSummary.collateralBalance,
+      summary.currentLiquidationThreshold,
+      summary.collateralBalance,
     );
   }, [
     borrowSize,
-    userReservesSummary.currentLiquidationThreshold,
-    userReservesSummary.collateralBalance,
+    summary.currentLiquidationThreshold,
+    summary.collateralBalance,
   ]);
 
   const isValidBorrowAmount = useMemo(
     () => (borrowSize.gt(0) ? borrowSize.lte(maximumBorrowAmount) : true),
     [borrowSize, maximumBorrowAmount],
   );
+
+  const onConfirm = useCallback(() => {
+    handleBorrow(
+      borrowSize,
+      borrowReserve!.reserve.symbol,
+      BorrowRateMode.VARIABLE,
+      { onComplete },
+    );
+  }, [onComplete, borrowSize, borrowReserve, handleBorrow]);
 
   return (
     <form className="flex flex-col gap-6">
@@ -173,7 +178,7 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset, onSuccess }) => {
           <span>
             {t(translations.aavePage.borrowForm.acknowledge)}{' '}
             <Link
-              text={translations.aavePage.borrowForm.learnMore}
+              text={t(translations.aavePage.borrowForm.learnMore)}
               href="#learn-more"
             />
             {/* TODO: Add proper learn more href */}
@@ -182,14 +187,7 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset, onSuccess }) => {
       />
 
       <Button
-        onClick={async () => {
-          handleBorrow(
-            borrowSize,
-            await getAssetData(borrowReserve!.reserve.symbol, BOB_CHAIN_ID),
-            BorrowRateMode.VARIABLE,
-            { onComplete: onSuccess },
-          );
-        }}
+        onClick={onConfirm}
         disabled={
           !isValidBorrowAmount ||
           borrowSize.lte(0) ||

@@ -1,8 +1,7 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
-import { getAssetData } from '@sovryn/contracts';
 import {
   Button,
   ErrorBadge,
@@ -28,19 +27,19 @@ const pageTranslations = translations.aavePage;
 
 type WithdrawFormProps = {
   asset: string;
-  onSuccess: () => void;
+  onComplete: () => void;
 };
 
-export const WithdrawForm: FC<WithdrawFormProps> = ({ asset }) => {
+export const WithdrawForm: FC<WithdrawFormProps> = ({ asset, onComplete }) => {
   const { handleWithdraw } = useAaveWithdraw();
-  const userReservesSummary = useAaveUserReservesData();
+  const { summary } = useAaveUserReservesData();
   const [withdrawAsset, setWithdrawAsset] = useState<string>(asset);
   const [withdrawAmount, setWithdrawAmount, withdrawSize] =
     useDecimalAmountInput('');
 
   const withdrawableAssetsOptions = useMemo(
     () =>
-      userReservesSummary.reserves
+      summary.reserves
         .filter(r => r.supplied.gt(0))
         .map(sa => ({
           value: sa.asset,
@@ -53,14 +52,12 @@ export const WithdrawForm: FC<WithdrawFormProps> = ({ asset }) => {
             />
           ),
         })),
-    [userReservesSummary],
+    [summary],
   );
 
   const withdrawReserve = useMemo(() => {
-    return userReservesSummary.reserves.find(
-      r => r.reserve.symbol === withdrawAsset,
-    );
-  }, [withdrawAsset, userReservesSummary]);
+    return summary.reserves.find(r => r.reserve.symbol === withdrawAsset);
+  }, [withdrawAsset, summary]);
 
   const maximumWithdrawAmount: Decimal = useMemo(() => {
     return withdrawReserve ? withdrawReserve.supplied : Decimal.from(0);
@@ -98,6 +95,21 @@ export const WithdrawForm: FC<WithdrawFormProps> = ({ asset }) => {
     ],
     [],
   );
+
+  const onConfirm = useCallback(() => {
+    handleWithdraw(
+      withdrawSize,
+      withdrawAsset,
+      withdrawSize.eq(maximumWithdrawAmount),
+      { onComplete },
+    );
+  }, [
+    handleWithdraw,
+    withdrawSize,
+    withdrawAsset,
+    onComplete,
+    maximumWithdrawAmount,
+  ]);
 
   return (
     <form className="flex flex-col gap-6">
@@ -140,12 +152,7 @@ export const WithdrawForm: FC<WithdrawFormProps> = ({ asset }) => {
 
       <Button
         disabled={submitButtonDisabled}
-        onClick={async () => {
-          handleWithdraw(
-            withdrawSize,
-            await getAssetData(withdrawAsset, BOB_CHAIN_ID),
-          );
-        }}
+        onClick={onConfirm}
         text={t(translations.common.buttons.confirm)}
       />
     </form>

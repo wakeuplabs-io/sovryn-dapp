@@ -1,8 +1,7 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
-import { getAssetData } from '@sovryn/contracts';
 import {
   Button,
   ErrorBadge,
@@ -31,15 +30,15 @@ const pageTranslations = translations.aavePage;
 
 type RepayWithWalletBalanceFormProps = {
   asset: string;
-  onSuccess: () => void;
+  onComplete: () => void;
 };
 
 export const RepayWithWalletBalanceForm: FC<
   RepayWithWalletBalanceFormProps
-> = ({ asset, onSuccess }) => {
+> = ({ asset, onComplete }) => {
   const { account } = useAccount();
   const { handleRepay } = useAaveRepay();
-  const userReservesSummary = useAaveUserReservesData();
+  const { summary } = useAaveUserReservesData();
   const [repayAsset, setRepayAsset] = useState<string>(asset);
   const [repayAmount, setRepayAmount, repaySize] = useDecimalAmountInput('');
   const { balance: repayAssetBalance } = useAssetBalance(
@@ -50,7 +49,7 @@ export const RepayWithWalletBalanceForm: FC<
 
   const repayAssetsOptions = useMemo(
     () =>
-      userReservesSummary.reserves
+      summary.reserves
         .filter(r => r.borrowed.gt(0))
         .map(ba => ({
           value: ba.asset,
@@ -63,14 +62,12 @@ export const RepayWithWalletBalanceForm: FC<
             />
           ),
         })),
-    [userReservesSummary],
+    [summary],
   );
 
   const repayReserve = useMemo(() => {
-    return userReservesSummary.reserves.find(
-      r => r.reserve.symbol === repayAsset,
-    );
-  }, [userReservesSummary.reserves, repayAsset]);
+    return summary.reserves.find(r => r.reserve.symbol === repayAsset);
+  }, [summary.reserves, repayAsset]);
 
   const maximumRepayAmount = useMemo(() => {
     return repayReserve
@@ -99,15 +96,32 @@ export const RepayWithWalletBalanceForm: FC<
 
   const newCollateralRatio = useMemo(() => {
     return AaveCalculations.computeCollateralRatio(
-      userReservesSummary.collateralBalance,
-      userReservesSummary.borrowBalance.add(newDebtAmountUSD),
+      summary.collateralBalance,
+      summary.borrowBalance.add(newDebtAmountUSD),
     );
-  }, [userReservesSummary, newDebtAmountUSD]);
+  }, [summary, newDebtAmountUSD]);
 
   const isValidRepayAmount = useMemo(
     () => (repaySize.gt(0) ? repaySize.lte(maximumRepayAmount) : true),
     [repaySize, maximumRepayAmount],
   );
+
+  const onConfirm = useCallback(() => {
+    handleRepay(
+      repayAsset,
+      repaySize,
+      repaySize.eq(maximumRepayAmount),
+      repayReserve!.borrowRateMode,
+      { onComplete },
+    );
+  }, [
+    handleRepay,
+    repayAsset,
+    repaySize,
+    onComplete,
+    repayReserve,
+    maximumRepayAmount,
+  ]);
 
   return (
     <form className="flex flex-col gap-6 relative">
@@ -174,7 +188,7 @@ export const RepayWithWalletBalanceForm: FC<
             <AmountTransition
               className="justify-end"
               from={{
-                value: userReservesSummary.collateralRatio.mul(100),
+                value: summary.collateralRatio.mul(100),
                 suffix: '%',
                 precision: 2,
               }}
@@ -193,14 +207,7 @@ export const RepayWithWalletBalanceForm: FC<
       <Button
         disabled={!isValidRepayAmount}
         text={t(translations.common.buttons.confirm)}
-        onClick={async () => {
-          handleRepay(
-            repaySize,
-            await getAssetData(repayAsset, BOB_CHAIN_ID),
-            repayReserve!.borrowRateMode,
-            { onComplete: onSuccess },
-          );
-        }}
+        onClick={onConfirm}
       />
     </form>
   );
