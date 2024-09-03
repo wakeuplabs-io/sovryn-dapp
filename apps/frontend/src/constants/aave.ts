@@ -5,11 +5,11 @@ import { decimalic } from '../utils/math';
 export const config = {
   chainId: 111,
   MinCollateralRatio: decimalic(1.5),
-  PoolAddress: '0xc62b1eDC4fF950aD32D6846e69B68cCadBC568Af',
-  WETHGatewayAddress: '0x9F9Dc8dc9308C32Cf652b32dD1b5d2DA106f1dA0',
-  UiPoolDataProviderV3Address: '0x0954E027fb7d59271CF253831c5Cc78be5c75840',
-  PoolAddressesProviderAddress: '0x01757F5712695f8f93AD63ED3Bdf66575522188a',
-  VariableDebtWETHAddress: '0x5d390c39c8bc4B116a87991fd369244dD7B0C6D8',
+  PoolAddress: '0x7be5F1b198f0c1fd21D426C225Ce02a9DD787930',
+  WETHGatewayAddress: '0x34A49CCb345FF2351641F0b807f2352FeB07fff2',
+  UiPoolDataProviderV3Address: '0x6D377E4b191AA0A658900DB6FC594Ae765299877',
+  PoolAddressesProviderAddress: '0x54C5E489B929a875F66162B3a6A7AEDD9b1F3798',
+  VariableDebtWETHAddress: '0xe18D591F3d8aB2Fe573AB20503faB6A02670B709',
   WETHAddress: '0x5546cB953770BA6Aa78FdbaEFB3450F87d97dDBC',
 
   provider: new ethers.providers.JsonRpcProvider(
