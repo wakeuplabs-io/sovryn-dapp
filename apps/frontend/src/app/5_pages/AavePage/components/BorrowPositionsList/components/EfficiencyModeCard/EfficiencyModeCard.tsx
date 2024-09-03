@@ -98,6 +98,7 @@ export const EfficiencyModeCard: FC<EfficiencyModeCardProps> = ({
             {eModeCategoryId !== 0 ? (
               <div className="space-y-1">
                 <Button
+                  disabled={eModeCategories.length <= 1}
                   onClick={() => setSwitchEModeOpen(true)}
                   text={t(translations.aavePage.eMode.switchCategory)}
                   className="w-full"
