@@ -16,6 +16,7 @@ import { Decimal } from '@sovryn/utils';
 
 import { BOB_CHAIN_ID } from '../../config/chains';
 
+import { config } from '../../constants/aave';
 import { Reserve } from '../../hooks/aave/useAaveReservesData';
 import { BorrowRateMode, UserReservesData } from '../../types/aave';
 import { decimalic, fromWei } from '../math';
@@ -159,8 +160,8 @@ export class AaveUserReservesSummaryFactory {
       userSummary.currentLiquidationThreshold,
     );
     const borrowPower = AaveCalculations.computeBorrowPower(
-      Decimal.from(userSummary.availableBorrowsUSD),
-      borrowBalance,
+      config.MinCollateralRatio,
+      collateralBalance,
     );
     const borrowPowerUsed = AaveCalculations.computeBorrowPowerUsed(
       borrowBalance,
