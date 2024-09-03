@@ -27,7 +27,7 @@ enum OverviewTab {
 const AaveReserveOverviewPage: FC = () => {
   const [searchParams] = useSearchParams();
   const symbol = searchParams.get('asset') || '';
-  const reserves = useAaveReservesData();
+  const { reserves } = useAaveReservesData();
   const { data: interestRatesData } = useAaveInterestRatesData();
   const reserveAsset = reserves.find(
     r => r.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase(),

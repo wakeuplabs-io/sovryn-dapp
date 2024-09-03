@@ -4,7 +4,7 @@ import { BigNumber, Contract } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { useSearchParams } from 'react-router-dom';
 
-import { config } from '../../constants/aave';
+import { useAccount } from '../useAccount';
 import rateStrategy from './ReserveStrategy-rateStrategyStableOne.json';
 import { BIG_NUMBER_PRECISION_TWENTY_SEVEN } from './constants';
 import { useAaveReservesData } from './useAaveReservesData';
@@ -46,13 +46,13 @@ export const useAaveInterestRatesData = (): {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  //
 
-  const provider = config.provider; // TODO: replace with useAccount
+  const { provider } = useAccount();
+
   // const { provider } = useAccount();
   const [searchParams] = useSearchParams();
   const symbol = searchParams.get('asset') || '';
-  const reserves = useAaveReservesData();
+  const { reserves } = useAaveReservesData();
   const reserveAsset = reserves.find(
     r => r.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase(),
   );

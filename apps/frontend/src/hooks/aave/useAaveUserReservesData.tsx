@@ -6,12 +6,6 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
-import { BigNumber } from 'ethers';
-
-import { getAssetData } from '@sovryn/contracts';
-import { Decimal } from '@sovryn/utils';
-
-import { BOB_CHAIN_ID } from '../../config/chains';
 
 import { config } from '../../constants/aave';
 import { UserReservesData } from '../../types/aave';
@@ -27,6 +21,7 @@ export const useAaveUserReservesData = (): {
   reservesData: ReservesDataHumanized | undefined;
   userReservesData: UserReservesData | undefined;
   timestamp: number;
+  loading: boolean;
 } => {
   const { account, provider } = useAccount();
   const { value: blockNumber } = useBlockNumber();
@@ -37,6 +32,7 @@ export const useAaveUserReservesData = (): {
   const [summary, setSummary] = useState<AaveUserReservesSummary>(
     AaveUserReservesSummaryFactory.buildZeroSummary([]),
   );
+  const [loading, setLoading] = useState(false);
 
   const uiPoolDataProvider = useMemo(
     () =>
@@ -55,38 +51,48 @@ export const useAaveUserReservesData = (): {
       return null;
     }
 
-    const [reservesData, userReservesData] = await Promise.all([
-      uiPoolDataProvider.getReservesHumanized({
-        lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
-      }),
-      uiPoolDataProvider.getUserReservesHumanized({
-        lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
-        user: account,
-      }),
-    ]);
-    const currentTimestamp = dayjs().unix();
+    try {
+      const [reservesData, userReservesData] = await Promise.all([
+        uiPoolDataProvider.getReservesHumanized({
+          lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
+        }),
+        uiPoolDataProvider.getUserReservesHumanized({
+          lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
+          user: account,
+        }),
+      ]);
+      const currentTimestamp = dayjs().unix();
 
-    setReservesData(reservesData);
-    setUserReservesData(userReservesData);
-    setTimeStamp(currentTimestamp);
+      setReservesData(reservesData);
+      setUserReservesData(userReservesData);
+      setTimeStamp(currentTimestamp);
 
-    setSummary(
-      await AaveUserReservesSummaryFactory.buildSummary({
-        provider,
-        account,
-        reservesData,
-        userReservesData,
-        currentTimestamp,
-      }),
-    );
-    setProcessedBlock(blockNumber);
+      setSummary(
+        await AaveUserReservesSummaryFactory.buildSummary({
+          provider,
+          account,
+          reservesData,
+          userReservesData,
+          currentTimestamp,
+        }),
+      );
+      setProcessedBlock(blockNumber);
+    } catch (e) {
+      console.error(e);
+    }
   }, [account, uiPoolDataProvider, blockNumber, provider]);
 
   useEffect(() => {
     if (blockNumber !== processedBlock) {
-      loadUserReservesData();
+      setLoading(true);
+      loadUserReservesData().finally(() => setLoading(false));
     }
   }, [loadUserReservesData, processedBlock, blockNumber]);
 
-  return { summary, reservesData, userReservesData, timestamp };
+  useEffect(() => {
+    setLoading(true);
+    setProcessedBlock(undefined);
+  }, [account]);
+
+  return { summary, reservesData, userReservesData, timestamp, loading };
 };
