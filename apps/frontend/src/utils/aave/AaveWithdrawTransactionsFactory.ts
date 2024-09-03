@@ -1,4 +1,4 @@
-import { BigNumber, Contract, ethers } from 'ethers';
+import { BigNumber, constants, Contract, ethers } from 'ethers';
 import { t } from 'i18next';
 
 import { AssetDetailsData, getAssetData } from '@sovryn/contracts';
@@ -9,6 +9,7 @@ import {
   Transaction,
   TransactionType,
 } from '../../app/3_organisms/TransactionStepDialog/TransactionStepDialog.types';
+import { config } from '../../constants/aave';
 import { translations } from '../../locales/i18n';
 import { TransactionFactoryOptions } from '../../types/aave';
 import { prepareApproveTransaction } from '../transactions';
@@ -38,17 +39,21 @@ export class AaveWithdrawTransactionsFactory {
   async withdraw(
     token: AssetDetailsData,
     amount: BigNumber,
+    isMaxAmount: boolean,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
-    const WETH = await getAssetData('WETH', BOB_CHAIN_ID);
-    if (token.address.toLowerCase() === WETH.address.toLowerCase())
-      return this.withdrawNative(amount, opts);
-    else return this.withdrawToken(token, amount, opts);
+    if (
+      token.isNative ||
+      token.address.toLowerCase() === config.WETHAddress.toLowerCase()
+    ) {
+      return this.withdrawNative(amount, isMaxAmount, opts);
+    } else return this.withdrawToken(token, amount, isMaxAmount, opts);
   }
 
   private async withdrawToken(
     asset: AssetDetailsData,
     amount: BigNumber,
+    isMaxAmount: boolean,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
     return [
@@ -64,7 +69,7 @@ export class AaveWithdrawTransactionsFactory {
           type: TransactionType.signTransaction,
           args: [
             asset.address,
-            amount.toString(),
+            isMaxAmount ? constants.MaxUint256.toString() : amount.toString(),
             await this.signer.getAddress(),
           ],
           contract: this.Pool,
@@ -77,6 +82,7 @@ export class AaveWithdrawTransactionsFactory {
 
   private async withdrawNative(
     amount: BigNumber,
+    isMaxAmount: boolean,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
     const aWETH = await getAssetData('aWETH', BOB_CHAIN_ID);
@@ -85,7 +91,7 @@ export class AaveWithdrawTransactionsFactory {
       spender: this.WETHGatewayAddress,
       token: aWETH.symbol,
       contract: new Contract(aWETH.address, aWETH.abi, this.signer),
-      amount: amount,
+      amount: constants.MaxUint256,
       chain: BOB_CHAIN_ID,
     });
     const transactions: Transaction[] = approval ? [approval] : [];
@@ -102,7 +108,7 @@ export class AaveWithdrawTransactionsFactory {
         type: TransactionType.signTransaction,
         args: [
           this.PoolAddress,
-          amount.toString(),
+          isMaxAmount ? constants.MaxUint256.toString() : amount.toString(),
           await this.signer.getAddress(),
         ],
         contract: this.WETHGateway,

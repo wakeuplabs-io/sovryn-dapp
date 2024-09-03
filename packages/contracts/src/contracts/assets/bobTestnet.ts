@@ -84,15 +84,13 @@ export const bobTestnet: Array<AssetDetails> = [
   },
   {
     symbol: 'aWETH',
-    // TODO: properly adjust this variable
-    address: '0xB637bafae04d2454051590816529BEf3543d3483',
+    address: '0xc6C2dEbc20Ecaa66A8E90B5567Ce219469EE3556',
     name: 'Aave Wrapped ETH',
     decimals: 18,
     getIcon: async () => (await import('./icons/bob/eth')).default,
   },
   {
     symbol: 'WETH',
-    // TODO: properly adjust this variable
     address: '0x5546cB953770BA6Aa78FdbaEFB3450F87d97dDBC',
     name: 'Wrapped ETH',
     decimals: 18,

@@ -7,7 +7,7 @@ import { useAccount } from '../useAccount';
 import { useAaveReservesData } from './useAaveReservesData';
 
 export const useAaveEModeCategories = (): EModeCategory[] => {
-  const reserves = useAaveReservesData();
+  const { reserves } = useAaveReservesData();
   const { provider } = useAccount();
   const [categories, setCategories] = useState<EModeCategory[]>([]);
 

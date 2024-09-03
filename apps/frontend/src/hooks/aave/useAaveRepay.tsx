@@ -3,8 +3,10 @@ import { useCallback, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import { t } from 'i18next';
 
-import { AssetDetailsData } from '@sovryn/contracts';
+import { getAssetData } from '@sovryn/contracts';
 import { Decimal } from '@sovryn/utils';
+
+import { BOB_CHAIN_ID } from '../../config/chains';
 
 import { config } from '../../constants/aave';
 import { useTransactionContext } from '../../contexts/TransactionContext';
@@ -28,14 +30,17 @@ export const useAaveRepay = () => {
 
   const handleRepay = useCallback(
     async (
+      symbol: string,
       amount: Decimal,
-      asset: AssetDetailsData,
+      isEntireDebt: boolean,
       borrowRateMode: BorrowRateMode,
       opts?: TransactionFactoryOptions,
     ) => {
       if (!aaveRepayTransactionsFactory) {
         return;
       }
+
+      const asset = await getAssetData(symbol, BOB_CHAIN_ID);
       const bnAmount = BigNumber.from(
         amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
       );
@@ -44,6 +49,7 @@ export const useAaveRepay = () => {
         await aaveRepayTransactionsFactory.repay(
           asset,
           bnAmount,
+          isEntireDebt,
           borrowRateMode,
           opts,
         ),

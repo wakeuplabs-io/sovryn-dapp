@@ -1,11 +1,7 @@
 import { BigNumber, constants, Contract, ethers } from 'ethers';
 import { t } from 'i18next';
 
-import {
-  AssetDetailsData,
-  getAssetData,
-  getAssetDataByAddress,
-} from '@sovryn/contracts';
+import { AssetDetailsData, getAssetDataByAddress } from '@sovryn/contracts';
 
 import { BOB_CHAIN_ID } from '../../config/chains';
 
@@ -13,6 +9,7 @@ import {
   Transaction,
   TransactionType,
 } from '../../app/3_organisms/TransactionStepDialog/TransactionStepDialog.types';
+import { config } from '../../constants/aave';
 import { translations } from '../../locales/i18n';
 import { TransactionFactoryOptions } from '../../types/aave';
 import { prepareApproveTransaction } from '../transactions';
@@ -49,9 +46,12 @@ export class AaveSupplyTransactionsFactory {
     amount: BigNumber,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
-    if (token.isNative || token.symbol === 'WETH')
+    if (
+      token.isNative ||
+      token.address.toLowerCase() === config.WETHAddress.toLowerCase()
+    ) {
       return this.supplyNative(amount, opts);
-    else return this.supplyToken(token, amount, opts);
+    } else return this.supplyToken(token, amount, opts);
   }
 
   async collateralSwitch(
@@ -59,9 +59,7 @@ export class AaveSupplyTransactionsFactory {
     useAsCollateral: boolean,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
-    const tokenAddress = token.isNative
-      ? (await getAssetData('WETH', BOB_CHAIN_ID)).address
-      : token.address;
+    const tokenAddress = token.isNative ? config.WETHAddress : token.address;
 
     return [
       {

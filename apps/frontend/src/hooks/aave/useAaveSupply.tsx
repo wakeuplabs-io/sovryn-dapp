@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import { t } from 'i18next';
 
-import { AssetDetailsData, getAssetDataByAddress } from '@sovryn/contracts';
+import { getAssetData } from '@sovryn/contracts';
 import { Decimal } from '@sovryn/utils';
 
 import { BOB_CHAIN_ID } from '../../config/chains';
@@ -31,12 +31,14 @@ export const useAaveSupply = () => {
   const handleDeposit = useCallback(
     async (
       amount: Decimal,
-      asset: AssetDetailsData,
+      symbol: string,
       opts?: TransactionFactoryOptions,
     ) => {
       if (!aaveSupplyTransactionsFactory) {
         return;
       }
+
+      const asset = await getAssetData(symbol, BOB_CHAIN_ID);
       const bnAmount = BigNumber.from(
         amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
       );
@@ -52,7 +54,7 @@ export const useAaveSupply = () => {
 
   const handleSwitchCollateral = useCallback(
     async (
-      asset: AssetDetailsData,
+      symbol: string,
       useAsCollateral: boolean,
       opts?: TransactionFactoryOptions,
     ) => {
@@ -60,11 +62,10 @@ export const useAaveSupply = () => {
         return;
       }
 
+      const asset = await getAssetData(symbol, BOB_CHAIN_ID);
       setTransactions(
         await aaveSupplyTransactionsFactory.collateralSwitch(
-          asset.isNative
-            ? await getAssetDataByAddress(config.WETHAddress, BOB_CHAIN_ID)
-            : asset,
+          asset,
           useAsCollateral,
           opts,
         ),
