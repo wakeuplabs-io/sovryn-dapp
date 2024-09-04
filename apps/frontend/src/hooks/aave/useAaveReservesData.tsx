@@ -8,6 +8,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
 
+import { getProvider } from '@sovryn/ethers-provider';
+
+import { BOB_CHAIN_ID } from '../../config/chains';
+
 import { config } from '../../constants/aave';
 
 export type Reserve = ReserveDataHumanized & FormatReserveUSDResponse;
@@ -21,9 +25,9 @@ export const useAaveReservesData = (): ReserveData => {
   const uiPoolDataProvider = useMemo(
     () =>
       new UiPoolDataProvider({
-        provider: config.provider,
+        provider: getProvider(BOB_CHAIN_ID),
         uiPoolDataProviderAddress: config.UiPoolDataProviderV3Address,
-        chainId: config.chainId,
+        chainId: Number(BOB_CHAIN_ID),
       }),
     [],
   );

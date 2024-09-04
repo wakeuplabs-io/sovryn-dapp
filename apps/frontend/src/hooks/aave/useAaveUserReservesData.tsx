@@ -7,6 +7,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
 
+import { getProvider } from '@sovryn/ethers-provider';
+
+import { BOB_CHAIN_ID } from '../../config/chains';
+
 import { config } from '../../constants/aave';
 import { UserReservesData } from '../../types/aave';
 import {
@@ -37,9 +41,9 @@ export const useAaveUserReservesData = (): {
   const uiPoolDataProvider = useMemo(
     () =>
       new UiPoolDataProvider({
-        provider: config.provider,
+        provider: getProvider(BOB_CHAIN_ID),
         uiPoolDataProviderAddress: config.UiPoolDataProviderV3Address,
-        chainId: config.chainId,
+        chainId: Number(BOB_CHAIN_ID),
       }),
     [],
   );
@@ -67,7 +71,7 @@ export const useAaveUserReservesData = (): {
 
       setSummary(
         await AaveUserReservesSummaryFactory.buildSummary({
-          provider: config.provider,
+          provider: getProvider(BOB_CHAIN_ID),
           account,
           reservesData,
           userReservesData,
