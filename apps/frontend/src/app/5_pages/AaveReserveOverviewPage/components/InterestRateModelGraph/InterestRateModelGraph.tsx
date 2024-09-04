@@ -7,6 +7,7 @@ import { Accordion, Link } from '@sovryn/ui';
 
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/StatisticsCard';
+import { config } from '../../../../../constants/aave';
 import { IRatesDataResult } from '../../../../../hooks/aave/useAaveRates';
 import { useIsMobile } from '../../../../../hooks/useIsMobile';
 import { translations } from '../../../../../locales/i18n';
@@ -25,6 +26,7 @@ export const InterestRateModelGraph: FC<InterestRateModelGraphProps> = ({
 }) => {
   const [open, setOpen] = useState<boolean>(true);
   const { isMobile } = useIsMobile();
+  const interestRateStrategyUrl = `https://etherscan.io/address/${config.InterestRateStrategyAddress}`;
 
   const meta = {
     label: t(pageTranslations.chart.label1),
@@ -57,7 +59,10 @@ export const InterestRateModelGraph: FC<InterestRateModelGraphProps> = ({
                 />
               }
             />
-            <Link href="#" text={t(pageTranslations.interestRateStrategy)} />
+            <Link
+              href={interestRateStrategyUrl}
+              text={t(pageTranslations.interestRateStrategy)}
+            />
           </div>
 
           <Chart meta={meta} rates={rates} />
