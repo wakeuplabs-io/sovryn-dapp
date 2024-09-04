@@ -52,6 +52,7 @@ const AaveReserveOverviewPage: FC = () => {
         availableLiquidity: Decimal.from(0),
         utilizationRate: Decimal.from(0),
         oraclePrice: Decimal.from(0),
+        oracleAddress: '',
       };
     }
 
@@ -68,6 +69,7 @@ const AaveReserveOverviewPage: FC = () => {
       availableLiquidity: Decimal.from(reserve.availableLiquidityUSD),
       utilizationRate: Decimal.from(reserve.borrowUsageRatio),
       oraclePrice: Decimal.from(reserve.priceInUSD),
+      oracleAddress: reserve.priceOracle,
     };
   }, [reserve, symbol]);
 

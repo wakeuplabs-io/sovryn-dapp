@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 
 import classNames from 'classnames';
 import { t } from 'i18next';
@@ -40,6 +40,7 @@ export type ReserveOverview = {
   availableLiquidity: Decimal;
   utilizationRate: Decimal;
   oraclePrice: Decimal;
+  oracleAddress: string;
 };
 
 type TopPanelProps = {
@@ -78,6 +79,10 @@ export const TopPanel: FC<TopPanelProps> = ({ reserve, className }) => {
     },
     [notifyError],
   );
+
+  const oracleLink = useMemo(() => {
+    return getBobExplorerUrl() + '/address/' + reserve.oracleAddress;
+  }, [reserve.oracleAddress]);
 
   return (
     <div className={classNames('w-full flex flex-col gap-6', className)}>
@@ -193,7 +198,7 @@ export const TopPanel: FC<TopPanelProps> = ({ reserve, className }) => {
         />
         <StatisticsCard
           label={t(pageTranslations.oraclePrice)}
-          link="#oracle-price"
+          link={oracleLink}
           value={
             <AmountRenderer
               prefix="$"
