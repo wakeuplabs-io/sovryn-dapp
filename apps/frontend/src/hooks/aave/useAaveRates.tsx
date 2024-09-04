@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { BigNumber, Contract } from 'ethers';
+import { Contract, utils } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { useSearchParams } from 'react-router-dom';
 
 import { useAccount } from '../useAccount';
 import rateStrategy from './ReserveStrategy-rateStrategyStableOne.json';
 import { BIG_NUMBER_PRECISION_TWENTY_SEVEN } from './constants';
-import { useAaveReservesData } from './useAaveReservesData';
+import { Reserve, useAaveReservesData } from './useAaveReservesData';
 
 export interface IRatesDataResult {
   currentUsageRatio: string;
@@ -28,14 +28,18 @@ export interface IRatesDataResult {
 }
 
 function calculateUtilizationRate(
+  decimals: number,
   totalDebt: string,
   availableLiquidity: string,
 ): string {
-  // Convert inputs to BigNumber
-  const _totalDebt: BigNumber = BigNumber.from(totalDebt);
-  const _liquidity: BigNumber = BigNumber.from(availableLiquidity);
+  // Create BigNumber instances
+  const totalBorrow = BigInt(utils.parseUnits(totalDebt, decimals).toString());
+  const totalSupply = BigInt(availableLiquidity) + totalBorrow;
 
-  return _totalDebt.div(_totalDebt.add(_liquidity)).toString();
+  // Perform division
+  const result = (totalBorrow * BigInt(10 ** 18)) / totalSupply;
+
+  return formatUnits(result, 18);
 }
 
 export const useAaveInterestRatesData = (): {
@@ -52,7 +56,7 @@ export const useAaveInterestRatesData = (): {
   const [searchParams] = useSearchParams();
   const symbol = searchParams.get('asset') || '';
   const { reserves } = useAaveReservesData();
-  const reserveAsset = reserves.find(
+  const reserveAsset: Reserve | undefined = reserves.find(
     r => r.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase(),
   );
   const interestRateStrategyAddress = reserveAsset?.interestRateStrategyAddress;
@@ -79,6 +83,7 @@ export const useAaveInterestRatesData = (): {
         throw new Error(error);
       }
       const utilizationRate = calculateUtilizationRate(
+        reserveAsset.decimals,
         reserveAsset.totalDebt,
         reserveAsset.availableLiquidity,
       );
