@@ -89,7 +89,6 @@ export const useAaveUserReservesData = (): {
 
   useEffect(() => {
     setLoading(true);
-    setProcessedBlock(undefined);
     setProcessedBlock(-1);
   }, [account]);
 
