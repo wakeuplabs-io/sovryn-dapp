@@ -39,6 +39,7 @@ export type ReserveSummary = {
   borrowedUSD: Decimal;
   borrowRateMode: BorrowRateMode;
   availableToBorrow: Decimal;
+  availableToBorrowUSD: Decimal;
 };
 
 export type AaveUserReservesSummary = {
@@ -98,6 +99,7 @@ export class AaveUserReservesSummaryFactory {
         borrowedUSD: Decimal.ZERO,
         borrowRateMode: BorrowRateMode.VARIABLE,
         availableToBorrow: Decimal.ZERO,
+        availableToBorrowUSD: Decimal.ZERO,
       })),
     };
   }
@@ -216,6 +218,7 @@ export class AaveUserReservesSummaryFactory {
             borrowed: Decimal.from(r.totalBorrows),
             borrowedUSD: Decimal.from(r.totalBorrowsUSD),
             availableToBorrow: borrowPower.div(r.reserve.priceInUSD),
+            availableToBorrowUSD: borrowPower,
 
             borrowRateMode: Decimal.from(r.variableBorrows).gt(0)
               ? BorrowRateMode.VARIABLE
