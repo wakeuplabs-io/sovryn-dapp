@@ -1,3 +1,5 @@
+import { FormattedReserveHistoryItem } from '../../../../../../../hooks/aave/useReservesHistory';
+
 const getOrCreateLegendList = id => {
   const legendContainer = document.getElementById(id);
   if (!legendContainer) {
@@ -86,4 +88,11 @@ export const htmlLegendPlugin = {
       ul.appendChild(li);
     });
   },
+};
+
+export const historyToChartMapper = (item: FormattedReserveHistoryItem) => {
+  return {
+    x: item.date,
+    y: item.liquidityRate,
+  };
 };

@@ -7,28 +7,31 @@ import { Accordion, Icon, IconNames, Paragraph } from '@sovryn/ui';
 
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/StatisticsCard';
+import { FormattedReserveHistoryItem } from '../../../../../hooks/aave/useReservesHistory';
 import { useIsMobile } from '../../../../../hooks/useIsMobile';
 import { translations } from '../../../../../locales/i18n';
 import { Chart } from './components/Chart/Chart';
-import { harcodedData } from './components/Chart/Chart.constants';
-import { MockData } from './components/Chart/Chart.types';
 
 const pageTranslations = translations.aaveReserveOverviewPage.supplyDetails;
 
-export const SupplyDetailsGraph: FC = () => {
+type SupplyDetailsGraphProps = {
+  history: FormattedReserveHistoryItem[];
+};
+
+export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = ({
+  history,
+}) => {
   const [open, setOpen] = useState(true);
   const { isMobile } = useIsMobile();
-  // TODO: mocked amounts
-  const mockData: MockData<{ x: string; y: number }> = useMemo(() => {
-    const data1 = harcodedData;
 
+  const inputData = useMemo(() => {
+    const data = history.map(i => ({ x: i.date, y: i.liquidityRate * 100 }));
     return {
-      data1,
-      label1: t(pageTranslations.chart.label1),
+      data,
+      label: t(pageTranslations.chart.label1),
       lineColor: theme.colors['primary-30'],
-      xLabels: data1.map(item => item.x),
     };
-  }, []);
+  }, [history]);
 
   return (
     <Accordion
@@ -75,7 +78,7 @@ export const SupplyDetailsGraph: FC = () => {
           />
         </div>
 
-        <Chart mockData={mockData} yLabel1="" />
+        <Chart input={inputData} />
 
         <div className="space-y-6">
           {/* heading */}

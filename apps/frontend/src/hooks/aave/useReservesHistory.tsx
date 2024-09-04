@@ -4,11 +4,11 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 
-import dayjs from 'dayjs';
-
+//import dayjs from 'dayjs';
+import mockedRatesHistory from './rates-history-mock.json';
 import { makeCancelable } from './utils';
 
-enum ESupportedTimeRanges {
+export enum ESupportedTimeRanges {
   OneMonth = '1m',
   ThreeMonths = '3m',
   SixMonths = '6m',
@@ -24,10 +24,10 @@ export const reserveRateTimeRangeOptions = [
 ];
 export type ReserveRateTimeRange = typeof reserveRateTimeRangeOptions[number];
 
-type RatesHistoryParams = {
+/* type RatesHistoryParams = {
   from: number;
   resolutionInHours: number;
-};
+}; */
 
 type APIResponse = {
   liquidityRate_avg: number;
@@ -38,24 +38,25 @@ type APIResponse = {
 };
 
 const fetchStats = async (
-  address: string,
+  _address: string,
   timeRange: ReserveRateTimeRange,
-  endpointURL: string,
-) => {
-  const { from, resolutionInHours } = resolutionForTimeRange(timeRange);
-  try {
+  _endpointURL: string,
+): Promise<APIResponse[]> => {
+  //const { from, resolutionInHours } = resolutionForTimeRange(timeRange);
+  return mockedRatesHistory;
+  /*   try {
     const url = `${endpointURL}?reserveId=${address}&from=${from}&resolutionInHours=${resolutionInHours}`;
     const result = await fetch(url);
     const json = await result.json();
     return json;
   } catch (e) {
     return [];
-  }
+  } */
 };
 
 // TODO: there is possibly a bug here, as Polygon and Avalanche v2 data is coming through empty and erroring in our hook
 // The same asset without the 'from' field comes through just fine.
-const resolutionForTimeRange = (
+/* const resolutionForTimeRange = (
   timeRange: ReserveRateTimeRange,
 ): RatesHistoryParams => {
   // Return today as a fallback
@@ -85,7 +86,7 @@ const resolutionForTimeRange = (
         resolutionInHours: 6,
       };
   }
-};
+}; */
 
 export type FormattedReserveHistoryItem = {
   date: number;
@@ -125,7 +126,7 @@ export const BROKEN_ASSETS = [
  */
 export function useReserveRatesHistory(
   reserveAddress: string,
-  timeRange: ReserveRateTimeRange = ESupportedTimeRanges.OneMonth,
+  timeRange: ReserveRateTimeRange,
 ) {
   const { currentNetworkConfig } = {
     currentNetworkConfig: {

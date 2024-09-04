@@ -55,6 +55,7 @@ export const InterestRateModelGraph: FC<InterestRateModelGraphProps> = ({
               value={
                 <AmountRenderer
                   value={parseFloat(rates.currentUsageRatio) * 100}
+                  precision={2}
                   suffix="%"
                 />
               }

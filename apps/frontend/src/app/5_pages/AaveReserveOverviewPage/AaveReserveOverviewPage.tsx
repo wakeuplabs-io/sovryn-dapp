@@ -10,6 +10,10 @@ import { Decimal } from '@sovryn/utils';
 
 import { useAaveInterestRatesData } from '../../../hooks/aave/useAaveRates';
 import { useAaveReservesData } from '../../../hooks/aave/useAaveReservesData';
+import {
+  ESupportedTimeRanges,
+  useReserveRatesHistory,
+} from '../../../hooks/aave/useReservesHistory';
 import { translations } from '../../../locales/i18n';
 import { BorrowDetailsGraph } from './components/BorrowDetailsGraph/BorrowDetailsGraph';
 import { EModeDetails } from './components/EModeDetails/EModeDetails';
@@ -37,6 +41,11 @@ const AaveReserveOverviewPage: FC = () => {
   const reserve = useMemo(
     () => reserves.find(r => r.symbol.toLowerCase() === symbol.toLowerCase()),
     [reserves, symbol],
+  );
+
+  const { data } = useReserveRatesHistory(
+    '0x7da96a3891add058ada2e826306d812c638d87a7', // @TODO: replace with reserve.address
+    ESupportedTimeRanges.OneMonth,
   );
 
   const reserveOverview: ReserveOverview = useMemo(() => {
@@ -117,8 +126,8 @@ const AaveReserveOverviewPage: FC = () => {
               'lg:block space-y-4 flex-grow w-min',
             )}
           >
-            <SupplyDetailsGraph />
-            <BorrowDetailsGraph />
+            <SupplyDetailsGraph history={data} />
+            <BorrowDetailsGraph history={data} />
             <EModeDetails />
             {interestRatesData && (
               <InterestRateModelGraph
