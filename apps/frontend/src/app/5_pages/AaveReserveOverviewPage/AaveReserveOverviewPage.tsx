@@ -123,7 +123,7 @@ const AaveReserveOverviewPage: FC = () => {
             {interestRatesData && (
               <InterestRateModelGraph
                 rates={interestRatesData}
-                reserveFactor={reserveAsset?.reserveFactor}
+                reserveFactor={reserve?.reserveFactor}
               />
             )}
           </div>
