@@ -2,10 +2,10 @@ import { decimalic } from '../utils/math';
 
 export const config = {
   MinCollateralRatio: decimalic(1.5),
-  PoolAddress: '0x7be5F1b198f0c1fd21D426C225Ce02a9DD787930',
-  WETHGatewayAddress: '0x34A49CCb345FF2351641F0b807f2352FeB07fff2',
-  UiPoolDataProviderV3Address: '0x6D377E4b191AA0A658900DB6FC594Ae765299877',
-  PoolAddressesProviderAddress: '0x54C5E489B929a875F66162B3a6A7AEDD9b1F3798',
-  VariableDebtWETHAddress: '0xe18D591F3d8aB2Fe573AB20503faB6A02670B709',
-  WETHAddress: '0x5546cB953770BA6Aa78FdbaEFB3450F87d97dDBC',
+  PoolAddress: '0xFbdc7303cc2046Ff6c340F94F71aB01517b42476',
+  WETHGatewayAddress: '0x50ff0B7a3e7af6F896CA81aF2E563814Eee7A3c0',
+  UiPoolDataProviderV3Address: '0x5E7F300702D15d8B661aed2B67dc68f8e48B3b55',
+  PoolAddressesProviderAddress: '0xc187B9083fF15B3Ae4eA56f8ab82DF52474B4E58',
+  VariableDebtWETHAddress: '0x8bA8F81a5c2F406f3eD8FE18A94AecE3E27C2831',
+  WETHAddress: '0x8CEc2719a2e896A11eA3f10406EfDb6Ad87281D9',
 };
