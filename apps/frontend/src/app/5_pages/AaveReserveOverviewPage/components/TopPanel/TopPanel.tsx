@@ -1,9 +1,18 @@
-import React, { FC } from 'react';
+import React, { FC, useCallback } from 'react';
 
 import classNames from 'classnames';
 import { t } from 'i18next';
 
-import { Heading, Icon, IconNames, Paragraph, ParagraphSize } from '@sovryn/ui';
+import {
+  Heading,
+  Icon,
+  IconNames,
+  Paragraph,
+  ParagraphSize,
+  Tooltip,
+  TooltipPlacement,
+  TooltipTrigger,
+} from '@sovryn/ui';
 import { Decimal } from '@sovryn/utils';
 
 import { BOB_CHAIN_ID } from '../../../../../config/chains';
@@ -12,14 +21,21 @@ import { WalletIcon } from '../../../../1_atoms/Icons/Icons';
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { AssetRenderer } from '../../../../2_molecules/AssetRenderer/AssetRenderer';
 import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/StatisticsCard';
+import { useNotifyError } from '../../../../../hooks/useNotifyError';
 import { translations } from '../../../../../locales/i18n';
+import { getBobExplorerUrl } from '../../../../../utils/helpers';
 import { formatUsdAmount } from './TopPanel.utils';
+import { ReserveTokens } from './components/ReserveTokens/ReserveTokens';
 
 const pageTranslations = translations.aaveReserveOverviewPage.topPanel;
 
 export type ReserveOverview = {
   symbol: string;
   name: string;
+  underlyingAsset: string;
+  aTokenAddress: string;
+  variableDebtTokenAddress: string;
+  stableDebtTokenAddress: string;
   reserveSize: Decimal;
   availableLiquidity: Decimal;
   utilizationRate: Decimal;
@@ -32,6 +48,37 @@ type TopPanelProps = {
 };
 
 export const TopPanel: FC<TopPanelProps> = ({ reserve, className }) => {
+  const { notifyError } = useNotifyError();
+
+  const openInExplorer = useCallback((tokenAddress: string) => {
+    const explorer = getBobExplorerUrl();
+    window.open(`${explorer}/address/${tokenAddress}`, '_blank');
+  }, []);
+
+  const addToWallet = useCallback(
+    (token: string) => {
+      try {
+        if (!(window as any)?.ethereum) {
+          throw new Error('Wallet not available');
+        }
+
+        (window as any)?.ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: {
+              chainId: BOB_CHAIN_ID,
+              address: token,
+            },
+          },
+        });
+      } catch (error) {
+        notifyError(error);
+      }
+    },
+    [notifyError],
+  );
+
   return (
     <div className={classNames('w-full flex flex-col gap-6', className)}>
       <div className="text-center py-6 px-10 space-y-3 lg:hidden">
@@ -58,17 +105,58 @@ export const TopPanel: FC<TopPanelProps> = ({ reserve, className }) => {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 h-8">
-            <a href="#block-explorer">
-              <Icon
-                icon={IconNames.NEW_TAB}
-                className="text-gray-30"
-                size={16}
-              />
-            </a>
-            <a href="#block-explorer">
-              <Icon icon={WalletIcon} className="text-gray-30" size={16} />
-            </a>
+          <div className="flex items-center gap-3 h-8">
+            {/* show token in explorer */}
+            <Tooltip
+              tooltipClassName="py-1 px-0"
+              trigger={TooltipTrigger.hover}
+              placement={TooltipPlacement.bottom}
+              content={
+                <ReserveTokens
+                  className="w-60"
+                  symbol={reserve.symbol}
+                  aTokenAddress={reserve.aTokenAddress}
+                  underlyingTokenAddress={reserve.underlyingAsset}
+                  variableDebtTokenAddress={reserve.variableDebtTokenAddress}
+                  stableDebtTokenAddress={reserve.stableDebtTokenAddress}
+                  onClick={openInExplorer}
+                />
+              }
+            >
+              <div>
+                <Icon
+                  icon={IconNames.NEW_TAB}
+                  className="text-gray-30 cursor-pointer"
+                  size={16}
+                />
+              </div>
+            </Tooltip>
+
+            {/* add token to wallet */}
+            <Tooltip
+              tooltipClassName="py-1 px-0"
+              trigger={TooltipTrigger.hover}
+              placement={TooltipPlacement.bottom}
+              content={
+                <ReserveTokens
+                  className="w-60"
+                  symbol={reserve.symbol}
+                  aTokenAddress={reserve.aTokenAddress}
+                  underlyingTokenAddress={reserve.underlyingAsset}
+                  variableDebtTokenAddress={reserve.variableDebtTokenAddress}
+                  stableDebtTokenAddress={reserve.stableDebtTokenAddress}
+                  onClick={addToWallet}
+                />
+              }
+            >
+              <div>
+                <Icon
+                  icon={WalletIcon}
+                  className="text-gray-30 cursor-pointer"
+                  size={16}
+                />
+              </div>
+            </Tooltip>
           </div>
         </div>
 

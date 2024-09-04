@@ -44,6 +44,10 @@ const AaveReserveOverviewPage: FC = () => {
       return {
         symbol,
         name: symbol,
+        underlyingAsset: '',
+        aTokenAddress: '',
+        variableDebtTokenAddress: '',
+        stableDebtTokenAddress: '',
         reserveSize: Decimal.from(0),
         availableLiquidity: Decimal.from(0),
         utilizationRate: Decimal.from(0),
@@ -54,6 +58,10 @@ const AaveReserveOverviewPage: FC = () => {
     return {
       symbol: reserve.symbol,
       name: reserve.name,
+      underlyingAsset: reserve.underlyingAsset,
+      aTokenAddress: reserve.aTokenAddress,
+      variableDebtTokenAddress: reserve.variableDebtTokenAddress,
+      stableDebtTokenAddress: reserve.stableDebtTokenAddress,
       reserveSize: Decimal.from(reserve?.availableLiquidityUSD ?? 0).add(
         reserve?.totalDebtUSD ?? 0,
       ),
