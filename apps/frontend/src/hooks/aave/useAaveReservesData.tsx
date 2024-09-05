@@ -15,7 +15,6 @@ import { BOB_CHAIN_ID } from '../../config/chains';
 import { config } from '../../constants/aave';
 
 export type Reserve = ReserveDataHumanized & FormatReserveUSDResponse;
-
 export type ReserveData = { reserves: Reserve[]; loading: boolean };
 
 export const useAaveReservesData = (): ReserveData => {
