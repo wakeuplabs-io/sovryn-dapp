@@ -89,6 +89,7 @@ export const COLUMNS_CONFIG = (onLendClick: (asset: string) => unknown) => [
     title: ' ',
     cellRenderer: (pool: LendPoolDetails) => (
       <LendAssetAction
+        disabled={pool.walletBalance.eq(0)}
         onLendClick={() => onLendClick(pool.asset)}
         asset={pool.asset}
       />

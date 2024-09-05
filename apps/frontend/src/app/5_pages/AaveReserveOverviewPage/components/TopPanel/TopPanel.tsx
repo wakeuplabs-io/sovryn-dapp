@@ -30,6 +30,20 @@ import { ReserveTokens } from './components/ReserveTokens/ReserveTokens';
 
 const pageTranslations = translations.aaveReserveOverviewPage.topPanel;
 
+export type ReserveOverview = {
+  symbol: string;
+  name: string;
+  underlyingAsset: string;
+  aTokenAddress: string;
+  variableDebtTokenAddress: string;
+  stableDebtTokenAddress: string;
+  reserveSize: Decimal;
+  availableLiquidity: Decimal;
+  utilizationRate: Decimal;
+  oraclePrice: Decimal;
+  oracleAddress: string;
+};
+
 type TopPanelProps = {
   reserve: Reserve;
   className?: string;
