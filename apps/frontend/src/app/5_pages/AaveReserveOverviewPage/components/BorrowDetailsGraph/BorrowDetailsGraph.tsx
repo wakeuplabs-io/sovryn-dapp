@@ -4,16 +4,14 @@ import { t } from 'i18next';
 
 import { theme } from '@sovryn/tailwindcss-config';
 import { Accordion, Link, Paragraph } from '@sovryn/ui';
-import { Decimal } from '@sovryn/utils';
 
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/StatisticsCard';
-import { config } from '../../../../../constants/aave';
 import { Reserve } from '../../../../../hooks/aave/useAaveReservesData';
 import { useIsMobile } from '../../../../../hooks/useIsMobile';
 import { translations } from '../../../../../locales/i18n';
-import { getBobExplorerUrl } from '../../../../../utils/helpers';
 import { formatAmountWithSuffix } from '../../../../../utils/math';
+import { normalizeBorrowStats } from './BorrowDetailsGraph.utils';
 import { Chart } from './components/Chart/Chart';
 import { harcodedData } from './components/Chart/Chart.constants';
 import { MockData } from './components/Chart/Chart.types';
@@ -42,32 +40,9 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
     };
   }, []);
 
-  const totalBorrowed = useMemo(() => {
-    return Decimal.from(reserve.totalDebt);
+  const borrowStats = useMemo(() => {
+    return normalizeBorrowStats(reserve);
   }, [reserve]);
-
-  const totalBorrowedUSD = useMemo(() => {
-    return Decimal.from(reserve.totalDebtUSD);
-  }, [reserve]);
-
-  const debtCap = useMemo(() => {
-    return Decimal.from(reserve.debtCeiling);
-  }, [reserve]);
-
-  const debtCapUSD = useMemo(() => {
-    return Decimal.from(reserve.debtCeilingUSD);
-  }, [reserve]);
-
-  const borrowedPercentage = useMemo(() => {
-    return Decimal.from(totalBorrowedUSD)
-      .div(Decimal.from(reserve.debtCeilingUSD))
-      .mul(100)
-      .toString(0);
-  }, [reserve, totalBorrowedUSD]);
-
-  const collectorContractLink = useMemo(() => {
-    return `${getBobExplorerUrl()}/address/${config.TreasuryAddress}`;
-  }, []);
 
   return (
     <Accordion
@@ -92,14 +67,14 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
                 <div className="space-x-1 font-medium text-base">
                   <AmountRenderer
                     precision={2}
-                    {...formatAmountWithSuffix(totalBorrowed)}
+                    {...formatAmountWithSuffix(borrowStats.totalBorrowed)}
                   />
-                  {debtCap.gt(0) && (
+                  {borrowStats.borrowCap.gt(0) && (
                     <>
                       <span>{t(pageTranslations.of)}</span>
                       <AmountRenderer
                         precision={2}
-                        {...formatAmountWithSuffix(debtCap)}
+                        {...formatAmountWithSuffix(borrowStats.borrowCap)}
                       />
                     </>
                   )}
@@ -109,25 +84,25 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
                   <AmountRenderer
                     prefix="$"
                     precision={2}
-                    {...formatAmountWithSuffix(totalBorrowedUSD)}
+                    {...formatAmountWithSuffix(borrowStats.totalBorrowedUSD)}
                   />
-                  {debtCap.gt(0) && (
+                  {borrowStats.borrowCap.gt(0) && (
                     <>
                       <span>{t(pageTranslations.of)}</span>
                       <AmountRenderer
                         prefix="$"
                         precision={2}
-                        {...formatAmountWithSuffix(debtCapUSD)}
+                        {...formatAmountWithSuffix(borrowStats.borrowCapUSD)}
                       />
                     </>
                   )}
                 </div>
 
                 {/* Progress bar */}
-                {debtCap.gt(0) && (
+                {borrowStats.borrowCap.gt(0) && (
                   <div className="mt-2 h-[3px] w-[160px] bg-gray-70 rounded-full">
                     <div
-                      className={`h-full bg-primary-30 w-[${borrowedPercentage}%]`}
+                      className={`h-full bg-primary-30 w-[${borrowStats.borrowedPercentage}%]`}
                     ></div>
                   </div>
                 )}
@@ -139,20 +114,20 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
               label={t(pageTranslations.apr)}
               value={
                 <AmountRenderer
-                  value={reserve.variableBorrowAPR}
+                  value={borrowStats.apr}
                   suffix="%"
                   precision={2}
                 />
               }
             />
 
-            {debtCap.gt(0) && (
+            {borrowStats.borrowCap.gt(0) && (
               <StatisticsCard
                 label={t(pageTranslations.borrowCap)}
                 value={
                   <AmountRenderer
                     precision={2}
-                    {...formatAmountWithSuffix(debtCap)}
+                    {...formatAmountWithSuffix(borrowStats.borrowCap)}
                   />
                 }
               />
@@ -174,7 +149,7 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
               help={t(pageTranslations.reserveFactorInfo)}
               value={
                 <AmountRenderer
-                  value={reserve.reserveFactor}
+                  value={borrowStats.reserveFactor}
                   precision={2}
                   suffix="%"
                 />
@@ -186,7 +161,7 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
               value={
                 <Link
                   openNewTab
-                  href={collectorContractLink}
+                  href={borrowStats.collectorContractLink}
                   text={t(pageTranslations.viewContract)}
                 />
               }
