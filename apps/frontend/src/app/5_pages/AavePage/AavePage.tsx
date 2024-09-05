@@ -140,5 +140,4 @@ const AavePage: FC = () => {
     </div>
   );
 };
-
 export default AavePage;
