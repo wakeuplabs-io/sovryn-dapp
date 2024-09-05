@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import { Contract, utils } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { useSearchParams } from 'react-router-dom';
 
 import { useAccount } from '../useAccount';
 import rateStrategy from './ReserveStrategy-rateStrategyStableOne.json';
 import { BIG_NUMBER_PRECISION_TWENTY_SEVEN } from './constants';
-import { Reserve, useAaveReservesData } from './useAaveReservesData';
+import { useAaveReservesData } from './useAaveReservesData';
 
 export interface IRatesDataResult {
   currentUsageRatio: string;
@@ -28,18 +28,14 @@ export interface IRatesDataResult {
 }
 
 function calculateUtilizationRate(
-  decimals: number,
   totalDebt: string,
   availableLiquidity: string,
 ): string {
-  // Create BigNumber instances
-  const totalBorrow = BigInt(utils.parseUnits(totalDebt, decimals).toString());
-  const totalSupply = BigInt(availableLiquidity) + totalBorrow;
+  // Convert inputs to BigNumber
+  const _totalDebt: BigNumber = BigNumber.from(totalDebt);
+  const _liquidity: BigNumber = BigNumber.from(availableLiquidity);
 
-  // Perform division
-  const result = (totalBorrow * BigInt(10 ** 18)) / totalSupply;
-
-  return formatUnits(result, 18);
+  return _totalDebt.div(_totalDebt.add(_liquidity)).toString();
 }
 
 export const useAaveInterestRatesData = (): {
@@ -47,111 +43,107 @@ export const useAaveInterestRatesData = (): {
   error: string | null;
   loading: boolean;
 } => {
-  const [data, setData] = useState<IRatesDataResult | null>(null);
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const { provider } = useAccount();
 
+  // const { provider } = useAccount();
   const [searchParams] = useSearchParams();
   const symbol = searchParams.get('asset') || '';
   const { reserves } = useAaveReservesData();
-  const reserveAsset: Reserve | undefined = reserves.find(
+  const reserveAsset = reserves.find(
     r => r.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase(),
   );
   const interestRateStrategyAddress = reserveAsset?.interestRateStrategyAddress;
+  console.log('reserves', reserves);
+  console.log('reserveAsset', reserveAsset);
+  console.log('interestRateStrategyAddress', interestRateStrategyAddress);
 
-  const rateContract = useMemo(
-    () =>
-      provider && interestRateStrategyAddress
-        ? new Contract(
-            interestRateStrategyAddress as string,
-            rateStrategy.abi,
-            provider,
-          )
-        : null,
-    [provider, interestRateStrategyAddress],
-  );
+  useMemo(() => {
+    const fetchData = async () => {
+      try {
+        if (!interestRateStrategyAddress) {
+          console.log(
+            'Interest Rate Strategy Address not found',
+            reserveAsset,
+            reserveAsset?.interestRateStrategyAddress,
+          );
+          setError('Interest Rate Strategy Address not found');
+          return;
+        }
+        const ratesStrategy = new Contract(
+          interestRateStrategyAddress as string,
+          rateStrategy.abi,
+          provider,
+        );
+        const utilizationRate = calculateUtilizationRate(
+          reserveAsset.totalDebt,
+          reserveAsset.availableLiquidity,
+        );
+        console.log('utilizationRate', utilizationRate);
 
-  const fetchRatesData = useCallback(async () => {
-    let ratesData: IRatesDataResult;
-    try {
-      if (!rateContract || !reserveAsset) {
-        const error = 'Interest Rate Strategy Could not be found for reserve';
-        console.log(error, reserveAsset);
-        setError(error);
-        throw new Error(error);
+        const [stableRateExcessOffset, optimalStableToTotalDebtRatio] =
+          await Promise.all([
+            ratesStrategy.getStableRateExcessOffset(),
+            ratesStrategy.OPTIMAL_STABLE_TO_TOTAL_DEBT_RATIO(),
+          ]);
+
+        const ratesData = {
+          currentUsageRatio: formatUnits(utilizationRate, 2).toString(),
+          optimalUsageRatio: formatUnits(
+            reserveAsset.optimalUsageRatio,
+            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          ).toString(),
+          baseVariableBorrowRate: formatUnits(
+            reserveAsset.baseVariableBorrowRate,
+            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          ).toString(),
+          variableRateSlope1: formatUnits(
+            reserveAsset.variableRateSlope1,
+            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          ).toString(),
+          variableRateSlope2: formatUnits(
+            reserveAsset.variableRateSlope2,
+            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          ).toString(),
+          stableRateSlope1: formatUnits(
+            reserveAsset.stableRateSlope1,
+            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          ).toString(),
+          stableRateSlope2: formatUnits(
+            reserveAsset.stableRateSlope2,
+            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          ).toString(),
+          baseStableBorrowRate: formatUnits(
+            reserveAsset.baseStableBorrowRate,
+            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          ).toString(),
+          stableRateExcessOffset: formatUnits(
+            stableRateExcessOffset,
+            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          ).toString(),
+          optimalStableToTotalDebtRatio: formatUnits(
+            optimalStableToTotalDebtRatio,
+            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          ).toString(),
+          underlyingAsset: reserveAsset.underlyingAsset.toString(),
+          name: reserveAsset.name.toString(),
+          symbol: reserveAsset.symbol.toString(),
+          decimals: reserveAsset.decimals.toString(),
+        };
+        setData(ratesData);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
-      const utilizationRate = calculateUtilizationRate(
-        reserveAsset.decimals,
-        reserveAsset.totalDebt,
-        reserveAsset.availableLiquidity,
-      );
 
-      const [stableRateExcessOffset, optimalStableToTotalDebtRatio] =
-        await Promise.all([
-          rateContract.getStableRateExcessOffset(),
-          rateContract.OPTIMAL_STABLE_TO_TOTAL_DEBT_RATIO(),
-        ]);
-
-      ratesData = {
-        currentUsageRatio: utilizationRate,
-        optimalUsageRatio: formatUnits(
-          reserveAsset.optimalUsageRatio,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
-        ).toString(),
-        baseVariableBorrowRate: formatUnits(
-          reserveAsset.baseVariableBorrowRate,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
-        ).toString(),
-        variableRateSlope1: formatUnits(
-          reserveAsset.variableRateSlope1,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
-        ).toString(),
-        variableRateSlope2: formatUnits(
-          reserveAsset.variableRateSlope2,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
-        ).toString(),
-        stableRateSlope1: formatUnits(
-          reserveAsset.stableRateSlope1,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
-        ).toString(),
-        stableRateSlope2: formatUnits(
-          reserveAsset.stableRateSlope2,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
-        ).toString(),
-        baseStableBorrowRate: formatUnits(
-          reserveAsset.baseStableBorrowRate,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
-        ).toString(),
-        stableRateExcessOffset: formatUnits(
-          stableRateExcessOffset,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
-        ).toString(),
-        optimalStableToTotalDebtRatio: formatUnits(
-          optimalStableToTotalDebtRatio,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
-        ).toString(),
-        underlyingAsset: reserveAsset.underlyingAsset.toString(),
-        name: reserveAsset.name.toString(),
-        symbol: reserveAsset.symbol.toString(),
-        decimals: reserveAsset.decimals.toString(),
-      };
-      setData(ratesData);
-    } catch (error) {
-      setError(error.message);
-      throw error;
-    }
-  }, [setData, reserveAsset, rateContract]);
-
-  useEffect(() => {
-    if (provider && reserveAsset) {
-      setLoading(true);
-      fetchRatesData()
-        .catch(console.error)
-        .finally(() => setLoading(false));
-    }
-  }, [provider, reserveAsset, fetchRatesData]);
+      return data;
+    };
+    fetchData();
+  }, [data, interestRateStrategyAddress, provider, reserveAsset]);
 
   return { data, loading, error };
 };

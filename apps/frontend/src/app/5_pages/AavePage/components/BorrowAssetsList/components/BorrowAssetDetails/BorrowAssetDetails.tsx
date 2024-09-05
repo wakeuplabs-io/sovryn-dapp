@@ -51,6 +51,10 @@ export const BorrowAssetDetails: FC<BorrowAssetDetailsProps> = ({
       />
     </div>
 
-    <BorrowAssetAction onBorrowClick={onBorrowClick} asset={pool.asset} />
+    <BorrowAssetAction
+      disabled={!pool.available || pool.available.eq(0)}
+      onBorrowClick={onBorrowClick}
+      asset={pool.asset}
+    />
   </div>
 );

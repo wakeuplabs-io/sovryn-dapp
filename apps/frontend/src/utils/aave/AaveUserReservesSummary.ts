@@ -10,6 +10,7 @@ import {
 } from '@aave/math-utils';
 
 import { BigNumber, ethers } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
 
 import { AssetDetailsData, getAssetData } from '@sovryn/contracts';
 import { Decimal } from '@sovryn/utils';
@@ -204,6 +205,10 @@ export class AaveUserReservesSummaryFactory {
           const asset = await getAssetData(symbol, BOB_CHAIN_ID);
           const balance = await getBalance(asset, account, provider);
           const decimalBalance = decimalic(fromWei(balance, asset.decimals));
+          const canBorrow = borrowPower.div(r.reserve.priceInUSD);
+          const availableLiquidity = Decimal.from(
+            formatUnits(r.reserve.availableLiquidity, r.reserve.decimals),
+          );
 
           return {
             asset: symbol,
@@ -217,8 +222,9 @@ export class AaveUserReservesSummaryFactory {
             suppliedUSD: Decimal.from(r.underlyingBalanceUSD),
             borrowed: Decimal.from(r.totalBorrows),
             borrowedUSD: Decimal.from(r.totalBorrowsUSD),
-            availableToBorrow: borrowPower.div(r.reserve.priceInUSD),
-            availableToBorrowUSD: borrowPower,
+            availableToBorrow: availableLiquidity.lt(canBorrow)
+              ? availableLiquidity
+              : canBorrow,
 
             borrowRateMode: Decimal.from(r.variableBorrows).gt(0)
               ? BorrowRateMode.VARIABLE
