@@ -21,30 +21,17 @@ import { WalletIcon } from '../../../../1_atoms/Icons/Icons';
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { AssetRenderer } from '../../../../2_molecules/AssetRenderer/AssetRenderer';
 import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/StatisticsCard';
+import { Reserve } from '../../../../../hooks/aave/useAaveReservesData';
 import { useNotifyError } from '../../../../../hooks/useNotifyError';
 import { translations } from '../../../../../locales/i18n';
 import { getBobExplorerUrl } from '../../../../../utils/helpers';
-import { formatUsdAmount } from './TopPanel.utils';
+import { formatAmountWithSuffix } from '../../../../../utils/math';
 import { ReserveTokens } from './components/ReserveTokens/ReserveTokens';
 
 const pageTranslations = translations.aaveReserveOverviewPage.topPanel;
 
-export type ReserveOverview = {
-  symbol: string;
-  name: string;
-  underlyingAsset: string;
-  aTokenAddress: string;
-  variableDebtTokenAddress: string;
-  stableDebtTokenAddress: string;
-  reserveSize: Decimal;
-  availableLiquidity: Decimal;
-  utilizationRate: Decimal;
-  oraclePrice: Decimal;
-  oracleAddress: string;
-};
-
 type TopPanelProps = {
-  reserve: ReserveOverview;
+  reserve: Reserve;
   className?: string;
 };
 
@@ -81,8 +68,14 @@ export const TopPanel: FC<TopPanelProps> = ({ reserve, className }) => {
   );
 
   const oracleLink = useMemo(() => {
-    return getBobExplorerUrl() + '/address/' + reserve.oracleAddress;
-  }, [reserve.oracleAddress]);
+    return getBobExplorerUrl() + '/address/' + reserve.priceOracle;
+  }, [reserve.priceOracle]);
+
+  const reserveSize = useMemo(() => {
+    return Decimal.from(reserve.availableLiquidityUSD).add(
+      reserve.totalDebtUSD,
+    );
+  }, [reserve]);
 
   return (
     <div className={classNames('w-full flex flex-col gap-6', className)}>
@@ -171,7 +164,7 @@ export const TopPanel: FC<TopPanelProps> = ({ reserve, className }) => {
             <AmountRenderer
               prefix="$"
               className="text-2xl"
-              {...formatUsdAmount(reserve.reserveSize)}
+              {...formatAmountWithSuffix(reserveSize)}
             />
           }
         />
@@ -181,7 +174,7 @@ export const TopPanel: FC<TopPanelProps> = ({ reserve, className }) => {
             <AmountRenderer
               prefix="$"
               className="text-2xl"
-              {...formatUsdAmount(reserve.availableLiquidity)}
+              {...formatAmountWithSuffix(reserve.availableLiquidity)}
             />
           }
         />
@@ -190,7 +183,7 @@ export const TopPanel: FC<TopPanelProps> = ({ reserve, className }) => {
           value={
             <AmountRenderer
               suffix="%"
-              value={reserve.utilizationRate}
+              value={reserve.borrowUsageRatio}
               precision={2}
               className="text-2xl"
             />
@@ -202,7 +195,7 @@ export const TopPanel: FC<TopPanelProps> = ({ reserve, className }) => {
           value={
             <AmountRenderer
               prefix="$"
-              value={reserve.oraclePrice}
+              value={reserve.priceInUSD}
               precision={2}
               className="text-2xl"
             />

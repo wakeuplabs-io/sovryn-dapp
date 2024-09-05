@@ -7,20 +7,21 @@ import { Accordion, Icon, Link, Paragraph } from '@sovryn/ui';
 import { EModeIcon } from '../../../../1_atoms/Icons/Icons';
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/StatisticsCard';
+import { Reserve } from '../../../../../hooks/aave/useAaveReservesData';
 import { useIsMobile } from '../../../../../hooks/useIsMobile';
 import { translations } from '../../../../../locales/i18n';
 
 const pageTranslations = translations.aaveReserveOverviewPage.eModeDetails;
 
-export const EModeDetails: FC = () => {
+export type EModeDetailsProps = {
+  reserve: Reserve;
+};
+
+export const EModeDetails: FC<EModeDetailsProps> = ({ reserve }) => {
   const [open, setOpen] = useState(true);
   const { isMobile } = useIsMobile();
 
-  // TODO: All this data is mocked
-  const maxLtv = 93;
-  const liquidationThreshold = 94;
-  const liquidationPenalty = 1;
-
+  if (reserve.eModeCategoryId === 0) return null;
   return (
     <Accordion
       label={
@@ -43,7 +44,7 @@ export const EModeDetails: FC = () => {
           <div className="flex items-center">
             <Icon size={16} className="mr-2 text-primary-30" icon={EModeIcon} />
             <Paragraph className="text-sm font-medium">
-              {t(pageTranslations.ethCorrelatedCategory)}
+              {reserve.eModeLabel}
             </Paragraph>
           </div>
         </div>
@@ -53,19 +54,37 @@ export const EModeDetails: FC = () => {
             label={t(pageTranslations.maxLtv)}
             className="space-y-2"
             help={t(pageTranslations.maxLtvInfo)}
-            value={<AmountRenderer value={maxLtv} suffix="%" />}
+            value={
+              <AmountRenderer
+                value={reserve.formattedEModeLtv}
+                suffix="%"
+                precision={2}
+              />
+            }
           />
           <StatisticsCard
             label={t(pageTranslations.liquidationThreshold)}
             className="space-y-2 "
             help={t(pageTranslations.liquidationThresholdInfo)}
-            value={<AmountRenderer value={liquidationThreshold} suffix="%" />}
+            value={
+              <AmountRenderer
+                value={reserve.formattedEModeLiquidationThreshold}
+                suffix="%"
+                precision={2}
+              />
+            }
           />
           <StatisticsCard
             label={t(pageTranslations.liquidationPenalty)}
             className="space-y-2"
             help={t(pageTranslations.liquidationPenaltyInfo)}
-            value={<AmountRenderer value={liquidationPenalty} suffix="%" />}
+            value={
+              <AmountRenderer
+                value={reserve.formattedEModeLiquidationBonus}
+                suffix="%"
+                precision={2}
+              />
+            }
           />
         </div>
 

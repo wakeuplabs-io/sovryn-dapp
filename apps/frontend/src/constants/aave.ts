@@ -9,4 +9,5 @@ export const config = {
   PoolAddressesProviderAddress: '0x54C5E489B929a875F66162B3a6A7AEDD9b1F3798',
   VariableDebtWETHAddress: '0xe18D591F3d8aB2Fe573AB20503faB6A02670B709',
   WETHAddress: '0x5546cB953770BA6Aa78FdbaEFB3450F87d97dDBC',
+  TreasuryAddress: '0x2a9d8f5b2f7b8f5b4b5d5e7f3b4b5d5b5d5d5d5d', // TODO: adjust this properly
 };
