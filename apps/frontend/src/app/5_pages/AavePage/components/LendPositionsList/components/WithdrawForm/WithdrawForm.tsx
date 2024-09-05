@@ -118,6 +118,7 @@ export const WithdrawForm: FC<WithdrawFormProps> = ({ asset, onComplete }) => {
 
         <div className="space-y-3">
           <AssetAmountInput
+            chainId={BOB_CHAIN_ID}
             amountValue={withdrawAmount}
             assetUsdValue={withdrawAmountUsd}
             onAmountChange={setWithdrawAmount}

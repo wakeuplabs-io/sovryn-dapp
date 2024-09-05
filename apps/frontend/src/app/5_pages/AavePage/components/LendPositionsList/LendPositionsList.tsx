@@ -41,10 +41,8 @@ export const LendPositionsList: FC<LendPositionsListProps> = ({
   loading,
 }) => {
   const { account } = useAccount();
-  const [open, setOpen] = useState<boolean>(true);
-  const [withdrawAssetDialog, setWithdrawAssetDialog] = useState<
-    string | undefined
-  >();
+  const [open, setOpen] = useState(true);
+  const [withdrawAssetDialog, setWithdrawAssetDialog] = useState<string>();
   const [orderOptions, setOrderOptions] = useState<OrderOptions>({
     orderBy: 'balance',
     orderDirection: OrderDirection.Asc,

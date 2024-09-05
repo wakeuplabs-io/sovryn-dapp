@@ -131,7 +131,7 @@ export const TopPanel: FC<TopPanelProps> = ({ reserve, className }) => {
                   underlyingTokenAddress={reserve.underlyingAsset}
                   variableDebtTokenAddress={reserve.variableDebtTokenAddress}
                   stableDebtTokenAddress={reserve.stableDebtTokenAddress}
-                  onClick={openInExplorer}
+                  onTokenClick={openInExplorer}
                 />
               }
             >
@@ -157,7 +157,7 @@ export const TopPanel: FC<TopPanelProps> = ({ reserve, className }) => {
                   underlyingTokenAddress={reserve.underlyingAsset}
                   variableDebtTokenAddress={reserve.variableDebtTokenAddress}
                   stableDebtTokenAddress={reserve.stableDebtTokenAddress}
-                  onClick={addToWallet}
+                  onTokenClick={addToWallet}
                 />
               }
             >

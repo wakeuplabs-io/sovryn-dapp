@@ -74,6 +74,11 @@ export const LendForm: FC<LendFormProps> = ({
     [lendSize, lendAssetBalance],
   );
 
+  const isDepositEnabled = useMemo(
+    () => lendSize.gt(0) && isValidLendAmount,
+    [lendSize, isValidLendAmount],
+  );
+
   const onConfirm = useCallback(async () => {
     handleDeposit(lendSize, reserve.symbol, { onComplete });
   }, [handleDeposit, lendSize, reserve, onComplete]);
@@ -82,6 +87,7 @@ export const LendForm: FC<LendFormProps> = ({
     <form className="flex flex-col gap-6">
       <div>
         <AssetAmountInput
+          chainId={BOB_CHAIN_ID}
           label={t(translations.aavePage.common.lend)}
           maxAmount={lendAssetBalance}
           amountLabel={t(translations.common.amount)}
@@ -125,7 +131,7 @@ export const LendForm: FC<LendFormProps> = ({
       </SimpleTable>
 
       <Button
-        disabled={!isValidLendAmount || lendSize.lte(0)}
+        disabled={!isDepositEnabled}
         onClick={onConfirm}
         text={t(translations.aavePage.lendModal.deposit)}
       />

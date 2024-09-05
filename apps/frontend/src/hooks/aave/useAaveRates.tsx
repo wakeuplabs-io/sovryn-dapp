@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { BigNumber, Contract } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
@@ -39,11 +39,11 @@ function calculateUtilizationRate(
 }
 
 export const useAaveInterestRatesData = (): {
-  data: IRatesDataResult | null;
+  rates: IRatesDataResult | null;
   error: string | null;
   loading: boolean;
 } => {
-  const [data, setData] = useState<any>(null);
+  const [rates, setRates] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,11 +56,8 @@ export const useAaveInterestRatesData = (): {
     r => r.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase(),
   );
   const interestRateStrategyAddress = reserveAsset?.interestRateStrategyAddress;
-  console.log('reserves', reserves);
-  console.log('reserveAsset', reserveAsset);
-  console.log('interestRateStrategyAddress', interestRateStrategyAddress);
 
-  useMemo(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         if (!interestRateStrategyAddress) {
@@ -132,17 +129,15 @@ export const useAaveInterestRatesData = (): {
           symbol: reserveAsset.symbol.toString(),
           decimals: reserveAsset.decimals.toString(),
         };
-        setData(ratesData);
+        setRates(ratesData);
       } catch (error) {
         setError(error.message);
       } finally {
         setLoading(false);
       }
-
-      return data;
     };
     fetchData();
-  }, [data, interestRateStrategyAddress, provider, reserveAsset]);
+  }, [rates, interestRateStrategyAddress, provider, reserveAsset]);
 
-  return { data, loading, error };
+  return { rates, loading, error };
 };

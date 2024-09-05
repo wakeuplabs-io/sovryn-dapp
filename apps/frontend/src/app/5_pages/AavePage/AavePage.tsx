@@ -77,9 +77,9 @@ const AavePage: FC = () => {
       </Helmet>
 
       <TopPanel
-        healthFactor={summary?.healthFactor}
-        netApy={summary?.netApy}
-        netWorth={summary?.netWorth}
+        healthFactor={summary.healthFactor}
+        netApy={summary.netApy}
+        netWorth={summary.netWorth}
       />
 
       <div className="pt-6 mt-6 space-y-6 2xl:pt-0 2xl:mt-0 2xl:space-y-0">

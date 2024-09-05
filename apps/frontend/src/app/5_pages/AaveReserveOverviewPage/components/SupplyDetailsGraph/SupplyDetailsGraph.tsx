@@ -104,7 +104,9 @@ export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = ({
                 {supplyStats.supplyCap.gt(0) && (
                   <div className="mt-2 h-[3px] w-[160px] bg-gray-70 rounded-full">
                     <div
-                      className={`h-full bg-primary-30 w-[${supplyStats.suppliedPercentage}%]`}
+                      className={`h-full bg-primary-30 w-[${supplyStats.suppliedPercentage.toString(
+                        0,
+                      )}%]`}
                     ></div>
                   </div>
                 )}

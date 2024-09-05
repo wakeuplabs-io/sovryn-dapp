@@ -14,8 +14,7 @@ export const normalizeSupplyStats = (reserve: Reserve) => ({
   supplyCapUSD: Decimal.from(reserve.supplyCapUSD),
   suppliedPercentage: Decimal.from(reserve.supplyCapUSD)
     .div(Decimal.from(reserve.supplyCapUSD))
-    .mul(100)
-    .toString(0),
+    .mul(100),
   maxLTV: Decimal.from(reserve.baseLTVasCollateral).div(100),
   liquidationThreshold: Decimal.from(
     reserve.formattedReserveLiquidationThreshold,
