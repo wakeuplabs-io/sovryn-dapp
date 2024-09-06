@@ -1,4 +1,5 @@
 import { IS_MAINNET } from '../config/chains';
+
 import { decimalic } from '../utils/math';
 
 export const EMODE_DISABLED_ID = 0;
