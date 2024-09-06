@@ -4,21 +4,28 @@ import { t } from 'i18next';
 
 import { theme } from '@sovryn/tailwindcss-config';
 import { Accordion, Link, Paragraph } from '@sovryn/ui';
+import { Decimal } from '@sovryn/utils';
 
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/StatisticsCard';
+import { config } from '../../../../../constants/aave';
+import { Reserve } from '../../../../../hooks/aave/useAaveReservesData';
 import { FormattedReserveHistoryItem } from '../../../../../hooks/aave/useReservesHistory';
 import { useIsMobile } from '../../../../../hooks/useIsMobile';
 import { translations } from '../../../../../locales/i18n';
+import { getBobExplorerUrl } from '../../../../../utils/helpers';
+import { formatAmountWithSuffix } from '../../../../../utils/math';
 import { Chart } from './components/Chart/Chart';
 
 const pageTranslations = translations.aaveReserveOverviewPage.borrowDetails;
 
 type BorrowDetailsGraphProps = {
   history: FormattedReserveHistoryItem[];
+  reserve: Reserve;
 };
 
 export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
+  reserve,
   history,
 }) => {
   const [open, setOpen] = useState(true);
@@ -35,6 +42,33 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
       lineColor: theme.colors['primary-30'],
     };
   }, [history]);
+
+  const totalBorrowed = useMemo(() => {
+    return Decimal.from(reserve.totalDebt);
+  }, [reserve]);
+
+  const totalBorrowedUSD = useMemo(() => {
+    return Decimal.from(reserve.totalDebtUSD);
+  }, [reserve]);
+
+  const debtCap = useMemo(() => {
+    return Decimal.from(reserve.debtCeiling);
+  }, [reserve]);
+
+  const debtCapUSD = useMemo(() => {
+    return Decimal.from(reserve.debtCeilingUSD);
+  }, [reserve]);
+
+  const borrowedPercentage = useMemo(() => {
+    return Decimal.from(totalBorrowedUSD)
+      .div(Decimal.from(reserve.debtCeilingUSD))
+      .mul(100)
+      .toString(0);
+  }, [reserve, totalBorrowedUSD]);
+
+  const collectorContractLink = useMemo(() => {
+    return `${getBobExplorerUrl()}/address/${config.TreasuryAddress}`;
+  }, []);
 
   return (
     <Accordion
@@ -57,32 +91,73 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
             value={
               <div>
                 <div className="space-x-1 font-medium text-base">
-                  <AmountRenderer value={100} suffix="B" />
-                  <span>{t(pageTranslations.of)}</span>
-                  <AmountRenderer value={100} suffix="B" />
+                  <AmountRenderer
+                    precision={2}
+                    {...formatAmountWithSuffix(totalBorrowed)}
+                  />
+                  {debtCap.gt(0) && (
+                    <>
+                      <span>{t(pageTranslations.of)}</span>
+                      <AmountRenderer
+                        precision={2}
+                        {...formatAmountWithSuffix(debtCap)}
+                      />
+                    </>
+                  )}
                 </div>
+
                 <div className="space-x-1 text-gray-40 text-xs font-semibold">
-                  <AmountRenderer value={100} suffix="B" />
-                  <span>{t(pageTranslations.of)}</span>
-                  <AmountRenderer value={100} suffix="B" />
+                  <AmountRenderer
+                    prefix="$"
+                    precision={2}
+                    {...formatAmountWithSuffix(totalBorrowedUSD)}
+                  />
+                  {debtCap.gt(0) && (
+                    <>
+                      <span>{t(pageTranslations.of)}</span>
+                      <AmountRenderer
+                        prefix="$"
+                        precision={2}
+                        {...formatAmountWithSuffix(debtCapUSD)}
+                      />
+                    </>
+                  )}
                 </div>
 
                 {/* Progress bar */}
-                <div className="mt-2 h-[3px] w-[160px] bg-gray-70 rounded-full">
-                  <div className="h-full bg-primary-30 w-[80%]"></div>
-                </div>
+                {debtCap.gt(0) && (
+                  <div className="mt-2 h-[3px] w-[160px] bg-gray-70 rounded-full">
+                    <div
+                      className={`h-full bg-primary-30 w-[${borrowedPercentage}%]`}
+                    ></div>
+                  </div>
+                )}
               </div>
             }
           />
           <div className="flex gap-8">
             <StatisticsCard
               label={t(pageTranslations.apr)}
-              value={<AmountRenderer value={5.94} suffix="%" />}
+              value={
+                <AmountRenderer
+                  value={reserve.variableBorrowAPR}
+                  suffix="%"
+                  precision={2}
+                />
+              }
             />
-            <StatisticsCard
-              label={t(pageTranslations.borrowCap)}
-              value={<AmountRenderer value={1.4} suffix="M" />}
-            />
+
+            {debtCap.gt(0) && (
+              <StatisticsCard
+                label={t(pageTranslations.borrowCap)}
+                value={
+                  <AmountRenderer
+                    precision={2}
+                    {...formatAmountWithSuffix(debtCap)}
+                  />
+                }
+              />
+            )}
           </div>
         </div>
 
@@ -93,16 +168,29 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
             {t(pageTranslations.collectorInfo)}
           </Paragraph>
 
-          {/* statistics */}
+          {/* reserve factor */}
           <div className="flex gap-8">
             <StatisticsCard
               label={t(pageTranslations.reserveFactor)}
               help={t(pageTranslations.reserveFactorInfo)}
-              value={<AmountRenderer value={85.94} suffix="%" />}
+              value={
+                <AmountRenderer
+                  value={reserve.reserveFactor}
+                  precision={2}
+                  suffix="%"
+                />
+              }
             />
+
             <StatisticsCard
               label={t(pageTranslations.collectorContract)}
-              value={<Link href="#" text={t(pageTranslations.viewContract)} />}
+              value={
+                <Link
+                  openNewTab
+                  href={collectorContractLink}
+                  text={t(pageTranslations.viewContract)}
+                />
+              }
             />
           </div>
         </div>

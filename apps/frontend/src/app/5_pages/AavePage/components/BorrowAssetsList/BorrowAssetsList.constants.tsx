@@ -80,6 +80,7 @@ export const COLUMNS_CONFIG = (onBorrowClick: (asset: string) => void) => [
     title: ' ',
     cellRenderer: (pool: BorrowPoolDetails) => (
       <BorrowAssetAction
+        disabled={!pool.available || pool.available.eq(0)}
         onBorrowClick={() => onBorrowClick(pool.asset)}
         asset={pool.asset}
       />

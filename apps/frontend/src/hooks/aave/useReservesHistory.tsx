@@ -1,11 +1,12 @@
 /**
  * This hook is used for getting historical reserve data, and it is primarily used with charts.
- * In particular, this hook is used in the ApyGraph.
+ * In particular, this hook is used in the  ̶A̶p̶y̶G̶r̶a̶p̶h̶ AaveReserveOverviewPage (chartJS).
  */
 import { useCallback, useEffect, useState } from 'react';
 
-//import dayjs from 'dayjs';
-import mockedRatesHistory from './rates-history-mock.json';
+import dayjs from 'dayjs';
+
+import { useAaveConfig } from './useAaveConfig';
 import { makeCancelable } from './utils';
 
 export enum ESupportedTimeRanges {
@@ -24,10 +25,10 @@ export const reserveRateTimeRangeOptions = [
 ];
 export type ReserveRateTimeRange = typeof reserveRateTimeRangeOptions[number];
 
-/* type RatesHistoryParams = {
+type RatesHistoryParams = {
   from: number;
   resolutionInHours: number;
-}; */
+};
 
 type APIResponse = {
   liquidityRate_avg: number;
@@ -38,25 +39,25 @@ type APIResponse = {
 };
 
 const fetchStats = async (
-  _address: string,
+  address: string,
   timeRange: ReserveRateTimeRange,
-  _endpointURL: string,
+  endpointURL: string,
 ): Promise<APIResponse[]> => {
-  //const { from, resolutionInHours } = resolutionForTimeRange(timeRange);
-  return mockedRatesHistory;
-  /*   try {
+  const { from, resolutionInHours } = resolutionForTimeRange(timeRange);
+
+  try {
     const url = `${endpointURL}?reserveId=${address}&from=${from}&resolutionInHours=${resolutionInHours}`;
     const result = await fetch(url);
     const json = await result.json();
     return json;
   } catch (e) {
     return [];
-  } */
+  }
 };
 
 // TODO: there is possibly a bug here, as Polygon and Avalanche v2 data is coming through empty and erroring in our hook
 // The same asset without the 'from' field comes through just fine.
-/* const resolutionForTimeRange = (
+const resolutionForTimeRange = (
   timeRange: ReserveRateTimeRange,
 ): RatesHistoryParams => {
   // Return today as a fallback
@@ -86,7 +87,7 @@ const fetchStats = async (
         resolutionInHours: 6,
       };
   }
-}; */
+};
 
 export type FormattedReserveHistoryItem = {
   date: number;
@@ -96,46 +97,18 @@ export type FormattedReserveHistoryItem = {
   variableBorrowRate: number;
 };
 
-/**
- * Broken Assets:
- * A list of assets that currently are broken in some way, i.e. has bad data from either the subgraph or backend server
- * Each item represents the ID of the asset, not the underlying address it's deployed to, appended with LendingPoolAddressProvider
- * contract address it is held in. So each item in the array is essentially [underlyingAssetId + LendingPoolAddressProvider address].
- */
-export const BROKEN_ASSETS = [
-  // ampl https://governance.aave.com/t/arc-fix-ui-bugs-in-reserve-overview-for-ampl/5885/5?u=sakulstra
-  '0xd46ba6d942050d489dbd938a2c909a5d5039a1610xb53c1a33016b2dc2ff3653530bff1848a515c8c5',
-  // fei usd (v2 eth mainnet)
-  '0x956f47f50a910163d8bf957cf5846d573e7f87ca0xb53c1a33016b2dc2ff3653530bff1848a515c8c5',
-];
-
 // TODO: api need to be altered to expect chainId underlying asset and poolConfig
 /**
- * 
- * @param reserveAddress 
- * @example taken from AaveReserveOverviewPage.tsx
- * if (reserve) {
-    if (currentMarketData.v3) {
-      reserveAddress = `${reserve.underlyingAsset}${currentMarketData.addresses.LENDING_POOL_ADDRESS_PROVIDER}${currentMarketData.chainId}`;
-    } else {
-      reserveAddress = `${reserve.underlyingAsset}${currentMarketData.addresses.LENDING_POOL_ADDRESS_PROVIDER}`;
-    }
-  }
- * @param timeRange 
- * @returns 
+ *
+ * @param reserveAddress
+ * @param timeRange
+ * @returns
  */
 export function useReserveRatesHistory(
   reserveAddress: string,
   timeRange: ReserveRateTimeRange,
 ) {
-  const { currentNetworkConfig } = {
-    currentNetworkConfig: {
-      ratesHistoryApiUrl:
-        'https://api.thegraph.com/subgraphs/name/aave/protocol-matic',
-    },
-  };
-  // @TODO remove mock ASAP
-  // useProtocolDataContext();
+  const { currentNetworkConfig } = useAaveConfig();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [data, setData] = useState<FormattedReserveHistoryItem[]>([]);
@@ -148,11 +121,7 @@ export function useReserveRatesHistory(
     setError(false);
     setData([]);
 
-    if (
-      reserveAddress &&
-      ratesHistoryApiUrl &&
-      !BROKEN_ASSETS.includes(reserveAddress)
-    ) {
+    if (reserveAddress && ratesHistoryApiUrl) {
       const cancelable = makeCancelable(
         fetchStats(reserveAddress, timeRange, ratesHistoryApiUrl),
       );
@@ -199,7 +168,7 @@ export function useReserveRatesHistory(
   return {
     loading,
     data,
-    error: error || BROKEN_ASSETS.includes(reserveAddress),
+    error,
     refetch: refetchData,
   };
 }
