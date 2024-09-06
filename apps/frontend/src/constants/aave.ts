@@ -10,4 +10,5 @@ export const config = {
   WETHAddress: '0x8CEc2719a2e896A11eA3f10406EfDb6Ad87281D9',
   TreasuryAddress: '0x2a9d8f5b2f7b8f5b4b5d5e7f3b4b5d5b5d5d5d5d',
   InterestRateStrategyAddress: '0x847A3364Cc5fE389283bD821cfC8A477288D9e82',
+  RepayAllETHSurplus: '1000000',
 };
