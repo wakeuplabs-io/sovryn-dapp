@@ -8,6 +8,10 @@ import { useSearchParams } from 'react-router-dom';
 import { Paragraph, Tabs, TabSize, TabType } from '@sovryn/ui';
 
 import { useAaveReservesData } from '../../../hooks/aave/useAaveReservesData';
+import {
+  ESupportedTimeRanges,
+  useReserveRatesHistory,
+} from '../../../hooks/aave/useReservesHistory';
 import { translations } from '../../../locales/i18n';
 import { BorrowDetailsGraph } from './components/BorrowDetailsGraph/BorrowDetailsGraph';
 import { EModeDetails } from './components/EModeDetails/EModeDetails';
@@ -34,6 +38,11 @@ const AaveReserveOverviewPage: FC = () => {
   const reserve = useMemo(
     () => reserves.find(r => r.symbol.toLowerCase() === symbol.toLowerCase()),
     [reserves, symbol],
+  );
+
+  const { data } = useReserveRatesHistory(
+    reserve?.underlyingAsset || '',
+    ESupportedTimeRanges.OneMonth,
   );
 
   if (!reserve) return null;
@@ -78,9 +87,9 @@ const AaveReserveOverviewPage: FC = () => {
               'lg:block space-y-4 flex-grow w-min',
             )}
           >
-            <SupplyDetailsGraph reserve={reserve} />
+            <SupplyDetailsGraph reserve={reserve} history={data} />
 
-            <BorrowDetailsGraph reserve={reserve} />
+            <BorrowDetailsGraph reserve={reserve} history={data} />
 
             <EModeDetails reserve={reserve} />
 
