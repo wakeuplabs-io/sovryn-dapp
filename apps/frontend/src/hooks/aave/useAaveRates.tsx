@@ -1,3 +1,5 @@
+import { RAY_DECIMALS } from '@aave/math-utils';
+
 import { useEffect, useState } from 'react';
 
 import { BigNumber, Contract } from 'ethers';
@@ -6,7 +8,6 @@ import { useSearchParams } from 'react-router-dom';
 
 import { useAccount } from '../useAccount';
 import rateStrategy from './ReserveStrategy-rateStrategyStableOne.json';
-import { BIG_NUMBER_PRECISION_TWENTY_SEVEN } from './constants';
 import { useAaveReservesData } from './useAaveReservesData';
 
 export interface IRatesDataResult {
@@ -18,7 +19,6 @@ export interface IRatesDataResult {
   variableRateSlope2: string;
   stableRateSlope1: string;
   stableRateSlope2: string;
-  //baseStableRateOffset: string;
   stableRateExcessOffset: string;
   optimalStableToTotalDebtRatio: string;
   underlyingAsset: string;
@@ -90,39 +90,39 @@ export const useAaveInterestRatesData = (): {
           currentUsageRatio: formatUnits(utilizationRate, 2).toString(),
           optimalUsageRatio: formatUnits(
             reserveAsset.optimalUsageRatio,
-            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+            RAY_DECIMALS,
           ).toString(),
           baseVariableBorrowRate: formatUnits(
             reserveAsset.baseVariableBorrowRate,
-            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+            RAY_DECIMALS,
           ).toString(),
           variableRateSlope1: formatUnits(
             reserveAsset.variableRateSlope1,
-            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+            RAY_DECIMALS,
           ).toString(),
           variableRateSlope2: formatUnits(
             reserveAsset.variableRateSlope2,
-            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+            RAY_DECIMALS,
           ).toString(),
           stableRateSlope1: formatUnits(
             reserveAsset.stableRateSlope1,
-            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+            RAY_DECIMALS,
           ).toString(),
           stableRateSlope2: formatUnits(
             reserveAsset.stableRateSlope2,
-            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+            RAY_DECIMALS,
           ).toString(),
           baseStableBorrowRate: formatUnits(
             reserveAsset.baseStableBorrowRate,
-            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+            RAY_DECIMALS,
           ).toString(),
           stableRateExcessOffset: formatUnits(
             stableRateExcessOffset,
-            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+            RAY_DECIMALS,
           ).toString(),
           optimalStableToTotalDebtRatio: formatUnits(
             optimalStableToTotalDebtRatio,
-            BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+            RAY_DECIMALS,
           ).toString(),
           underlyingAsset: reserveAsset.underlyingAsset.toString(),
           name: reserveAsset.name.toString(),

@@ -138,7 +138,7 @@ export const DisableEModeForm: FC<DisableEModeFormProps> = ({
           value={
             <div className={'flex items-center justify-end gap-1'}>
               <AmountRenderer
-                value={Decimal.from(current?.ltv ?? 0).div(100)}
+                value={Decimal.from(current?.ltv ?? 0)}
                 precision={2}
                 suffix="%"
               />

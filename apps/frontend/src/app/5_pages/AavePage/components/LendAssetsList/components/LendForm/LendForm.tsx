@@ -79,7 +79,7 @@ export const LendForm: FC<LendFormProps> = ({
     [lendSize, isValidLendAmount],
   );
 
-  const onConfirm = useCallback(async () => {
+  const onConfirm = useCallback(() => {
     handleDeposit(lendSize, reserve.symbol, { onComplete });
   }, [handleDeposit, lendSize, reserve, onComplete]);
 

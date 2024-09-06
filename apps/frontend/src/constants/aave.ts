@@ -2,6 +2,7 @@ import { decimalic } from '../utils/math';
 
 export const config = {
   MinCollateralRatio: decimalic(1.5),
+  RepayAllETHSurplus: '1000000',
   PoolAddress: '0xFbdc7303cc2046Ff6c340F94F71aB01517b42476',
   WETHGatewayAddress: '0x50ff0B7a3e7af6F896CA81aF2E563814Eee7A3c0',
   UiPoolDataProviderV3Address: '0x5E7F300702D15d8B661aed2B67dc68f8e48B3b55',

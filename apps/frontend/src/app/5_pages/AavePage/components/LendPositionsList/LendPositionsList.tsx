@@ -48,17 +48,18 @@ export const LendPositionsList: FC<LendPositionsListProps> = ({
     orderDirection: OrderDirection.Asc,
   });
 
-  const onWithdrawClick = useCallback((asset: string) => {
-    setWithdrawAssetDialog(asset);
-  }, []);
-
   const onWithdrawClose = useCallback(() => {
     setWithdrawAssetDialog(undefined);
   }, []);
 
   const mobileRenderer = useCallback(
-    p => <LendPositionDetails position={p} onWithdrawClick={onWithdrawClick} />,
-    [onWithdrawClick],
+    p => (
+      <LendPositionDetails
+        position={p}
+        onWithdrawClick={setWithdrawAssetDialog}
+      />
+    ),
+    [setWithdrawAssetDialog],
   );
 
   const rowTitleRenderer = useCallback(
@@ -112,7 +113,7 @@ export const LendPositionsList: FC<LendPositionsListProps> = ({
 
           <Table
             isLoading={loading}
-            columns={COLUMNS_CONFIG(onWithdrawClick)}
+            columns={COLUMNS_CONFIG(setWithdrawAssetDialog)}
             rowClassName="bg-gray-80"
             accordionClassName="bg-gray-60 border border-gray-70"
             rowTitle={rowTitleRenderer}

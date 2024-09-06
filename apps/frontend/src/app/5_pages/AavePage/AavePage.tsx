@@ -14,6 +14,7 @@ import {
   normalizeBorrowPositions,
   normalizeLendPoolDetails,
   normalizeLendPositions,
+  tabsItems,
 } from './AavePage.utils';
 import { BorrowAssetsList } from './components/BorrowAssetsList/BorrowAssetsList';
 import { BorrowPoolDetails } from './components/BorrowAssetsList/BorrowAssetsList.types';
@@ -52,22 +53,6 @@ const AavePage: FC = () => {
   const lendPools: LendPoolDetails[] = useMemo(
     () => normalizeLendPoolDetails(reserves, summary),
     [reserves, summary],
-  );
-
-  const tabsItems = useMemo(
-    () => [
-      {
-        activeClassName: 'text-primary-20',
-        dataAttribute: 'lending',
-        label: t(pageTranslations.common.lend),
-      },
-      {
-        activeClassName: 'text-primary-20',
-        dataAttribute: 'borrowing',
-        label: t(pageTranslations.common.borrow),
-      },
-    ],
-    [],
   );
 
   return (

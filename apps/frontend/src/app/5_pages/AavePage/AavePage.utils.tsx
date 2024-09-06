@@ -1,12 +1,28 @@
+import { t } from 'i18next';
+
 import { Decimal } from '@sovryn/utils';
 
 import { Reserve } from '../../../hooks/aave/useAaveReservesData';
+import { translations } from '../../../locales/i18n';
 import { BorrowRateMode } from '../../../types/aave';
 import { AaveUserReservesSummary } from '../../../utils/aave/AaveUserReservesSummary';
 import { BorrowPoolDetails } from './components/BorrowAssetsList/BorrowAssetsList.types';
 import { BorrowPosition } from './components/BorrowPositionsList/BorrowPositionsList.types';
 import { LendPoolDetails } from './components/LendAssetsList/LendAssetsList.types';
 import { LendPosition } from './components/LendPositionsList/LendPositionsList.types';
+
+export const tabsItems = [
+  {
+    activeClassName: 'text-primary-20',
+    dataAttribute: 'lending',
+    label: t(translations.aavePage.common.lend),
+  },
+  {
+    activeClassName: 'text-primary-20',
+    dataAttribute: 'borrowing',
+    label: t(translations.aavePage.common.borrow),
+  },
+];
 
 export const normalizeLendPositions = (
   userReservesSummary: AaveUserReservesSummary,
