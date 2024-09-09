@@ -2,9 +2,11 @@
  * This hook is used for getting historical reserve data, and it is primarily used with charts.
  * In particular, this hook is used in the  ̶A̶p̶y̶G̶r̶a̶p̶h̶ AaveReserveOverviewPage (chartJS).
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import dayjs from 'dayjs';
+
+import { Decimal } from '@sovryn/utils';
 
 import { config } from '../../constants/aave';
 
@@ -30,10 +32,10 @@ type RatesHistoryParams = {
 };
 
 type APIResponse = {
-  liquidityRate_avg: number;
-  variableBorrowRate_avg: number;
-  stableBorrowRate_avg: number;
-  utilizationRate_avg: number;
+  liquidityRate_avg: Decimal;
+  variableBorrowRate_avg: Decimal;
+  stableBorrowRate_avg: Decimal;
+  utilizationRate_avg: Decimal;
   x: { year: number; month: number; date: number; hours: number };
 };
 
@@ -90,32 +92,19 @@ const resolutionForTimeRange = (
 
 export type FormattedReserveHistoryItem = {
   date: number;
-  liquidityRate: number;
-  utilizationRate: number;
-  stableBorrowRate: number;
-  variableBorrowRate: number;
+  liquidityRate: Decimal;
+  utilizationRate: Decimal;
+  stableBorrowRate: Decimal;
+  variableBorrowRate: Decimal;
 };
 
-/**
- *
- * @param reserveAddress
- * @param timeRange
- * @returns
- */
 export function useAaveReservesHistory(
   reserveAddress: string,
   timeRange: ReserveRateTimeRange,
-): {
-  loading: boolean;
-  data: FormattedReserveHistoryItem[];
-  error: boolean;
-  refetch: () => void;
-} {
+) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [data, setData] = useState<FormattedReserveHistoryItem[]>([]);
-
-  const ratesHistoryApiUrl = config.ratesHistoryApiUrl;
 
   const refetchData = useCallback(() => {
     // reset
@@ -123,8 +112,8 @@ export function useAaveReservesHistory(
     setError(false);
     setData([]);
 
-    if (reserveAddress && ratesHistoryApiUrl) {
-      fetchStats(reserveAddress, timeRange, ratesHistoryApiUrl)
+    if (reserveAddress && config.ratesHistoryApiUrl) {
+      fetchStats(reserveAddress, timeRange, config.ratesHistoryApiUrl)
         .then((data: APIResponse[]) => {
           setData(
             data.map(d => ({
@@ -153,13 +142,7 @@ export function useAaveReservesHistory(
     }
     setLoading(false);
     return () => null;
-  }, [reserveAddress, timeRange, ratesHistoryApiUrl]);
-
-  useEffect(() => {
-    const cancel = refetchData();
-    return () => cancel();
-  }, [refetchData]);
-
+  }, [reserveAddress, timeRange]);
   return {
     loading,
     data,
