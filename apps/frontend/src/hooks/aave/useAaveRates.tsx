@@ -48,8 +48,12 @@ export const useAaveInterestRatesData = (): {
   const [searchParams] = useSearchParams();
   const symbol = searchParams.get('asset') || 'ETH';
   const { reserves, loading } = useAaveReservesData();
-  const reserve = reserves.find(
-    r => r.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase(),
+  const reserve = useMemo(
+    () =>
+      reserves.find(
+        r => r.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase(),
+      ),
+    [reserves, symbol],
   );
   const interestRateStrategyAddress = reserve?.interestRateStrategyAddress;
 
