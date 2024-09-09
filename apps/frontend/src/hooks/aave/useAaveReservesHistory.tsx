@@ -4,6 +4,7 @@
  */
 import { useCallback, useState } from 'react';
 
+import axios from 'axios';
 import dayjs from 'dayjs';
 
 import { Decimal } from '@sovryn/utils';
@@ -48,9 +49,7 @@ const fetchStats = async (
 
   try {
     const url = `${endpointURL}?reserveId=${address}&from=${from}&resolutionInHours=${resolutionInHours}`;
-    const result = await fetch(url);
-    const json = await result.json();
-    return json;
+    return (await axios.get<APIResponse[]>(url)).data;
   } catch (e) {
     return [];
   }
@@ -61,30 +60,26 @@ const fetchStats = async (
 const resolutionForTimeRange = (
   timeRange: ReserveRateTimeRange,
 ): RatesHistoryParams => {
-  // Return today as a fallback
-  let calculatedDate = dayjs().unix();
   switch (timeRange) {
     case ESupportedTimeRanges.OneMonth:
-      calculatedDate = dayjs().subtract(30, 'day').unix();
       return {
-        from: calculatedDate,
+        from: dayjs().subtract(30, 'day').unix(),
         resolutionInHours: 6,
       };
     case ESupportedTimeRanges.SixMonths:
-      calculatedDate = dayjs().subtract(6, 'month').unix();
       return {
-        from: calculatedDate,
+        from: dayjs().subtract(6, 'month').unix(),
         resolutionInHours: 24,
       };
     case ESupportedTimeRanges.OneYear:
-      calculatedDate = dayjs().subtract(1, 'year').unix();
       return {
-        from: calculatedDate,
+        from: dayjs().subtract(1, 'year').unix(),
         resolutionInHours: 24,
       };
     default:
       return {
-        from: calculatedDate,
+        // Return today as a fallback
+        from: dayjs().unix(),
         resolutionInHours: 6,
       };
   }
