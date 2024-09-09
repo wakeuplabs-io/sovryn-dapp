@@ -11,6 +11,9 @@ const DEFAULT_DECIMALS = 6;
 const DEFAULT_DECIMALS_SEPARATOR = '.';
 const DEFAULT_THOUSANDS_SEPARATOR = ',';
 
+export const RAY = 27; // 27 decimal places
+export const WEI = 18; // 18 decimal places
+
 const unitNames = ['wei', 'kwei', 'mwei', 'gwei', 'szabo', 'finney', 'ether'];
 
 // helper function to convert any type of ethers value to wei.

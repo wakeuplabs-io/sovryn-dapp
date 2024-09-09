@@ -4,203 +4,9 @@ import { Contract, utils } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { useSearchParams } from 'react-router-dom';
 
+import { RAY, WEI } from '../../utils/math';
 import { useAccount } from '../useAccount';
-import {
-  BIG_NUMBER_PRECISION_EIGHTEEN,
-  BIG_NUMBER_PRECISION_TWENTY_SEVEN,
-} from './constants';
 import { Reserve, useAaveReservesData } from './useAaveReservesData';
-
-const INTEREST_RATE_STRATEGY_ABI = [
-  {
-    inputs: [
-      {
-        internalType: 'contract IPoolAddressesProvider',
-        name: 'provider',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: 'optimalUsageRatio',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'baseVariableBorrowRate',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'variableRateSlope1',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'variableRateSlope2',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'constructor',
-  },
-  {
-    inputs: [],
-    name: 'ADDRESSES_PROVIDER',
-    outputs: [
-      {
-        internalType: 'contract IPoolAddressesProvider',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'MAX_EXCESS_USAGE_RATIO',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'OPTIMAL_USAGE_RATIO',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'unbacked',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'liquidityAdded',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'liquidityTaken',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'totalVariableDebt',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'reserveFactor',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: 'reserve',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: 'aToken',
-            type: 'address',
-          },
-        ],
-        internalType: 'struct DataTypes.CalculateInterestRatesParams',
-        name: 'params',
-        type: 'tuple',
-      },
-    ],
-    name: 'calculateInterestRates',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getBaseVariableBorrowRate',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getMaxVariableBorrowRate',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getVariableRateSlope1',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getVariableRateSlope2',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-];
 
 export interface RatesDataResult {
   currentUsageRatio: string;
@@ -265,25 +71,22 @@ export const useAaveInterestRatesData = (): {
         reserve.availableLiquidity,
       );
       ratesData = {
-        currentUsageRatio: formatUnits(
-          utilizationRate,
-          BIG_NUMBER_PRECISION_EIGHTEEN,
-        ),
+        currentUsageRatio: formatUnits(utilizationRate, WEI),
         optimalUsageRatio: formatUnits(
           reserve.optimalUsageRatio,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          RAY,
         ).toString(),
         baseVariableBorrowRate: formatUnits(
           reserve.baseVariableBorrowRate,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          RAY,
         ).toString(),
         variableRateSlope1: formatUnits(
           reserve.variableRateSlope1,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          RAY,
         ).toString(),
         variableRateSlope2: formatUnits(
           reserve.variableRateSlope2,
-          BIG_NUMBER_PRECISION_TWENTY_SEVEN,
+          RAY,
         ).toString(),
         underlyingAsset: reserve.underlyingAsset,
         name: reserve.name,
