@@ -4,8 +4,12 @@ import { Contract, utils } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { useSearchParams } from 'react-router-dom';
 
+import { getProvider } from '@sovryn/ethers-provider';
+
+import { BOB_CHAIN_ID } from '../../config/chains';
+
 import { RAY, WEI } from '../../utils/math';
-import { useAccount } from '../useAccount';
+import { INTEREST_RATE_STRATEGY_ABI } from './useAaveRates.constants';
 import { Reserve, useAaveReservesData } from './useAaveReservesData';
 
 export interface RatesDataResult {
@@ -39,7 +43,7 @@ export const useAaveInterestRatesData = (): {
   const [data, setData] = useState<RatesDataResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { provider } = useAccount();
+  const provider = getProvider(BOB_CHAIN_ID);
 
   const [searchParams] = useSearchParams();
   const symbol = searchParams.get('asset') || 'ETH';
