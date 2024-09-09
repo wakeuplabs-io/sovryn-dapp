@@ -71,14 +71,13 @@ export const useAaveInterestRatesData = (): {
 
   useEffect(() => {
     if (loading || !rateContract || !reserve) return;
-    let ratesData: RatesDataResult;
     try {
       const utilizationRate = calculateUtilizationRate(
         reserve.decimals,
         reserve.totalDebt,
         reserve.availableLiquidity,
       );
-      ratesData = {
+      const ratesData = {
         currentUsageRatio: formatUnits(utilizationRate, WEI),
         optimalUsageRatio: formatUnits(
           reserve.optimalUsageRatio,
