@@ -59,14 +59,14 @@ export const useAaveInterestRatesData = (): {
 
   const rateContract = useMemo(
     () =>
-      provider && interestRateStrategyAddress && !loading
+      provider && interestRateStrategyAddress
         ? new Contract(
             interestRateStrategyAddress,
             INTEREST_RATE_STRATEGY_ABI,
             provider,
           )
         : null,
-    [loading, interestRateStrategyAddress, provider],
+    [interestRateStrategyAddress, provider],
   );
 
   useEffect(() => {
