@@ -10,7 +10,7 @@ import { BOB_CHAIN_ID } from '../../config/chains';
 
 import { RAY, WEI } from '../../utils/math';
 import { INTEREST_RATE_STRATEGY_ABI } from './useAaveRates.constants';
-import { Reserve, useAaveReservesData } from './useAaveReservesData';
+import { useAaveReservesData } from './useAaveReservesData';
 
 export interface RatesDataResult {
   currentUsageRatio: string;
@@ -48,7 +48,7 @@ export const useAaveInterestRatesData = (): {
   const [searchParams] = useSearchParams();
   const symbol = searchParams.get('asset') || 'ETH';
   const { reserves, loading } = useAaveReservesData();
-  const reserve: Reserve | undefined = reserves.find(
+  const reserve = reserves.find(
     r => r.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase(),
   );
   const interestRateStrategyAddress = reserve?.interestRateStrategyAddress;
