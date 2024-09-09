@@ -1,7 +1,3 @@
-/**
- * This hook is used for getting historical reserve data, and it is primarily used with charts.
- * In particular, this hook is used in the  ̶A̶p̶y̶G̶r̶a̶p̶h̶ AaveReserveOverviewPage (chartJS).
- */
 import { useCallback, useState } from 'react';
 
 import axios from 'axios';
