@@ -1,6 +1,7 @@
 import React, { FC, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
+import { useSearchParams } from 'react-router-dom';
 
 import { theme } from '@sovryn/tailwindcss-config';
 import { Accordion, Link } from '@sovryn/ui';
@@ -25,7 +26,9 @@ type InterestRateModelGraphProps = {
 export const InterestRateModelGraph: FC<InterestRateModelGraphProps> = ({
   reserve,
 }) => {
-  const { data: rates } = useAaveInterestRatesData();
+  const [searchParams] = useSearchParams();
+  const symbol = searchParams.get('asset') || config.SymbolFallback;
+  const { data: rates } = useAaveInterestRatesData(symbol);
   const { isMobile } = useIsMobile();
   const [open, setOpen] = useState(true);
 

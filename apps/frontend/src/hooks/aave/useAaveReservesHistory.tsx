@@ -103,8 +103,8 @@ export function useAaveReservesHistory(
     setError(false);
     setData([]);
 
-    if (reserveAddress && config.ratesHistoryApiUrl) {
-      fetchStats(reserveAddress, timeRange, config.ratesHistoryApiUrl)
+    if (reserveAddress && config.RatesHistoryApiUrl) {
+      fetchStats(reserveAddress, timeRange, config.RatesHistoryApiUrl)
         .then((data: APIResponse[]) => {
           setData(
             data.map(d => ({

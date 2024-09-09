@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Contract, utils } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
-import { useSearchParams } from 'react-router-dom';
 
 import { getProvider } from '@sovryn/ethers-provider';
 
@@ -36,7 +35,9 @@ const calculateUtilizationRate = (
   return (totalBorrow * BigInt(10 ** 18)) / totalSupply;
 };
 
-export const useAaveInterestRatesData = (): {
+export const useAaveInterestRatesData = (
+  symbol: string,
+): {
   data: RatesDataResult | null;
   error: string | null;
 } => {
@@ -44,9 +45,6 @@ export const useAaveInterestRatesData = (): {
   const [error, setError] = useState<string | null>(null);
 
   const provider = getProvider(BOB_CHAIN_ID);
-
-  const [searchParams] = useSearchParams();
-  const symbol = searchParams.get('asset') || 'ETH';
   const { reserves, loading } = useAaveReservesData();
   const reserve = useMemo(
     () =>
