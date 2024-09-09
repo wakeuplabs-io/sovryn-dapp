@@ -36,20 +36,19 @@ export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = ({
   const [timeRange] = useState<ReserveRateTimeRange>(
     ESupportedTimeRanges.OneMonth,
   );
-  const {
-    data: history,
-    //error,
-    loading,
-    //refetch,
-  } = useAaveReservesHistory(reserve.underlyingAsset, timeRange);
+  const { data: history } = useAaveReservesHistory(
+    reserve.underlyingAsset,
+    timeRange,
+  );
 
-  const data = useMemo(() => {
-    if (!!history && !loading) {
-      return history.map(i => ({ x: i.date, y: i.liquidityRate * 100 }));
-    } else {
-      return [];
-    }
-  }, [history, loading]);
+  const supplyChartData = useMemo(
+    () =>
+      history.map(i => ({
+        x: i.date,
+        y: i.liquidityRate.mul(100).toNumber(),
+      })),
+    [history],
+  );
 
   return (
     <Accordion
@@ -133,7 +132,7 @@ export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = ({
 
         <Chart
           input={{
-            data,
+            data: supplyChartData,
             label: t(pageTranslations.chart.label1),
             lineColor: theme.colors['primary-30'],
           }}
