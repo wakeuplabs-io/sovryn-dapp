@@ -7,7 +7,6 @@ import { useCallback, useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
 import { config } from '../../constants/aave';
-import { makeCancelable } from './utils';
 
 export enum ESupportedTimeRanges {
   OneMonth = '1m',
@@ -125,11 +124,7 @@ export function useAaveReservesHistory(
     setData([]);
 
     if (reserveAddress && ratesHistoryApiUrl) {
-      const cancelable = makeCancelable(
-        fetchStats(reserveAddress, timeRange, ratesHistoryApiUrl),
-      );
-
-      cancelable.promise
+      fetchStats(reserveAddress, timeRange, ratesHistoryApiUrl)
         .then((data: APIResponse[]) => {
           setData(
             data.map(d => ({
@@ -155,10 +150,7 @@ export function useAaveReservesHistory(
           setError(true);
           setLoading(false);
         });
-
-      return cancelable.cancel;
     }
-
     setLoading(false);
     return () => null;
   }, [reserveAddress, timeRange, ratesHistoryApiUrl]);
