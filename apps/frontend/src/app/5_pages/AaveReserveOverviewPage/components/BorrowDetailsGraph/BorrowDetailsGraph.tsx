@@ -38,20 +38,19 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
   const [timeRange] = useState<ReserveRateTimeRange>(
     ESupportedTimeRanges.OneMonth,
   );
-  const {
-    data: history,
-    //error,
-    loading,
-    //refetch,
-  } = useAaveReservesHistory(reserve.underlyingAsset, timeRange);
+  const { data: history } = useAaveReservesHistory(
+    reserve.underlyingAsset,
+    timeRange,
+  );
 
-  const data = useMemo(() => {
-    if (!!history && !loading) {
-      return history.map(i => ({ x: i.date, y: i.variableBorrowRate * 100 }));
-    } else {
-      return [];
-    }
-  }, [history, loading]);
+  const borrowChartData = useMemo(
+    () =>
+      history.map(i => ({
+        x: i.date,
+        y: i.variableBorrowRate.mul(100).toNumber(),
+      })),
+    [history],
+  );
 
   return (
     <Accordion
@@ -148,8 +147,8 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
 
         <Chart
           input={{
-            data,
-            label: t(pageTranslations.chart.label1),
+            data: borrowChartData,
+            label: t(pageTranslations.chart.aprVarLabel),
             lineColor: theme.colors.primary[30],
           }}
         />

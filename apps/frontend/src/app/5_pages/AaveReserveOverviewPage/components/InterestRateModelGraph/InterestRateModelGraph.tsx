@@ -78,7 +78,7 @@ export const InterestRateModelGraph: FC<InterestRateModelGraphProps> = ({
 
         <Chart
           meta={{
-            label: t(pageTranslations.chart.label1),
+            label: t(pageTranslations.chart.aprVarLabel),
             lineColor: theme.colors['primary-30'],
           }}
           rates={rates}
