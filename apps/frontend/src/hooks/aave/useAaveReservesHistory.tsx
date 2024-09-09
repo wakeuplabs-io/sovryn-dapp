@@ -117,7 +117,7 @@ export function useAaveReservesHistory(
 
   const ratesHistoryApiUrl = config.ratesHistoryApiUrl;
 
-  const refetchData = useCallback<() => () => void>(() => {
+  const refetchData = useCallback(() => {
     // reset
     setLoading(true);
     setError(false);
