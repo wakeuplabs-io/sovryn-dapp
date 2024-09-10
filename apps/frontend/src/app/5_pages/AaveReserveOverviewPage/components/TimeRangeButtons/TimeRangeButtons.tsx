@@ -25,8 +25,8 @@ export const TimeRangeButtons: FC<TimeRangeButtonsProps> = ({ onChange }) => {
       <button
         className={`py-1.5 px-4 rounded-md text-sm font-medium ${
           activeRange === ESupportedTimeRanges.OneMonth
-            ? 'bg-[#484D59] text-white'
-            : 'bg-[#2C303B] text-gray-400'
+            ? 'bg-gray-50 text-white'
+            : 'bg-gray-70 text-gray-400'
         }`}
         onClick={() => handleClick(ESupportedTimeRanges.OneMonth)}
       >
@@ -35,8 +35,8 @@ export const TimeRangeButtons: FC<TimeRangeButtonsProps> = ({ onChange }) => {
       <button
         className={`py-1.5 px-4 rounded-md text-sm font-medium ${
           activeRange === ESupportedTimeRanges.SixMonths
-            ? 'bg-[#484D59] text-white'
-            : 'bg-[#2C303B] text-gray-400'
+            ? 'bg-gray-50 text-white'
+            : 'bg-gray-70 text-gray-400'
         }`}
         onClick={() => handleClick(ESupportedTimeRanges.SixMonths)}
       >
@@ -45,8 +45,8 @@ export const TimeRangeButtons: FC<TimeRangeButtonsProps> = ({ onChange }) => {
       <button
         className={`py-1.5 px-4 rounded-md text-sm font-medium ${
           activeRange === ESupportedTimeRanges.OneYear
-            ? 'bg-[#484D59] text-white'
-            : 'bg-[#2C303B] text-gray-400'
+            ? 'bg-gray-50 text-white'
+            : 'bg-gray-70 text-gray-400'
         }`}
         onClick={() => handleClick(ESupportedTimeRanges.OneYear)}
       >
