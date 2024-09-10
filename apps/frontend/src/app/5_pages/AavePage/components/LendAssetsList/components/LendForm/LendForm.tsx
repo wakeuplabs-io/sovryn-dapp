@@ -36,7 +36,7 @@ export const LendForm: FC<LendFormProps> = ({
 }) => {
   const { account } = useAccount();
   const { reserves } = useAaveReservesData();
-  const [lendAsset, setLendAsset] = useState<string>(initialAsset);
+  const [lendAsset, setLendAsset] = useState(initialAsset);
   const [lendAmount, setLendAmount, lendSize] = useDecimalAmountInput('');
   const { balance: lendAssetBalance } = useAssetBalance(
     lendAsset,
@@ -69,12 +69,21 @@ export const LendForm: FC<LendFormProps> = ({
     return Decimal.from(reserve?.priceInUSD ?? 0).mul(lendSize);
   }, [reserve, lendSize]);
 
+  const supplyApy = useMemo(() => {
+    return Decimal.from(reserve?.supplyAPY ?? 0).mul(100);
+  }, [reserve]);
+
   const isValidLendAmount = useMemo(
     () => (lendSize.gt(0) ? lendSize.lte(lendAssetBalance) : true),
     [lendSize, lendAssetBalance],
   );
 
-  const onConfirm = useCallback(async () => {
+  const isDepositEnabled = useMemo(
+    () => lendSize.gt(0) && isValidLendAmount,
+    [lendSize, isValidLendAmount],
+  );
+
+  const onConfirm = useCallback(() => {
     handleDeposit(lendSize, reserve.symbol, { onComplete });
   }, [handleDeposit, lendSize, reserve, onComplete]);
 
@@ -82,6 +91,7 @@ export const LendForm: FC<LendFormProps> = ({
     <form className="flex flex-col gap-6">
       <div>
         <AssetAmountInput
+          chainId={BOB_CHAIN_ID}
           label={t(translations.aavePage.common.lend)}
           maxAmount={lendAssetBalance}
           amountLabel={t(translations.common.amount)}
@@ -106,13 +116,7 @@ export const LendForm: FC<LendFormProps> = ({
       <SimpleTable>
         <SimpleTableRow
           label={t(translations.aavePage.lendModal.lendApy)}
-          value={
-            <AmountRenderer
-              value={Decimal.from(reserve?.supplyAPY ?? 0).mul(100)}
-              suffix="%"
-              precision={2}
-            />
-          }
+          value={<AmountRenderer value={supplyApy} suffix="%" precision={2} />}
         />
         <SimpleTableRow
           label={t(translations.aavePage.lendModal.collateralization)}
@@ -125,7 +129,7 @@ export const LendForm: FC<LendFormProps> = ({
       </SimpleTable>
 
       <Button
-        disabled={!isValidLendAmount || lendSize.lte(0)}
+        disabled={!isDepositEnabled}
         onClick={onConfirm}
         text={t(translations.aavePage.lendModal.deposit)}
       />

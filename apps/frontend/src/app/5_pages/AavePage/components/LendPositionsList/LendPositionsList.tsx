@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
@@ -17,6 +17,7 @@ import { Decimal } from '@sovryn/utils';
 import { AaveRowTitle } from '../../../../2_molecules/AavePoolRowTitle/AavePoolRowTitle';
 import { useAccount } from '../../../../../hooks/useAccount';
 import { translations } from '../../../../../locales/i18n';
+import { sortRowsByOrderOptions } from '../../AavePage.utils';
 import { PoolPositionStat } from '../PoolPositionStat/PoolPositionStat';
 import { COLUMNS_CONFIG } from './LendPositionsList.constants';
 import { LendPosition } from './LendPositionsList.types';
@@ -41,26 +42,25 @@ export const LendPositionsList: FC<LendPositionsListProps> = ({
   loading,
 }) => {
   const { account } = useAccount();
-  const [open, setOpen] = useState<boolean>(true);
-  const [withdrawAssetDialog, setWithdrawAssetDialog] = useState<
-    string | undefined
-  >();
+  const [open, setOpen] = useState(true);
+  const [withdrawAssetDialog, setWithdrawAssetDialog] = useState<string>();
   const [orderOptions, setOrderOptions] = useState<OrderOptions>({
-    orderBy: 'balance',
-    orderDirection: OrderDirection.Asc,
+    orderBy: 'asset',
+    orderDirection: OrderDirection.Desc,
   });
-
-  const onWithdrawClick = useCallback((asset: string) => {
-    setWithdrawAssetDialog(asset);
-  }, []);
 
   const onWithdrawClose = useCallback(() => {
     setWithdrawAssetDialog(undefined);
   }, []);
 
   const mobileRenderer = useCallback(
-    p => <LendPositionDetails position={p} onWithdrawClick={onWithdrawClick} />,
-    [onWithdrawClick],
+    p => (
+      <LendPositionDetails
+        position={p}
+        onWithdrawClick={setWithdrawAssetDialog}
+      />
+    ),
+    [setWithdrawAssetDialog],
   );
 
   const rowTitleRenderer = useCallback(
@@ -73,6 +73,11 @@ export const LendPositionsList: FC<LendPositionsListProps> = ({
       />
     ),
     [],
+  );
+
+  const rows = useMemo(
+    () => sortRowsByOrderOptions(orderOptions, lendPositions),
+    [orderOptions, lendPositions],
   );
 
   return (
@@ -105,6 +110,7 @@ export const LendPositionsList: FC<LendPositionsListProps> = ({
             />
             <PoolPositionStat
               label={t(pageTranslations.common.collateral)}
+              labelInfo={t(pageTranslations.common.collateralInfo)}
               value={collateralBalance}
               prefix="$"
               precision={2}
@@ -113,12 +119,12 @@ export const LendPositionsList: FC<LendPositionsListProps> = ({
 
           <Table
             isLoading={loading}
-            columns={COLUMNS_CONFIG(onWithdrawClick)}
+            columns={COLUMNS_CONFIG(setWithdrawAssetDialog)}
             rowClassName="bg-gray-80"
             accordionClassName="bg-gray-60 border border-gray-70"
             rowTitle={rowTitleRenderer}
             mobileRenderer={mobileRenderer}
-            rows={lendPositions}
+            rows={rows}
             orderOptions={orderOptions}
             setOrderOptions={setOrderOptions}
           />

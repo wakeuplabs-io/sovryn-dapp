@@ -3,11 +3,15 @@ import {
   UiPoolDataProvider,
 } from '@aave/contract-helpers';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import dayjs from 'dayjs';
 
-import { config } from '../../constants/aave';
+import { getProvider } from '@sovryn/ethers-provider';
+
+import { BOB_CHAIN_ID } from '../../config/chains';
+
+import { AAVE_CONTRACT_ADDRESSES } from '../../constants/aave';
 import { UserReservesData } from '../../types/aave';
 import {
   AaveUserReservesSummary,
@@ -16,6 +20,12 @@ import {
 import { useAccount } from '../useAccount';
 import { useBlockNumber } from '../useBlockNumber';
 
+const uiPoolDataProvider = new UiPoolDataProvider({
+  provider: getProvider(BOB_CHAIN_ID),
+  uiPoolDataProviderAddress: AAVE_CONTRACT_ADDRESSES.UI_POOL_DATA_PROVIDER,
+  chainId: Number(BOB_CHAIN_ID),
+});
+
 export const useAaveUserReservesData = (): {
   summary: AaveUserReservesSummary;
   reservesData: ReservesDataHumanized | undefined;
@@ -23,7 +33,7 @@ export const useAaveUserReservesData = (): {
   timestamp: number;
   loading: boolean;
 } => {
-  const { account, provider } = useAccount();
+  const { account } = useAccount();
   const { value: blockNumber } = useBlockNumber();
   const [processedBlock, setProcessedBlock] = useState<number | undefined>();
   const [timestamp, setTimeStamp] = useState<number>(0);
@@ -34,49 +44,43 @@ export const useAaveUserReservesData = (): {
   );
   const [loading, setLoading] = useState(false);
 
-  const uiPoolDataProvider = useMemo(
-    () =>
-      provider
-        ? new UiPoolDataProvider({
-            provider,
-            uiPoolDataProviderAddress: config.UiPoolDataProviderV3Address,
-            chainId: config.chainId,
-          })
-        : null,
-    [provider],
-  );
-
   const loadUserReservesData = useCallback(async () => {
-    if (!account || !provider || !uiPoolDataProvider || !blockNumber) {
+    if (!account || !blockNumber) {
       return null;
     }
 
-    const [reservesData, userReservesData] = await Promise.all([
-      uiPoolDataProvider.getReservesHumanized({
-        lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
-      }),
-      uiPoolDataProvider.getUserReservesHumanized({
-        lendingPoolAddressProvider: config.PoolAddressesProviderAddress,
-        user: account,
-      }),
-    ]);
-    const currentTimestamp = dayjs().unix();
+    try {
+      const [reservesData, userReservesData] = await Promise.all([
+        uiPoolDataProvider.getReservesHumanized({
+          lendingPoolAddressProvider:
+            AAVE_CONTRACT_ADDRESSES.POOL_ADDRESSES_PROVIDER,
+        }),
+        uiPoolDataProvider.getUserReservesHumanized({
+          lendingPoolAddressProvider:
+            AAVE_CONTRACT_ADDRESSES.POOL_ADDRESSES_PROVIDER,
+          user: account,
+        }),
+      ]);
+      const currentTimestamp = dayjs().unix();
 
-    setReservesData(reservesData);
-    setUserReservesData(userReservesData);
-    setTimeStamp(currentTimestamp);
+      setReservesData(reservesData);
+      setUserReservesData(userReservesData);
+      setTimeStamp(currentTimestamp);
 
-    setSummary(
-      await AaveUserReservesSummaryFactory.buildSummary({
-        provider,
-        account,
-        reservesData,
-        userReservesData,
-        currentTimestamp,
-      }),
-    );
-    setProcessedBlock(blockNumber);
-  }, [account, uiPoolDataProvider, blockNumber, provider]);
+      setSummary(
+        await AaveUserReservesSummaryFactory.buildSummary({
+          provider: getProvider(BOB_CHAIN_ID),
+          account,
+          reservesData,
+          userReservesData,
+          currentTimestamp,
+        }),
+      );
+      setProcessedBlock(blockNumber);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [account, blockNumber]);
 
   useEffect(() => {
     if (blockNumber !== processedBlock) {
@@ -87,7 +91,7 @@ export const useAaveUserReservesData = (): {
 
   useEffect(() => {
     setLoading(true);
-    setProcessedBlock(undefined);
+    setProcessedBlock(-1);
   }, [account]);
 
   return { summary, reservesData, userReservesData, timestamp, loading };

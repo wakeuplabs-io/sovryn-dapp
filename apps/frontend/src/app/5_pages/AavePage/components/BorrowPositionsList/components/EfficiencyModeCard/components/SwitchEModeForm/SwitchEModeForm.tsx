@@ -1,5 +1,3 @@
-import { formatReserves, formatUserSummary } from '@aave/math-utils';
-
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
@@ -12,19 +10,20 @@ import {
   IconNames,
   Paragraph,
   Select,
+  SelectOption,
   SimpleTable,
   SimpleTableRow,
 } from '@sovryn/ui';
 import { Decimal } from '@sovryn/utils';
 
 import { AmountRenderer } from '../../../../../../../../2_molecules/AmountRenderer/AmountRenderer';
-import { config } from '../../../../../../../../../constants/aave';
+import { MINIMUM_COLLATERAL_RATIO_LENDING_POOLS_AAVE } from '../../../../../../../../../constants/aave';
 import { useAaveSetUserEMode } from '../../../../../../../../../hooks/aave/useAaveSetUserEMode';
 import { useAaveUserReservesData } from '../../../../../../../../../hooks/aave/useAaveUserReservesData';
 import { translations } from '../../../../../../../../../locales/i18n';
 import { EModeCategory } from '../../../../../../../../../types/aave';
-import { AaveCalculations } from '../../../../../../../../../utils/aave/AaveCalculations';
 import { CollateralRatioHealthBar } from '../../../../../CollateralRatioHealthBar/CollateralRatioHealthBar';
+import { normalizeEModeSummary } from '../../EfficencyModeCard.utils';
 
 type SwitchEModeFormProps = {
   current: EModeCategory;
@@ -43,51 +42,33 @@ export const SwitchEModeForm: FC<SwitchEModeFormProps> = ({
     useAaveUserReservesData();
 
   const categoriesOptions = useMemo(() => {
-    return categories
-      .filter(c => c.id !== current.id)
-      .map(category => ({
-        label: category.label,
-        value: String(category.id),
-      }));
+    return categories.reduce((acc, category) => {
+      if (category.id === current?.id) {
+        return acc; // skip current category
+      }
+
+      return [
+        ...acc,
+        {
+          label: category.label,
+          value: String(category.id),
+        },
+      ];
+    }, [] as SelectOption[]);
   }, [categories, current?.id]);
 
   const selectedCategory = useMemo(() => {
     return categories.find(c => c.id === Number(category));
   }, [category, categories]);
 
-  const newSummary = useMemo(() => {
-    if (!userReservesData || !reservesData) {
-      return;
-    }
-
-    const {
-      marketReferenceCurrencyDecimals,
-      marketReferenceCurrencyPriceInUsd: marketReferencePriceInUsd,
-    } = reservesData.baseCurrencyData;
-    return formatUserSummary({
-      userEmodeCategoryId: selectedCategory?.id ?? 0,
-      currentTimestamp: timestamp,
-      marketReferencePriceInUsd,
-      marketReferenceCurrencyDecimals,
-      userReserves: userReservesData.userReserves,
-      formattedReserves: formatReserves({
-        currentTimestamp: timestamp,
-        marketReferencePriceInUsd,
-        marketReferenceCurrencyDecimals,
-        reserves: reservesData.reservesData,
-      }),
-    });
-  }, [userReservesData, reservesData, timestamp, selectedCategory?.id]);
-
-  const newCollateralRatio = useMemo(() => {
-    if (!newSummary) {
-      return Decimal.from(0);
-    }
-    return AaveCalculations.computeCollateralRatio(
-      Decimal.from(newSummary.totalCollateralUSD),
-      Decimal.from(newSummary.totalBorrowsUSD),
+  const summaryAfterSwitch = useMemo(() => {
+    return normalizeEModeSummary(
+      selectedCategory?.id ?? 0,
+      reservesData,
+      userReservesData,
+      timestamp,
     );
-  }, [newSummary]);
+  }, [userReservesData, reservesData, timestamp, selectedCategory?.id]);
 
   const positionsInOtherCategories = useMemo(() => {
     return summary.reserves.some(
@@ -98,15 +79,14 @@ export const SwitchEModeForm: FC<SwitchEModeFormProps> = ({
   const confirmEnabled = useMemo(() => {
     // cannot switch if undercollateralized or have positions in other categories
     return (
-      Decimal.from(newSummary?.healthFactor ?? 0).lte(1) &&
+      !summaryAfterSwitch.liquidationRisk &&
       !positionsInOtherCategories &&
       selectedCategory
     );
-  }, [newSummary, positionsInOtherCategories, selectedCategory]);
+  }, [summaryAfterSwitch, positionsInOtherCategories, selectedCategory]);
 
   const onConfirm = useCallback(() => {
-    if (!selectedCategory) return;
-    handleSetUserEMode(selectedCategory, { onComplete });
+    handleSetUserEMode(selectedCategory!, { onComplete });
   }, [handleSetUserEMode, selectedCategory, onComplete]);
 
   return (
@@ -125,8 +105,8 @@ export const SwitchEModeForm: FC<SwitchEModeFormProps> = ({
       </div>
 
       <CollateralRatioHealthBar
-        ratio={newCollateralRatio}
-        minimum={config.MinCollateralRatio}
+        ratio={summaryAfterSwitch.collateralRatio}
+        minimum={MINIMUM_COLLATERAL_RATIO_LENDING_POOLS_AAVE}
       />
 
       <SimpleTable>
@@ -153,17 +133,13 @@ export const SwitchEModeForm: FC<SwitchEModeFormProps> = ({
           label={t(translations.aavePage.eMode.maxLoanToValue)}
           value={
             <div className={'flex items-center justify-end gap-1'}>
-              <AmountRenderer
-                value={current?.ltv.div(100)}
-                precision={2}
-                suffix="%"
-              />
+              <AmountRenderer value={current?.ltv} precision={2} suffix="%" />
               <Icon
                 icon={IconNames.ARROW_RIGHT}
                 className="h-2 flex-shrink-0"
               />
               <AmountRenderer
-                value={Decimal.from(selectedCategory?.ltv ?? 0).div(100)}
+                value={Decimal.from(selectedCategory?.ltv ?? 0)}
                 precision={2}
                 suffix="%"
               />

@@ -1,16 +1,17 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useState } from 'react';
 
 import { t } from 'i18next';
 
 import { Paragraph, ParagraphSize, Tabs, TabType } from '@sovryn/ui';
 
 import { translations } from '../../../../../../../locales/i18n';
+import { TAB_ITEMS } from './RepayForm.constants';
 import { RepayWithCollateralForm } from './RepayWithCollateralForm';
 import { RepayWithWalletBalanceForm } from './RepayWithWalletBalanceForm';
 
 type RepayFormProps = {
   asset: string;
-  onComplete: () => unknown;
+  onComplete: () => void;
 };
 
 enum RepayWith {
@@ -20,22 +21,6 @@ enum RepayWith {
 
 export const RepayForm: FC<RepayFormProps> = ({ asset, onComplete }) => {
   const [activeTab, setActiveTab] = useState<RepayWith>(RepayWith.BALANCE);
-
-  const tabItems = useMemo(() => {
-    return [
-      {
-        activeClassName: 'text-primary-20',
-        dataAttribute: 'wallet-balance',
-        label: t(translations.aavePage.repayModal.walletBalance),
-      },
-      {
-        activeClassName: 'text-primary-20',
-        dataAttribute: 'collateral',
-        label: t(translations.aavePage.common.collateral),
-        disabled: true,
-      },
-    ];
-  }, []);
 
   return (
     <div className="space-y-2">
@@ -51,7 +36,7 @@ export const RepayForm: FC<RepayFormProps> = ({ asset, onComplete }) => {
         contentClassName="p-4"
         index={activeTab}
         onChange={setActiveTab}
-        items={tabItems}
+        items={TAB_ITEMS}
         type={TabType.secondary}
       />
 

@@ -8,23 +8,25 @@ import { Decimal } from '@sovryn/utils';
 
 import { BOB_CHAIN_ID } from '../../config/chains';
 
-import { config } from '../../constants/aave';
+import { AAVE_CONTRACT_ADDRESSES } from '../../constants/aave';
 import { useTransactionContext } from '../../contexts/TransactionContext';
 import { translations } from '../../locales/i18n';
 import { BorrowRateMode, TransactionFactoryOptions } from '../../types/aave';
 import { AaveBorrowTransactionsFactory } from '../../utils/aave/AaveBorrowTransactionsFactory';
 import { useAccount } from '../useAccount';
+import { useNotifyError } from '../useNotifyError';
 
 export const useAaveBorrow = () => {
   const { signer } = useAccount();
+  const { notifyError } = useNotifyError();
   const { setTransactions, setIsOpen, setTitle } = useTransactionContext();
 
   const aaveBorrowTransactionsFactory = useMemo(() => {
     if (!signer) return null;
     return new AaveBorrowTransactionsFactory(
-      config.PoolAddress,
-      config.WETHGatewayAddress,
-      config.VariableDebtWETHAddress,
+      AAVE_CONTRACT_ADDRESSES.POOL,
+      AAVE_CONTRACT_ADDRESSES.WETH_GATEWAY,
+      AAVE_CONTRACT_ADDRESSES.VARIABLE_DEBT_ETH,
       signer,
     );
   }, [signer]);
@@ -36,27 +38,37 @@ export const useAaveBorrow = () => {
       rateMode: BorrowRateMode,
       opts?: TransactionFactoryOptions,
     ) => {
-      if (!aaveBorrowTransactionsFactory) {
-        return;
-      }
+      try {
+        if (!aaveBorrowTransactionsFactory) {
+          throw new Error('Transactions factory not available');
+        }
 
-      const asset = await getAssetData(symbol, BOB_CHAIN_ID);
-      const bnAmount = BigNumber.from(
-        amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
-      );
+        const asset = await getAssetData(symbol, BOB_CHAIN_ID);
+        const bnAmount = BigNumber.from(
+          amount.mul(Decimal.from(10).pow(asset.decimals)).toString(),
+        );
 
-      setTransactions(
-        await aaveBorrowTransactionsFactory.borrow(
+        const transactions = await aaveBorrowTransactionsFactory.borrow(
           asset,
           bnAmount,
           rateMode,
           opts,
-        ),
-      );
-      setTitle(t(translations.aavePage.common.borrow));
-      setIsOpen(true);
+        );
+
+        setTransactions(transactions);
+        setTitle(t(translations.aavePage.common.borrow));
+        setIsOpen(true);
+      } catch (e) {
+        notifyError(e);
+      }
     },
-    [setIsOpen, setTitle, setTransactions, aaveBorrowTransactionsFactory],
+    [
+      setIsOpen,
+      setTitle,
+      setTransactions,
+      aaveBorrowTransactionsFactory,
+      notifyError,
+    ],
   );
 
   const handleSwapBorrowRateMode = useCallback(
@@ -65,21 +77,32 @@ export const useAaveBorrow = () => {
       currentRateMode: BorrowRateMode,
       opts?: TransactionFactoryOptions,
     ) => {
-      if (!aaveBorrowTransactionsFactory) {
-        return;
-      }
+      try {
+        if (!aaveBorrowTransactionsFactory) {
+          throw new Error('Transactions factory not available');
+        }
 
-      setTransactions(
-        await aaveBorrowTransactionsFactory.swapBorrowRateMode(
-          asset,
-          currentRateMode,
-          opts,
-        ),
-      );
-      setTitle(t(translations.aavePage.tx.swapBorrowRateModeTitle));
-      setIsOpen(true);
+        const transactions =
+          await aaveBorrowTransactionsFactory.swapBorrowRateMode(
+            asset,
+            currentRateMode,
+            opts,
+          );
+
+        setTransactions(transactions);
+        setTitle(t(translations.aavePage.tx.swapBorrowRateModeTitle));
+        setIsOpen(true);
+      } catch (e) {
+        notifyError(e);
+      }
     },
-    [setIsOpen, setTitle, setTransactions, aaveBorrowTransactionsFactory],
+    [
+      setIsOpen,
+      setTitle,
+      setTransactions,
+      aaveBorrowTransactionsFactory,
+      notifyError,
+    ],
   );
 
   return { handleBorrow, handleSwapBorrowRateMode };

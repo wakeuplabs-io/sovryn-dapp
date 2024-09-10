@@ -10,13 +10,14 @@ import {
 } from '@aave/math-utils';
 
 import { BigNumber, ethers } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
 
 import { AssetDetailsData, getAssetData } from '@sovryn/contracts';
 import { Decimal } from '@sovryn/utils';
 
 import { BOB_CHAIN_ID } from '../../config/chains';
 
-import { config } from '../../constants/aave';
+import { MINIMUM_COLLATERAL_RATIO_LENDING_POOLS_AAVE } from '../../constants/aave';
 import { Reserve } from '../../hooks/aave/useAaveReservesData';
 import { BorrowRateMode, UserReservesData } from '../../types/aave';
 import { decimalic, fromWei } from '../math';
@@ -39,6 +40,7 @@ export type ReserveSummary = {
   borrowedUSD: Decimal;
   borrowRateMode: BorrowRateMode;
   availableToBorrow: Decimal;
+  availableToBorrowUSD: Decimal;
 };
 
 export type AaveUserReservesSummary = {
@@ -59,7 +61,6 @@ export type AaveUserReservesSummary = {
   borrowPowerUsed: Decimal;
   eModeEnabled: boolean;
   eModeCategoryId: number;
-
   reserves: ReserveSummary[];
 };
 
@@ -98,6 +99,7 @@ export class AaveUserReservesSummaryFactory {
         borrowedUSD: Decimal.ZERO,
         borrowRateMode: BorrowRateMode.VARIABLE,
         availableToBorrow: Decimal.ZERO,
+        availableToBorrowUSD: Decimal.ZERO,
       })),
     };
   }
@@ -160,7 +162,7 @@ export class AaveUserReservesSummaryFactory {
       userSummary.currentLiquidationThreshold,
     );
     const borrowPower = AaveCalculations.computeBorrowPower(
-      config.MinCollateralRatio,
+      MINIMUM_COLLATERAL_RATIO_LENDING_POOLS_AAVE,
       collateralBalance,
     );
     const borrowPowerUsed = AaveCalculations.computeBorrowPowerUsed(
@@ -202,6 +204,22 @@ export class AaveUserReservesSummaryFactory {
           const asset = await getAssetData(symbol, BOB_CHAIN_ID);
           const balance = await getBalance(asset, account, provider);
           const decimalBalance = decimalic(fromWei(balance, asset.decimals));
+          const availableLiquidity = Decimal.from(
+            formatUnits(r.reserve.availableLiquidity, r.reserve.decimals),
+          );
+
+          // how much the user can borrow if there's no limit of supply
+          const canBorrow = borrowPower
+            .sub(borrowBalance)
+            .div(r.reserve.priceInUSD);
+
+          // available to borrow for user including liquidity limitation
+          const availableToBorrow = availableLiquidity.lt(canBorrow)
+            ? availableLiquidity
+            : canBorrow;
+          const availableToBorrowUSD = availableToBorrow.mul(
+            r.reserve.priceInUSD,
+          );
 
           return {
             asset: symbol,
@@ -215,12 +233,13 @@ export class AaveUserReservesSummaryFactory {
             suppliedUSD: Decimal.from(r.underlyingBalanceUSD),
             borrowed: Decimal.from(r.totalBorrows),
             borrowedUSD: Decimal.from(r.totalBorrowsUSD),
-            availableToBorrow: borrowPower.div(r.reserve.priceInUSD),
+            availableToBorrow,
+            availableToBorrowUSD,
 
             borrowRateMode: Decimal.from(r.variableBorrows).gt(0)
               ? BorrowRateMode.VARIABLE
               : BorrowRateMode.STABLE,
-          };
+          } as ReserveSummary;
         }),
       ),
     };

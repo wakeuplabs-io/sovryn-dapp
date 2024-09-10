@@ -9,7 +9,7 @@ import {
   Transaction,
   TransactionType,
 } from '../../app/3_organisms/TransactionStepDialog/TransactionStepDialog.types';
-import { config } from '../../constants/aave';
+import { AAVE_CONTRACT_ADDRESSES } from '../../constants/aave';
 import { translations } from '../../locales/i18n';
 import { BorrowRateMode, TransactionFactoryOptions } from '../../types/aave';
 
@@ -56,7 +56,7 @@ export class AaveBorrowTransactionsFactory {
   ): Promise<Transaction[]> {
     if (
       asset.isNative ||
-      asset.address.toLowerCase() === config.WETHAddress.toLowerCase()
+      asset.address.toLowerCase() === AAVE_CONTRACT_ADDRESSES.WETH.toLowerCase()
     ) {
       return this.borrowNative(amount, rateMode, opts);
     } else return this.borrowToken(asset, amount, rateMode, opts);
@@ -73,7 +73,9 @@ export class AaveBorrowTransactionsFactory {
         subtitle: t(translations.aavePage.tx.swapBorrowRateModeSubtitle, {
           symbol: asset.symbol,
           mode:
-            currentRateMode === BorrowRateMode.VARIABLE ? 'stable' : 'variable',
+            currentRateMode === BorrowRateMode.VARIABLE
+              ? t(translations.aavePage.common.stable)
+              : t(translations.aavePage.common.variable),
         }),
         request: {
           type: TransactionType.signTransaction,

@@ -15,7 +15,7 @@ import { BorrowRateModeSelect } from './components/BorrowRateModeSelect/BorrowRa
 
 const pageTranslations = translations.aavePage;
 
-export const COLUMNS_CONFIG = (onRepayClick: (asset: string) => unknown) => [
+export const COLUMNS_CONFIG = (onRepayClick: (asset: string) => void) => [
   {
     id: 'asset',
     sortable: true,
@@ -35,7 +35,7 @@ export const COLUMNS_CONFIG = (onRepayClick: (asset: string) => unknown) => [
     ),
   },
   {
-    id: 'balance',
+    id: 'borrowed',
     sortable: true,
     align: Align.center,
     className: '[&_*]:mx-auto [&_*]:space-x-2', // center head
@@ -45,7 +45,7 @@ export const COLUMNS_CONFIG = (onRepayClick: (asset: string) => unknown) => [
       </span>
     ),
     cellRenderer: (pool: BorrowPosition) => (
-      <AmountRenderer value={pool.borrowed} suffix={pool.asset} />
+      <AmountRenderer value={pool.borrowed} suffix={pool.asset} precision={2} />
     ),
   },
   {
@@ -60,11 +60,11 @@ export const COLUMNS_CONFIG = (onRepayClick: (asset: string) => unknown) => [
       </span>
     ),
     cellRenderer: (position: BorrowPosition) => (
-      <AmountRenderer value={position.apy} suffix={'%'} precision={2} />
+      <AmountRenderer value={position.apy} suffix="%" precision={2} />
     ),
   },
   {
-    id: 'apyType',
+    id: 'borrowRateMode',
     sortable: true,
     align: Align.center,
     className: '[&_*]:mx-auto [&_*]:space-x-2', // center head

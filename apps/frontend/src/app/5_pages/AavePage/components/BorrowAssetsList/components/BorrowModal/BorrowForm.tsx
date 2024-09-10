@@ -8,6 +8,7 @@ import {
   ErrorBadge,
   ErrorLevel,
   Link,
+  SelectOption,
   SimpleTable,
   SimpleTableRow,
 } from '@sovryn/ui';
@@ -18,7 +19,7 @@ import { BOB_CHAIN_ID } from '../../../../../../../config/chains';
 import { AmountRenderer } from '../../../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { AssetAmountInput } from '../../../../../../2_molecules/AssetAmountInput/AssetAmountInput';
 import { AssetRenderer } from '../../../../../../2_molecules/AssetRenderer/AssetRenderer';
-import { config } from '../../../../../../../constants/aave';
+import { MINIMUM_COLLATERAL_RATIO_LENDING_POOLS_AAVE } from '../../../../../../../constants/aave';
 import { useAaveBorrow } from '../../../../../../../hooks/aave/useAaveBorrow';
 import { useAaveUserReservesData } from '../../../../../../../hooks/aave/useAaveUserReservesData';
 import { useDecimalAmountInput } from '../../../../../../../hooks/useDecimalAmountInput';
@@ -58,7 +59,7 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset, onComplete }) => {
           });
         }
         return acc;
-      }, [] as { value: string; label: JSX.Element }[]),
+      }, [] as SelectOption<string>[]),
     [summary.reserves],
   );
 
@@ -93,6 +94,10 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset, onComplete }) => {
     summary.collateralBalance,
   ]);
 
+  const borrowApr = useMemo(() => {
+    return Decimal.from(borrowReserve?.reserve.variableBorrowAPR ?? 0).mul(100);
+  }, [borrowReserve?.reserve.variableBorrowAPR]);
+
   const isValidBorrowAmount = useMemo(
     () => (borrowSize.gt(0) ? borrowSize.lte(maximumBorrowAmount) : true),
     [borrowSize, maximumBorrowAmount],
@@ -112,6 +117,7 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset, onComplete }) => {
       <div className="space-y-3">
         <AssetAmountInput
           label={t(translations.aavePage.common.borrow)}
+          chainId={BOB_CHAIN_ID}
           amountLabel={t(translations.common.amount)}
           amountValue={borrowAmount}
           assetUsdValue={borrowUsdAmount}
@@ -135,19 +141,13 @@ export const BorrowForm: FC<BorrowFormProps> = ({ asset, onComplete }) => {
       <SimpleTable>
         <SimpleTableRow
           label={t(translations.aavePage.borrowForm.borrowApr)}
-          value={
-            <AmountRenderer
-              value={borrowReserve?.reserve.variableBorrowAPR ?? 0}
-              suffix="%"
-              precision={2}
-            />
-          }
+          value={<AmountRenderer value={borrowApr} suffix="%" precision={2} />}
         />
       </SimpleTable>
 
       <CollateralRatioHealthBar
         ratio={Decimal.from(newCollateralRatio)}
-        minimum={config.MinCollateralRatio}
+        minimum={MINIMUM_COLLATERAL_RATIO_LENDING_POOLS_AAVE}
       />
 
       <SimpleTable>

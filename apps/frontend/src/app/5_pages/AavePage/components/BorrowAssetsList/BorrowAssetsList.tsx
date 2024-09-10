@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { t } from 'i18next';
 
@@ -9,12 +9,14 @@ import {
   DialogHeader,
   ErrorBadge,
   ErrorLevel,
+  OrderDirection,
   OrderOptions,
   Table,
 } from '@sovryn/ui';
 
 import { AaveRowTitle } from '../../../../2_molecules/AavePoolRowTitle/AavePoolRowTitle';
 import { translations } from '../../../../../locales/i18n';
+import { sortRowsByOrderOptions } from '../../AavePage.utils';
 import { COLUMNS_CONFIG } from './BorrowAssetsList.constants';
 import { BorrowPoolDetails } from './BorrowAssetsList.types';
 import { BorrowAssetDetails } from './components/BorrowAssetDetails/BorrowAssetDetails';
@@ -34,14 +36,11 @@ export const BorrowAssetsList: FC<BorrowAssetsListProps> = ({
   loading,
 }) => {
   const [open, setOpen] = useState(true);
-  const [orderOptions, setOrderOptions] = useState<OrderOptions>();
-  const [borrowAssetDialog, setBorrowAssetDialog] = useState<
-    string | undefined
-  >();
-
-  const onBorrowClick = useCallback((asset: string) => {
-    setBorrowAssetDialog(asset);
-  }, []);
+  const [orderOptions, setOrderOptions] = useState<OrderOptions>({
+    orderBy: 'asset',
+    orderDirection: OrderDirection.Desc,
+  });
+  const [borrowAssetDialog, setBorrowAssetDialog] = useState<string>();
 
   const onBorrowClose = useCallback(() => {
     setBorrowAssetDialog(undefined);
@@ -53,7 +52,7 @@ export const BorrowAssetsList: FC<BorrowAssetsListProps> = ({
         asset={row.asset}
         value={row.apy}
         suffix="%"
-        label={t(translations.aavePage.common.apy)}
+        label={t(translations.aavePage.common.apr)}
         precision={2}
       />
     ),
@@ -63,11 +62,16 @@ export const BorrowAssetsList: FC<BorrowAssetsListProps> = ({
   const mobileRenderer = useCallback(
     p => (
       <BorrowAssetDetails
-        onBorrowClick={() => onBorrowClick(p.asset)}
+        onBorrowClick={() => setBorrowAssetDialog(p.asset)}
         pool={p}
       />
     ),
-    [onBorrowClick],
+    [setBorrowAssetDialog],
+  );
+
+  const rows = useMemo(
+    () => sortRowsByOrderOptions(orderOptions, borrowPools),
+    [orderOptions, borrowPools],
   );
 
   return (
@@ -93,12 +97,12 @@ export const BorrowAssetsList: FC<BorrowAssetsListProps> = ({
       <Table
         isLoading={loading}
         className="mt-4"
-        columns={COLUMNS_CONFIG(onBorrowClick)}
+        columns={COLUMNS_CONFIG(setBorrowAssetDialog)}
         rowClassName="bg-gray-80"
         accordionClassName="bg-gray-60 border border-gray-70"
         rowTitle={rowTitleRenderer}
         mobileRenderer={mobileRenderer}
-        rows={borrowPools}
+        rows={rows}
         orderOptions={orderOptions}
         setOrderOptions={setOrderOptions}
       />

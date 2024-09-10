@@ -16,7 +16,7 @@ import { BOB_CHAIN_ID } from '../../../../../../../config/chains';
 import { AmountTransition } from '../../../../../../2_molecules/AmountTransition/AmountTransition';
 import { AssetAmountInput } from '../../../../../../2_molecules/AssetAmountInput/AssetAmountInput';
 import { AssetRenderer } from '../../../../../../2_molecules/AssetRenderer/AssetRenderer';
-import { config } from '../../../../../../../constants/aave';
+import { MINIMUM_COLLATERAL_RATIO_LENDING_POOLS_AAVE } from '../../../../../../../constants/aave';
 import { useAaveRepay } from '../../../../../../../hooks/aave/useAaveRepay';
 import { useAaveUserReservesData } from '../../../../../../../hooks/aave/useAaveUserReservesData';
 import { useAccount } from '../../../../../../../hooks/useAccount';
@@ -97,9 +97,9 @@ export const RepayWithWalletBalanceForm: FC<
   const newCollateralRatio = useMemo(() => {
     return AaveCalculations.computeCollateralRatio(
       summary.collateralBalance,
-      summary.borrowBalance.add(newDebtAmountUSD),
+      summary.borrowBalance.sub(repayUsdAmount),
     );
-  }, [summary, newDebtAmountUSD]);
+  }, [summary, repayUsdAmount]);
 
   const isValidRepayAmount = useMemo(
     () => (repaySize.gt(0) ? repaySize.lte(maximumRepayAmount) : true),
@@ -127,6 +127,7 @@ export const RepayWithWalletBalanceForm: FC<
     <form className="flex flex-col gap-6 relative">
       <div className="space-y-3">
         <AssetAmountInput
+          chainId={BOB_CHAIN_ID}
           maxAmount={maximumRepayAmount}
           amountLabel={t(translations.common.amount)}
           amountValue={repayAmount}
@@ -149,7 +150,7 @@ export const RepayWithWalletBalanceForm: FC<
 
       <CollateralRatioHealthBar
         ratio={newCollateralRatio}
-        minimum={config.MinCollateralRatio}
+        minimum={MINIMUM_COLLATERAL_RATIO_LENDING_POOLS_AAVE}
       />
 
       <SimpleTable>

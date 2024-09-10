@@ -9,7 +9,7 @@ import {
   Transaction,
   TransactionType,
 } from '../../app/3_organisms/TransactionStepDialog/TransactionStepDialog.types';
-import { config } from '../../constants/aave';
+import { AAVE_CONTRACT_ADDRESSES } from '../../constants/aave';
 import { translations } from '../../locales/i18n';
 import { TransactionFactoryOptions } from '../../types/aave';
 import { prepareApproveTransaction } from '../transactions';
@@ -44,7 +44,7 @@ export class AaveWithdrawTransactionsFactory {
   ): Promise<Transaction[]> {
     if (
       token.isNative ||
-      token.address.toLowerCase() === config.WETHAddress.toLowerCase()
+      token.address.toLowerCase() === AAVE_CONTRACT_ADDRESSES.WETH.toLowerCase()
     ) {
       return this.withdrawNative(amount, isMaxAmount, opts);
     } else return this.withdrawToken(token, amount, isMaxAmount, opts);
@@ -91,7 +91,7 @@ export class AaveWithdrawTransactionsFactory {
       spender: this.WETHGatewayAddress,
       token: aWETH.symbol,
       contract: new Contract(aWETH.address, aWETH.abi, this.signer),
-      amount: constants.MaxUint256,
+      amount: isMaxAmount ? constants.MaxUint256 : amount,
       chain: BOB_CHAIN_ID,
     });
     const transactions: Transaction[] = approval ? [approval] : [];
