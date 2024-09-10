@@ -27,7 +27,7 @@ export const InterestRateModelGraph: FC<InterestRateModelGraphProps> = ({
   reserve,
 }) => {
   const [searchParams] = useSearchParams();
-  const symbol = searchParams.get('asset') || config.SymbolFallback;
+  const symbol = searchParams.get('asset') || 'ETH';
   const { data: rates } = useAaveInterestRatesData(symbol);
   const { isMobile } = useIsMobile();
   const [open, setOpen] = useState(true);

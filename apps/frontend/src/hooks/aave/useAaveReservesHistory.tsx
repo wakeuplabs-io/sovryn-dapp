@@ -5,8 +5,6 @@ import dayjs from 'dayjs';
 
 import { Decimal } from '@sovryn/utils';
 
-import { config } from '../../constants/aave';
-
 export enum ESupportedTimeRanges {
   OneMonth = '1m',
   ThreeMonths = '3m',
@@ -89,6 +87,8 @@ export type FormattedReserveHistoryItem = {
   variableBorrowRate: Decimal;
 };
 
+const RatesHistoryApiUrl = process.env.REACT_APP_RATES_HISTORY_API_URL;
+
 export function useAaveReservesHistory(
   reserveAddress: string,
   timeRange: ReserveRateTimeRange,
@@ -103,8 +103,8 @@ export function useAaveReservesHistory(
     setError(false);
     setData([]);
 
-    if (reserveAddress && config.RatesHistoryApiUrl) {
-      fetchStats(reserveAddress, timeRange, config.RatesHistoryApiUrl)
+    if (reserveAddress && RatesHistoryApiUrl) {
+      fetchStats(reserveAddress, timeRange, RatesHistoryApiUrl)
         .then((data: APIResponse[]) => {
           setData(
             data.map(d => ({
