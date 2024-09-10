@@ -1,13 +1,20 @@
 import React, { FC, useState } from 'react';
 
+import {
+  ESupportedTimeRanges,
+  ReserveRateTimeRange,
+} from '../../../../../hooks/aave/useAaveReservesHistory';
+
 interface TimeRangeButtonsProps {
-  onChange: (range: '1m' | '6m' | '1y') => void;
+  onChange: (range: ReserveRateTimeRange) => void;
 }
 
 export const TimeRangeButtons: FC<TimeRangeButtonsProps> = ({ onChange }) => {
-  const [activeRange, setActiveRange] = useState<'1m' | '6m' | '1y'>('1m');
+  const [activeRange, setActiveRange] = useState<ReserveRateTimeRange>(
+    ESupportedTimeRanges.OneMonth,
+  );
 
-  const handleClick = (range: '1m' | '6m' | '1y') => {
+  const handleClick = (range: ReserveRateTimeRange) => {
     setActiveRange(range);
     onChange(range);
   };
@@ -17,33 +24,33 @@ export const TimeRangeButtons: FC<TimeRangeButtonsProps> = ({ onChange }) => {
       {' '}
       <button
         className={`py-1.5 px-4 rounded-md text-sm font-medium ${
-          activeRange === '1m'
+          activeRange === ESupportedTimeRanges.OneMonth
             ? 'bg-[#484D59] text-white'
             : 'bg-[#2C303B] text-gray-400'
         }`}
-        onClick={() => handleClick('1m')}
+        onClick={() => handleClick(ESupportedTimeRanges.OneMonth)}
       >
-        1m
+        {ESupportedTimeRanges.OneMonth}
       </button>
       <button
         className={`py-1.5 px-4 rounded-md text-sm font-medium ${
-          activeRange === '6m'
+          activeRange === ESupportedTimeRanges.SixMonths
             ? 'bg-[#484D59] text-white'
             : 'bg-[#2C303B] text-gray-400'
         }`}
-        onClick={() => handleClick('6m')}
+        onClick={() => handleClick(ESupportedTimeRanges.SixMonths)}
       >
-        6m
+        {ESupportedTimeRanges.SixMonths}
       </button>
       <button
         className={`py-1.5 px-4 rounded-md text-sm font-medium ${
-          activeRange === '1y'
+          activeRange === ESupportedTimeRanges.OneYear
             ? 'bg-[#484D59] text-white'
             : 'bg-[#2C303B] text-gray-400'
         }`}
-        onClick={() => handleClick('1y')}
+        onClick={() => handleClick(ESupportedTimeRanges.OneYear)}
       >
-        1y
+        {ESupportedTimeRanges.OneYear}
       </button>
     </div>
   );

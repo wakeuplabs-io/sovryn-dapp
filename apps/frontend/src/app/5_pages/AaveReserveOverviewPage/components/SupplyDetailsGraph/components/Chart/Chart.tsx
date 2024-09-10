@@ -3,6 +3,7 @@ import React, { FC, useCallback, useEffect, useRef } from 'react';
 import ChartLibrary from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 
+import { ReserveRateTimeRange } from '../../../../../../../hooks/aave/useAaveReservesHistory';
 import { TimeRangeButtons } from '../../../TimeRangeButtons/TimeRangeButtons';
 import {
   CUSTOM_CANVAS_BACKGROUND_COLOR,
@@ -14,7 +15,7 @@ import { htmlLegendPlugin } from './Chart.utils';
 
 type ChartProps = {
   input: InputData<{ x: number; y: number }>;
-  onTimeRangeChange: (range: '1m' | '6m' | '1y') => void;
+  onTimeRangeChange: (range: ReserveRateTimeRange) => void;
 };
 
 export const Chart: FC<ChartProps> = ({ input, onTimeRangeChange }) => {

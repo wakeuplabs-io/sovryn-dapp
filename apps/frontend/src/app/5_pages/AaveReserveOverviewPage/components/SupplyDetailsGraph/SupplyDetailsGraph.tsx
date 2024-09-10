@@ -32,12 +32,12 @@ export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = ({
   const [open, setOpen] = useState(true);
   const { isMobile } = useIsMobile();
 
-  const [timeRange, setTimeRange] = useState<'1m' | '6m' | '1y'>(
+  const [timeRange, setTimeRange] = useState<ReserveRateTimeRange>(
     ESupportedTimeRanges.OneMonth,
   );
   const { data: history } = useAaveReservesHistory(
     reserve.underlyingAsset,
-    timeRange as ReserveRateTimeRange,
+    timeRange,
   );
 
   const supplyChartData = useMemo(

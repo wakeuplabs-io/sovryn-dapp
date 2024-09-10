@@ -4,6 +4,7 @@ import ChartLibrary from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 
 import { TimeRangeButtons } from '../../../TimeRangeButtons/TimeRangeButtons';
+import { ReserveRateTimeRange } from './../../../../../../../hooks/aave/useAaveReservesHistory';
 import {
   CUSTOM_CANVAS_BACKGROUND_COLOR,
   GRID_COLOR,
@@ -14,7 +15,7 @@ import { htmlLegendPlugin } from './Chart.utils';
 
 type ChartProps = {
   input: ChartData;
-  onTimeRangeChange: (range: '1m' | '6m' | '1y') => void;
+  onTimeRangeChange: (range: ReserveRateTimeRange) => void;
 };
 
 export const Chart: FC<ChartProps> = ({ input, onTimeRangeChange }) => {

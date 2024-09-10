@@ -35,12 +35,12 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
     return normalizeBorrowStats(reserve);
   }, [reserve]);
 
-  const [timeRange, setTimeRange] = useState<'1m' | '6m' | '1y'>(
+  const [timeRange, setTimeRange] = useState<ReserveRateTimeRange>(
     ESupportedTimeRanges.OneMonth,
   );
   const { data: history } = useAaveReservesHistory(
     reserve.underlyingAsset,
-    timeRange as ReserveRateTimeRange,
+    timeRange,
   );
 
   const borrowChartData = useMemo(
