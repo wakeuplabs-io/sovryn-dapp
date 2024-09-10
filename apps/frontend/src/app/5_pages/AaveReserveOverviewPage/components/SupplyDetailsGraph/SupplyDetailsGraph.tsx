@@ -134,7 +134,7 @@ export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = ({
         <Chart
           input={{
             data: supplyChartData,
-            label: t(pageTranslations.chart.label1),
+            label: t(pageTranslations.chart.suppApr),
             lineColor: theme.colors['primary-30'],
           }}
           onTimeRangeChange={setTimeRange}
