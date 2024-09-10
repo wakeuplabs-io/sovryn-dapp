@@ -33,7 +33,8 @@ export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = ({
   const { isMobile } = useIsMobile();
 
   const supplyStats = useMemo(() => normalizeSupplyStats(reserve), [reserve]);
-  const [timeRange] = useState<ReserveRateTimeRange>(
+
+  const [timeRange, setTimeRange] = useState<ReserveRateTimeRange>(
     ESupportedTimeRanges.OneMonth,
   );
   const { data: history } = useAaveReservesHistory(
@@ -136,6 +137,7 @@ export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = ({
             label: t(pageTranslations.chart.label1),
             lineColor: theme.colors['primary-30'],
           }}
+          onTimeRangeChange={setTimeRange}
         />
 
         <div className="space-y-6">

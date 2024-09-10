@@ -33,7 +33,7 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
 
   const borrowStats = useMemo(() => normalizeBorrowStats(reserve), [reserve]);
 
-  const [timeRange] = useState<ReserveRateTimeRange>(
+  const [timeRange, setTimeRange] = useState<ReserveRateTimeRange>(
     ESupportedTimeRanges.OneMonth,
   );
   const { data: history } = useAaveReservesHistory(
@@ -147,8 +147,9 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
           input={{
             data: borrowChartData,
             label: t(pageTranslations.chart.aprVarLabel),
-            lineColor: theme.colors.primary[30],
+            lineColor: theme.colors.positive,
           }}
+          onTimeRangeChange={setTimeRange}
         />
 
         <div className="space-y-6">
