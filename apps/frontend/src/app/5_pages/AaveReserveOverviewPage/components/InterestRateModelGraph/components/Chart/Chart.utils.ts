@@ -1,6 +1,6 @@
 import { RatesData } from './Chart.types';
 
-const getOrCreateLegendList = id => {
+const getOrCreateLegendList = (id: string) => {
   const legendContainer = document.getElementById(id);
   if (!legendContainer) {
     return;
@@ -116,11 +116,11 @@ export const calculateInterestRateModel = (
 export const calculateVariableInterestRateModel = (
   utilization: number,
   rates: RatesData,
-): number => {
-  const baseRate = parseFloat(rates.baseVariableBorrowRate);
-  const optimalUtilization = parseFloat(rates.optimalUsageRatio);
-  const initialSlope = parseFloat(rates.variableRateSlope1);
-  const secondarySlope = parseFloat(rates.variableRateSlope2);
+) => {
+  const baseRate = rates.baseVariableBorrowRate.toNumber();
+  const optimalUtilization = rates.optimalUsageRatio.toNumber();
+  const initialSlope = rates.variableRateSlope1.toNumber();
+  const secondarySlope = rates.variableRateSlope2.toNumber();
 
   return calculateInterestRateModel(
     utilization,

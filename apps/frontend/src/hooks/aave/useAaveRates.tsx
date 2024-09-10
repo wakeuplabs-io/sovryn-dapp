@@ -1,38 +1,37 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { Contract, utils } from 'ethers';
+import { utils } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 
-import { getProvider } from '@sovryn/ethers-provider';
+import { Decimal } from '@sovryn/utils';
 
-import { BOB_CHAIN_ID } from '../../config/chains';
-
-import { RAY, WEI } from '../../utils/math';
-import { INTEREST_RATE_STRATEGY_ABI } from './useAaveRates.constants';
+import { RAY } from '../../utils/math';
 import { useAaveReservesData } from './useAaveReservesData';
 
 export interface RatesDataResult {
-  currentUsageRatio: string;
-  optimalUsageRatio: string;
-  baseVariableBorrowRate: string;
-  variableRateSlope1: string;
-  variableRateSlope2: string;
+  currentUsageRatio: Decimal;
+  optimalUsageRatio: Decimal;
+  baseVariableBorrowRate: Decimal;
+  variableRateSlope1: Decimal;
+  variableRateSlope2: Decimal;
   underlyingAsset: string;
   name: string;
   symbol: string;
-  decimals: string;
+  decimals: number;
 }
 
 const calculateUtilizationRate = (
   decimals: number,
   totalDebt: string,
   availableLiquidity: string,
-): bigint => {
+): Decimal => {
   // Create BigNumber instances
   const totalBorrow = BigInt(utils.parseUnits(totalDebt, decimals).toString());
   const totalSupply = BigInt(availableLiquidity) + totalBorrow;
   // Perform division
-  return (totalBorrow * BigInt(10 ** 18)) / totalSupply;
+  // @todo review me!
+  const resultInBigInt = (totalBorrow * BigInt(10 ** decimals)) / totalSupply;
+  return Decimal.from(resultInBigInt.toString());
 };
 
 export const useAaveInterestRatesData = (
@@ -43,9 +42,7 @@ export const useAaveInterestRatesData = (
 } => {
   const [data, setData] = useState<RatesDataResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const provider = getProvider(BOB_CHAIN_ID);
-  const { reserves, loading } = useAaveReservesData();
+  const { reserves } = useAaveReservesData();
   const reserve = useMemo(
     () =>
       reserves.find(
@@ -53,56 +50,38 @@ export const useAaveInterestRatesData = (
       ),
     [reserves, symbol],
   );
-  const interestRateStrategyAddress = reserve?.interestRateStrategyAddress;
-
-  const rateContract = useMemo(
-    () =>
-      provider && interestRateStrategyAddress
-        ? new Contract(
-            interestRateStrategyAddress,
-            INTEREST_RATE_STRATEGY_ABI,
-            provider,
-          )
-        : null,
-    [interestRateStrategyAddress, provider],
-  );
 
   useEffect(() => {
-    if (loading || !rateContract || !reserve) return;
+    if (!reserve) return;
     try {
       const utilizationRate = calculateUtilizationRate(
         reserve.decimals,
         reserve.totalDebt,
         reserve.availableLiquidity,
       );
-      const ratesData = {
-        currentUsageRatio: formatUnits(utilizationRate, WEI),
-        optimalUsageRatio: formatUnits(
-          reserve.optimalUsageRatio,
-          RAY,
-        ).toString(),
-        baseVariableBorrowRate: formatUnits(
-          reserve.baseVariableBorrowRate,
-          RAY,
-        ).toString(),
-        variableRateSlope1: formatUnits(
-          reserve.variableRateSlope1,
-          RAY,
-        ).toString(),
-        variableRateSlope2: formatUnits(
-          reserve.variableRateSlope2,
-          RAY,
-        ).toString(),
+      setData({
+        currentUsageRatio: utilizationRate,
+        optimalUsageRatio: Decimal.from(
+          formatUnits(reserve.optimalUsageRatio, RAY),
+        ),
+        baseVariableBorrowRate: Decimal.from(
+          formatUnits(reserve.baseVariableBorrowRate, RAY),
+        ),
+        variableRateSlope1: Decimal.from(
+          formatUnits(reserve.variableRateSlope1, RAY),
+        ),
+        variableRateSlope2: Decimal.from(
+          formatUnits(reserve.variableRateSlope2, RAY),
+        ),
         underlyingAsset: reserve.underlyingAsset,
         name: reserve.name,
         symbol: reserve.symbol,
-        decimals: reserve.decimals.toString(),
-      };
-      setData(ratesData);
+        decimals: reserve.decimals,
+      });
     } catch (error) {
       setError(error.message);
     }
-  }, [symbol, loading, reserve, rateContract]);
+  }, [reserve]);
 
   return { data, error };
 };
