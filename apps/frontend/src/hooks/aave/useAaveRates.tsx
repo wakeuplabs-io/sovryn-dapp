@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { formatUnits } from 'ethers/lib/utils';
 
@@ -29,15 +29,10 @@ export const useAaveInterestRatesData = (
   const [data, setData] = useState<RatesDataResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { reserves } = useAaveReservesData();
-  const reserve = useMemo(
-    () =>
-      reserves.find(
-        r => r.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase(),
-      ),
-    [reserves, symbol],
-  );
-
-  useEffect(() => {
+  useMemo(() => {
+    const reserve = reserves.find(
+      r => r.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase(),
+    );
     if (!reserve) return;
     try {
       const utilizationRate = AaveCalculations.calculateUtilizationRate(
@@ -67,7 +62,7 @@ export const useAaveInterestRatesData = (
     } catch (error) {
       setError(error.message);
     }
-  }, [reserve]);
+  }, [reserves, symbol]);
 
   return { data, error };
 };
