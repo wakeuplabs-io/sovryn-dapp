@@ -36,12 +36,12 @@ type APIResponse = {
 
 const requestCache = new Map<string, Promise<APIResponse[]>>();
 const fetchStats = async (
-  address: string,
+  reserveId: string,
   timeRange: ReserveRateTimeRange,
   endpointURL: string,
 ): Promise<APIResponse[]> => {
   const { from, resolutionInHours } = resolutionForTimeRange(timeRange);
-  const qs = `reserveId=${address}&from=${from}&resolutionInHours=${resolutionInHours}`;
+  const qs = `reserveId=${reserveId}&from=${from}&resolutionInHours=${resolutionInHours}`;
   const url = `${endpointURL}?${qs}`;
 
   if (requestCache.has(url)) {
