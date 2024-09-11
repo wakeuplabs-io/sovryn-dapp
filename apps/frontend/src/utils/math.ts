@@ -11,7 +11,7 @@ const DEFAULT_DECIMALS = 6;
 const DEFAULT_DECIMALS_SEPARATOR = '.';
 const DEFAULT_THOUSANDS_SEPARATOR = ',';
 
-export const RAY = 27; // 27 decimal places
+export const RAY_DECIMALS = 27;
 
 const unitNames = ['wei', 'kwei', 'mwei', 'gwei', 'szabo', 'finney', 'ether'];
 

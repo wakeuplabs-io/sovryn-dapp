@@ -4,7 +4,7 @@ import { formatUnits } from 'ethers/lib/utils';
 
 import { Decimal } from '@sovryn/utils';
 
-import { RAY } from '../../utils/math';
+import { RAY_DECIMALS } from '../../utils/math';
 import { useAaveReservesData } from './useAaveReservesData';
 import { calculateUtilizationRate } from './utils';
 
@@ -48,16 +48,16 @@ export const useAaveInterestRatesData = (
       setData({
         currentUsageRatio: utilizationRate,
         optimalUsageRatio: Decimal.from(
-          formatUnits(reserve.optimalUsageRatio, RAY),
+          formatUnits(reserve.optimalUsageRatio, RAY_DECIMALS),
         ),
         baseVariableBorrowRate: Decimal.from(
-          formatUnits(reserve.baseVariableBorrowRate, RAY),
+          formatUnits(reserve.baseVariableBorrowRate, RAY_DECIMALS),
         ),
         variableRateSlope1: Decimal.from(
-          formatUnits(reserve.variableRateSlope1, RAY),
+          formatUnits(reserve.variableRateSlope1, RAY_DECIMALS),
         ),
         variableRateSlope2: Decimal.from(
-          formatUnits(reserve.variableRateSlope2, RAY),
+          formatUnits(reserve.variableRateSlope2, RAY_DECIMALS),
         ),
         underlyingAsset: reserve.underlyingAsset,
         name: reserve.name,
