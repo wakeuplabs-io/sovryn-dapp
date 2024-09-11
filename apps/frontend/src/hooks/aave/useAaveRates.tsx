@@ -31,7 +31,8 @@ const calculateUtilizationRate = (
   // Perform division
   // @todo review me!
   const resultInBigInt = (totalBorrow * BigInt(10 ** decimals)) / totalSupply;
-  return Decimal.from(resultInBigInt.toString());
+  const finalResult = formatUnits(resultInBigInt.toString(), decimals);
+  return Decimal.from(finalResult);
 };
 
 export const useAaveInterestRatesData = (
