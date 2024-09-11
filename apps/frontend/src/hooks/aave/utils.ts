@@ -38,5 +38,12 @@ export const calculateUtilizationRate = (
     decimals,
   );
 
-  return Decimal.from(utilizationRate);
+  const utilizationRateDecimal = Decimal.from(utilizationRate);
+
+  if (!isBetweenZeroAndOne(utilizationRateDecimal)) {
+    //'The utilization rate is out of bounds.
+    return Decimal.from(0);
+  }
+
+  return utilizationRateDecimal;
 };

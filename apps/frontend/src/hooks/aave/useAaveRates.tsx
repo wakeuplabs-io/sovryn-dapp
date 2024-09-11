@@ -6,7 +6,7 @@ import { Decimal } from '@sovryn/utils';
 
 import { RAY } from '../../utils/math';
 import { useAaveReservesData } from './useAaveReservesData';
-import { calculateUtilizationRate, isBetweenZeroAndOne } from './utils';
+import { calculateUtilizationRate } from './utils';
 
 export interface RatesDataResult {
   currentUsageRatio: Decimal;
@@ -45,9 +45,6 @@ export const useAaveInterestRatesData = (
         reserve.totalDebt,
         reserve.availableLiquidity,
       );
-      if (!isBetweenZeroAndOne(utilizationRate)) {
-        console.log('The utilization rate is out of bounds.');
-      }
       setData({
         currentUsageRatio: utilizationRate,
         optimalUsageRatio: Decimal.from(
