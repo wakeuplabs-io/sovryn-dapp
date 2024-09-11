@@ -27,10 +27,10 @@ type RatesHistoryParams = {
 };
 
 type APIResponse = {
-  liquidityRate_avg: Decimal;
-  variableBorrowRate_avg: Decimal;
-  stableBorrowRate_avg: Decimal;
-  utilizationRate_avg: Decimal;
+  liquidityRate_avg: number;
+  variableBorrowRate_avg: number;
+  stableBorrowRate_avg: number;
+  utilizationRate_avg: number;
   x: { year: number; month: number; date: number; hours: number };
 };
 
@@ -124,10 +124,10 @@ export function useAaveReservesHistory(
                 .set('date', d.x.date)
                 .set('hour', d.x.hours)
                 .valueOf(),
-              liquidityRate: d.liquidityRate_avg,
-              variableBorrowRate: d.variableBorrowRate_avg,
-              utilizationRate: d.utilizationRate_avg,
-              stableBorrowRate: d.stableBorrowRate_avg,
+              liquidityRate: Decimal.from(d.liquidityRate_avg),
+              variableBorrowRate: Decimal.from(d.variableBorrowRate_avg),
+              utilizationRate: Decimal.from(d.utilizationRate_avg),
+              stableBorrowRate: Decimal.from(d.stableBorrowRate_avg),
             })),
           );
         })
