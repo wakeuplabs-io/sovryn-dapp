@@ -60,8 +60,6 @@ const fetchStats = async (
   return requestPromise;
 };
 
-// TODO: there is possibly a bug here, as Polygon and Avalanche v2 data is coming through empty and erroring in our hook
-// The same asset without the 'from' field comes through just fine.
 const resolutionForTimeRange = (
   timeRange: ReserveRateTimeRange,
 ): RatesHistoryParams => {
