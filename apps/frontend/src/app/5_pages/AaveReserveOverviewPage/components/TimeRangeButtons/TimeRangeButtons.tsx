@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 
 import {
   ESupportedTimeRanges,
@@ -14,10 +14,13 @@ export const TimeRangeButtons: FC<TimeRangeButtonsProps> = ({ onChange }) => {
     ESupportedTimeRanges.OneMonth,
   );
 
-  const handleClick = (range: ReserveRateTimeRange) => {
-    setActiveRange(range);
-    onChange(range);
-  };
+  const handleClick = useCallback(
+    (range: ReserveRateTimeRange) => {
+      setActiveRange(range);
+      onChange(range);
+    },
+    [onChange],
+  );
 
   return (
     <div className="flex space-x-2 justify-end mb-4">
