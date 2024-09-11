@@ -107,7 +107,7 @@ export function useAaveReservesHistory(
   const [data, setData] = useState<FormattedReserveHistoryItem[]>([]);
 
   const refetchData = useCallback(() => {
-    if (reserveId && AAVE_CONTRACT_ADDRESSES.RatesHistoryApiUrl) {
+    if (reserveId && AAVE_CONTRACT_ADDRESSES.RATES_HISTORY_API_URL) {
       // reset
       setLoading(true);
       setError(false);
@@ -115,7 +115,7 @@ export function useAaveReservesHistory(
       fetchStats(
         reserveId,
         timeRange,
-        AAVE_CONTRACT_ADDRESSES.RatesHistoryApiUrl,
+        AAVE_CONTRACT_ADDRESSES.RATES_HISTORY_API_URL,
       )
         .then((data: APIResponse[]) => {
           setData(
