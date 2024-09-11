@@ -99,7 +99,7 @@ export type FormattedReserveHistoryItem = {
 };
 
 export function useAaveReservesHistory(
-  reserveAddress: string,
+  reserveId: string,
   timeRange: ReserveRateTimeRange,
 ) {
   const [loading, setLoading] = useState(true);
@@ -107,13 +107,13 @@ export function useAaveReservesHistory(
   const [data, setData] = useState<FormattedReserveHistoryItem[]>([]);
 
   const refetchData = useCallback(() => {
-    if (reserveAddress && AAVE_CONTRACT_ADDRESSES.RatesHistoryApiUrl) {
+    if (reserveId && AAVE_CONTRACT_ADDRESSES.RatesHistoryApiUrl) {
       // reset
       setLoading(true);
       setError(false);
       setData([]);
       fetchStats(
-        reserveAddress,
+        reserveId,
         timeRange,
         AAVE_CONTRACT_ADDRESSES.RatesHistoryApiUrl,
       )
@@ -144,7 +144,7 @@ export function useAaveReservesHistory(
     }
 
     return () => null;
-  }, [reserveAddress, timeRange]);
+  }, [reserveId, timeRange]);
 
   useEffect(() => {
     refetchData();
