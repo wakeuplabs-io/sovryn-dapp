@@ -4,9 +4,9 @@ import { formatUnits } from 'ethers/lib/utils';
 
 import { Decimal } from '@sovryn/utils';
 
+import { AaveCalculations } from '../../utils/aave/AaveCalculations';
 import { RAY_DECIMALS } from '../../utils/math';
 import { useAaveReservesData } from './useAaveReservesData';
-import { calculateUtilizationRate } from './utils';
 
 export interface RatesDataResult {
   currentUsageRatio: Decimal;
@@ -40,7 +40,7 @@ export const useAaveInterestRatesData = (
   useEffect(() => {
     if (!reserve) return;
     try {
-      const utilizationRate = calculateUtilizationRate(
+      const utilizationRate = AaveCalculations.calculateUtilizationRate(
         reserve.decimals,
         reserve.totalDebt,
         reserve.availableLiquidity,
