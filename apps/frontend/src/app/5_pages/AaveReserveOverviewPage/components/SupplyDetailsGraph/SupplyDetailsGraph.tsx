@@ -47,7 +47,7 @@ export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = ({
     () =>
       history.map(i => ({
         x: i.date,
-        y: i.liquidityRate.mul(100).toNumber(),
+        y: i.liquidityRate * 100,
       })),
     [history],
   );

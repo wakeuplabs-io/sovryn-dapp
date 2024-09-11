@@ -3,8 +3,6 @@ import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import dayjs from 'dayjs';
 
-import { Decimal } from '@sovryn/utils';
-
 import { AAVE_CONTRACT_ADDRESSES } from '../../constants/aave';
 
 export enum ESupportedTimeRanges {
@@ -92,10 +90,8 @@ const resolutionForTimeRange = (
 
 export type FormattedReserveHistoryItem = {
   date: number;
-  liquidityRate: Decimal;
-  utilizationRate: Decimal;
-  stableBorrowRate: Decimal;
-  variableBorrowRate: Decimal;
+  liquidityRate: number;
+  variableBorrowRate: number;
 };
 
 export function useAaveReservesHistory(
@@ -126,10 +122,8 @@ export function useAaveReservesHistory(
                 .set('date', d.x.date)
                 .set('hour', d.x.hours)
                 .valueOf(),
-              liquidityRate: Decimal.from(d.liquidityRate_avg),
-              variableBorrowRate: Decimal.from(d.variableBorrowRate_avg),
-              utilizationRate: Decimal.from(d.utilizationRate_avg),
-              stableBorrowRate: Decimal.from(d.stableBorrowRate_avg),
+              liquidityRate: d.liquidityRate_avg,
+              variableBorrowRate: d.variableBorrowRate_avg,
             })),
           );
         })

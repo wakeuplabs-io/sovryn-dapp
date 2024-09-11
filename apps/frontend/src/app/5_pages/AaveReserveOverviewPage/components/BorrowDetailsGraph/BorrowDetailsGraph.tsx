@@ -46,7 +46,7 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
     () =>
       history.map(i => ({
         x: i.date,
-        y: i.variableBorrowRate.mul(100).toNumber(),
+        y: i.variableBorrowRate * 100,
       })),
     [history],
   );
