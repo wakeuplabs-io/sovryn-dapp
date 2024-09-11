@@ -20,17 +20,17 @@ export interface RatesDataResult {
   decimals: number;
 }
 
-const calculateUtilizationRate = (
+export const calculateUtilizationRate = (
   decimals: number,
   totalDebt: string,
   availableLiquidity: string,
 ): Decimal => {
-  // Create BigNumber instances
+  // Create BigInt instances
   const totalBorrow = BigInt(utils.parseUnits(totalDebt, decimals).toString());
   const totalSupply = BigInt(availableLiquidity) + totalBorrow;
   // Perform division
-  // @todo review me!
   const resultInBigInt = (totalBorrow * BigInt(10 ** decimals)) / totalSupply;
+  // Restore the decimal point
   const finalResult = formatUnits(resultInBigInt.toString(), decimals);
   return Decimal.from(finalResult);
 };

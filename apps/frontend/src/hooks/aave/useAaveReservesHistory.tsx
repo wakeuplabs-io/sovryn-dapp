@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -34,19 +34,30 @@ type APIResponse = {
   x: { year: number; month: number; date: number; hours: number };
 };
 
+const requestCache = new Map<string, Promise<APIResponse[]>>();
 const fetchStats = async (
   address: string,
   timeRange: ReserveRateTimeRange,
   endpointURL: string,
 ): Promise<APIResponse[]> => {
   const { from, resolutionInHours } = resolutionForTimeRange(timeRange);
+  const qs = `reserveId=${address}&from=${from}&resolutionInHours=${resolutionInHours}`;
+  const url = `${endpointURL}?${qs}`;
 
-  try {
-    const url = `${endpointURL}?reserveId=${address}&from=${from}&resolutionInHours=${resolutionInHours}`;
-    return (await axios.get<APIResponse[]>(url)).data;
-  } catch (e) {
-    return [];
+  if (requestCache.has(url)) {
+    return requestCache.get(url)!;
   }
+
+  const requestPromise = axios
+    .get<APIResponse[]>(url)
+    .then(response => response.data)
+    .finally(() => {
+      requestCache.delete(url);
+    });
+
+  requestCache.set(url, requestPromise);
+
+  return requestPromise;
 };
 
 // TODO: there is possibly a bug here, as Polygon and Avalanche v2 data is coming through empty and erroring in our hook
@@ -98,29 +109,27 @@ export function useAaveReservesHistory(
   const [data, setData] = useState<FormattedReserveHistoryItem[]>([]);
 
   const refetchData = useCallback(() => {
-    // reset
-    setLoading(true);
-    setError(false);
-    setData([]);
-
     if (reserveAddress && RatesHistoryApiUrl) {
+      // reset
+      setLoading(true);
+      setError(false);
+      setData([]);
       fetchStats(reserveAddress, timeRange, RatesHistoryApiUrl)
         .then((data: APIResponse[]) => {
           setData(
             data.map(d => ({
-              date: new Date(
-                d.x.year,
-                d.x.month,
-                d.x.date,
-                d.x.hours,
-              ).getTime(),
+              date: dayjs()
+                .set('year', d.x.year)
+                .set('month', d.x.month)
+                .set('date', d.x.date)
+                .set('hour', d.x.hours)
+                .valueOf(),
               liquidityRate: d.liquidityRate_avg,
               variableBorrowRate: d.variableBorrowRate_avg,
               utilizationRate: d.utilizationRate_avg,
               stableBorrowRate: d.stableBorrowRate_avg,
             })),
           );
-          setLoading(false);
         })
         .catch(e => {
           console.error(
@@ -128,12 +137,16 @@ export function useAaveReservesHistory(
             e,
           );
           setError(true);
-          setLoading(false);
-        });
+        })
+        .finally(() => setLoading(false));
     }
-    setLoading(false);
+
     return () => null;
   }, [reserveAddress, timeRange]);
+
+  useEffect(() => {
+    refetchData();
+  }, [refetchData]);
   return {
     loading,
     data,

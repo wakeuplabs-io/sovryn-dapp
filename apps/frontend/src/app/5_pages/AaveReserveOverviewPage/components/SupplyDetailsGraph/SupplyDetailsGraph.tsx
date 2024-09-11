@@ -37,10 +37,7 @@ export const SupplyDetailsGraph: FC<SupplyDetailsGraphProps> = ({
   const [timeRange, setTimeRange] = useState<ReserveRateTimeRange>(
     ESupportedTimeRanges.OneMonth,
   );
-  const { data: history } = useAaveReservesHistory(
-    reserve.underlyingAsset,
-    timeRange,
-  );
+  const { data: history } = useAaveReservesHistory(reserve.id, timeRange);
 
   const supplyChartData = useMemo(
     () =>
