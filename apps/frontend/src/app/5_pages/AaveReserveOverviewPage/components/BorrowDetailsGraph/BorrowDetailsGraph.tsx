@@ -7,6 +7,7 @@ import { Accordion, Link, Paragraph } from '@sovryn/ui';
 
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/StatisticsCard';
+import { AAVE_CONTRACT_ADDRESSES } from '../../../../../constants/aave';
 import { Reserve } from '../../../../../hooks/aave/useAaveReservesData';
 import {
   useAaveReservesHistory,
@@ -36,7 +37,10 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
   const [timeRange, setTimeRange] = useState<ReserveRateTimeRange>(
     ESupportedTimeRanges.OneMonth,
   );
-  const { data: history } = useAaveReservesHistory(reserve.id, timeRange);
+  const { data: history } = useAaveReservesHistory(
+    `${reserve.underlyingAsset}${AAVE_CONTRACT_ADDRESSES.POOL_ADDRESSES_PROVIDER}`,
+    timeRange,
+  );
 
   const borrowChartData = useMemo(
     () =>
