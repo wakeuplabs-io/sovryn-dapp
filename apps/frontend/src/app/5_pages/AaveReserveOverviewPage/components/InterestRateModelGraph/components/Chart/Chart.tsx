@@ -33,7 +33,7 @@ export const Chart: FC<ChartProps> = ({ meta, rates }) => {
     () =>
       CHART_PERCENTAGES.map(x => ({
         x: x * 100,
-        y: calculateVariableInterestRateModel(x, rates) * 100,
+        y: calculateVariableInterestRateModel(x, rates).mul(100).toNumber(),
       })),
     [rates],
   );

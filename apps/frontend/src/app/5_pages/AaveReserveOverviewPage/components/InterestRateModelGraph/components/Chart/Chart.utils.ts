@@ -1,3 +1,5 @@
+import { Decimal } from '@sovryn/utils';
+
 import { RatesData } from './Chart.types';
 
 const getOrCreateLegendList = (id: string) => {
@@ -92,35 +94,41 @@ export const htmlLegendPlugin = {
 
 export const calculateInterestRateModel = (
   utilization: number,
-  baseRate: number,
-  optimalUtilization: number,
-  initialSlope: number,
-  secondarySlope: number,
-): number => {
+  baseRate: Decimal,
+  optimalUtilization: Decimal,
+  initialSlope: Decimal,
+  secondarySlope: Decimal,
+): Decimal => {
   if (utilization === 0) {
-    return 0;
+    return Decimal.ZERO;
   }
 
-  if (utilization <= optimalUtilization) {
-    return baseRate + (utilization / optimalUtilization) * initialSlope;
+  const utilizationDecimal = Decimal.from(utilization);
+
+  if (utilizationDecimal.lte(optimalUtilization)) {
+    return baseRate.add(
+      utilizationDecimal.div(optimalUtilization).mul(initialSlope),
+    );
   }
 
-  return (
-    baseRate +
-    initialSlope +
-    ((utilization - optimalUtilization) / (1 - optimalUtilization)) *
-      secondarySlope
-  );
+  return baseRate
+    .add(initialSlope)
+    .add(
+      utilizationDecimal
+        .sub(optimalUtilization)
+        .div(Decimal.from(1).sub(optimalUtilization))
+        .mul(secondarySlope),
+    );
 };
 
 export const calculateVariableInterestRateModel = (
   utilization: number,
   rates: RatesData,
 ) => {
-  const baseRate = rates.baseVariableBorrowRate.toNumber();
-  const optimalUtilization = rates.optimalUsageRatio.toNumber();
-  const initialSlope = rates.variableRateSlope1.toNumber();
-  const secondarySlope = rates.variableRateSlope2.toNumber();
+  const baseRate = rates.baseVariableBorrowRate;
+  const optimalUtilization = rates.optimalUsageRatio;
+  const initialSlope = rates.variableRateSlope1;
+  const secondarySlope = rates.variableRateSlope2;
 
   return calculateInterestRateModel(
     utilization,
