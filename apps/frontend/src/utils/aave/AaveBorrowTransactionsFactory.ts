@@ -9,7 +9,6 @@ import {
   Transaction,
   TransactionType,
 } from '../../app/3_organisms/TransactionStepDialog/TransactionStepDialog.types';
-import { AAVE_CONTRACT_ADDRESSES } from '../../constants/aave';
 import { translations } from '../../locales/i18n';
 import { BorrowRateMode, TransactionFactoryOptions } from '../../types/aave';
 
@@ -54,10 +53,7 @@ export class AaveBorrowTransactionsFactory {
     rateMode: BorrowRateMode,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
-    if (
-      asset.isNative ||
-      asset.address.toLowerCase() === AAVE_CONTRACT_ADDRESSES.WETH.toLowerCase()
-    ) {
+    if (asset.isNative) {
       return this.borrowNative(amount, rateMode, opts);
     } else return this.borrowToken(asset, amount, rateMode, opts);
   }

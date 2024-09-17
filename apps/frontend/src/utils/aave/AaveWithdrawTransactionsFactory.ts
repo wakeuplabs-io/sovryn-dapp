@@ -9,7 +9,6 @@ import {
   Transaction,
   TransactionType,
 } from '../../app/3_organisms/TransactionStepDialog/TransactionStepDialog.types';
-import { AAVE_CONTRACT_ADDRESSES } from '../../constants/aave';
 import { translations } from '../../locales/i18n';
 import { TransactionFactoryOptions } from '../../types/aave';
 import { prepareApproveTransaction } from '../transactions';
@@ -42,10 +41,7 @@ export class AaveWithdrawTransactionsFactory {
     isMaxAmount: boolean,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
-    if (
-      token.isNative ||
-      token.address.toLowerCase() === AAVE_CONTRACT_ADDRESSES.WETH.toLowerCase()
-    ) {
+    if (token.isNative) {
       return this.withdrawNative(amount, isMaxAmount, opts);
     } else return this.withdrawToken(token, amount, isMaxAmount, opts);
   }

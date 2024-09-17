@@ -9,10 +9,7 @@ import {
   Transaction,
   TransactionType,
 } from '../../app/3_organisms/TransactionStepDialog/TransactionStepDialog.types';
-import {
-  AAVE_CONTRACT_ADDRESSES,
-  REPAY_ALL_ETH_SURPLUS_AAVE,
-} from '../../constants/aave';
+import { REPAY_ALL_ETH_SURPLUS_AAVE } from '../../constants/aave';
 import { translations } from '../../locales/i18n';
 import { BorrowRateMode, TransactionFactoryOptions } from '../../types/aave';
 import { prepareApproveTransaction } from '../transactions';
@@ -50,10 +47,7 @@ export class AaveRepayTransactionsFactory {
     borrowRateMode: BorrowRateMode,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
-    if (
-      token.isNative ||
-      token.address.toLowerCase() === AAVE_CONTRACT_ADDRESSES.WETH.toLowerCase()
-    ) {
+    if (token.isNative) {
       return this.repayNative(amount, isEntireDebt, borrowRateMode, opts);
     } else
       return this.repayToken(token, amount, isEntireDebt, borrowRateMode, opts);

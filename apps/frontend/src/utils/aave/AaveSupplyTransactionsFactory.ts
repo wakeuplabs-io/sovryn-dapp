@@ -46,10 +46,7 @@ export class AaveSupplyTransactionsFactory {
     amount: BigNumber,
     opts?: TransactionFactoryOptions,
   ): Promise<Transaction[]> {
-    if (
-      token.isNative ||
-      token.address.toLowerCase() === AAVE_CONTRACT_ADDRESSES.WETH.toLowerCase()
-    ) {
+    if (token.isNative) {
       return this.supplyNative(amount, opts);
     } else return this.supplyToken(token, amount, opts);
   }

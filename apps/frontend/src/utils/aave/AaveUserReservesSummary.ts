@@ -200,7 +200,7 @@ export class AaveUserReservesSummaryFactory {
 
       reserves: await Promise.all(
         userSummary.userReservesData.map(async r => {
-          const symbol = r.reserve.symbol === 'WETH' ? 'ETH' : r.reserve.symbol;
+          const symbol = r.reserve.symbol;
           const asset = await getAssetData(symbol, BOB_CHAIN_ID);
           const balance = await getBalance(asset, account, provider);
           const decimalBalance = decimalic(fromWei(balance, asset.decimals));
