@@ -923,7 +923,7 @@
         },
         "lendModal": {
             "title": "Deposit",
-            "exceedsMaxAmount": "Exceeds max amount",
+            "exceedsMaxAmount": "Exceeds maximum amount",
             "collateralization": "Collateralization",
             "lendApy": "Lend APY",
             "deposit": "Deposit",
