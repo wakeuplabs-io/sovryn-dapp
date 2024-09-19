@@ -874,7 +874,8 @@
             "eMode": "E-Mode",
             "selectVariableApy": "APY, variable {{apy}} %",
             "selectStableApy": "APY, stable {{apy}} %",
-            "apyInfo": "The weighted average of APY for all borrowed assets, including incentives."
+            "apyInfo": "The weighted average of APY for all borrowed assets, including incentives.",
+            "noData": "You don't have any loans yet"
         },
         "borrowAssetsList": {
             "title": "Assets to borrow",
@@ -883,7 +884,8 @@
         },
         "lendPositionsList": {
             "title": "Your lending deposits",
-            "usedAsCollateral": "Used as collateral"
+            "usedAsCollateral": "Used as collateral",
+            "noData": "You don't have any deposits yet"
         },
         "lendAssetsList": {
             "title": "Assets to lend",
@@ -921,7 +923,7 @@
         },
         "lendModal": {
             "title": "Deposit",
-            "invalidAmountError": "Invalid amount",
+            "exceedsMaxAmount": "Exceeds max amount",
             "collateralization": "Collateralization",
             "lendApy": "Lend APY",
             "deposit": "Deposit",

@@ -95,28 +95,32 @@ export const LendPositionsList: FC<LendPositionsListProps> = ({
     >
       {account ? (
         <>
-          <div className="flex flex-col gap-2 mb-2 lg:flex-row lg:gap-6 lg:mb-6">
-            <PoolPositionStat
-              label={t(pageTranslations.common.balance)}
-              value={supplyBalance}
-              prefix="$"
-              precision={2}
-            />
-            <PoolPositionStat
-              label={t(pageTranslations.common.apy)}
-              labelInfo={t(pageTranslations.common.apyInfo)}
-              value={supplyWeightedApy}
-              suffix="%"
-              precision={2}
-            />
-            <PoolPositionStat
-              label={t(pageTranslations.common.collateral)}
-              labelInfo={t(pageTranslations.common.collateralInfo)}
-              value={collateralBalance}
-              prefix="$"
-              precision={2}
-            />
-          </div>
+          {rows.length ? (
+            <>
+              <div className="flex flex-col gap-2 mb-2 lg:flex-row lg:gap-6 lg:mb-6">
+                <PoolPositionStat
+                  label={t(pageTranslations.common.balance)}
+                  value={supplyBalance}
+                  prefix="$"
+                  precision={2}
+                />
+                <PoolPositionStat
+                  label={t(pageTranslations.common.apy)}
+                  labelInfo={t(pageTranslations.common.apyInfo)}
+                  value={supplyWeightedApy}
+                  suffix="%"
+                  precision={2}
+                />
+                <PoolPositionStat
+                  label={t(pageTranslations.common.collateral)}
+                  labelInfo={t(pageTranslations.common.collateralInfo)}
+                  value={collateralBalance}
+                  prefix="$"
+                  precision={2}
+                />
+              </div>
+            </>
+          ) : null}
 
           <Table
             isLoading={loading}
@@ -128,6 +132,11 @@ export const LendPositionsList: FC<LendPositionsListProps> = ({
             rows={rows}
             orderOptions={orderOptions}
             setOrderOptions={setOrderOptions}
+            noData={
+              <span className="text-gray-30 text-sm lg:text-white">
+                {t(pageTranslations.lendPositionsList.noData)}
+              </span>
+            }
           />
 
           <Dialog disableFocusTrap isOpen={!!withdrawAssetDialog}>
