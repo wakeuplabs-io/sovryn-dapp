@@ -900,7 +900,7 @@
             "collateralRatio": "Collateral ratio",
             "remainingDebt": "Remaining debt",
             "newCollateralBalance": "New collateral balance",
-            "invalidAmountError": "Invalid amount",
+            "invalidAmountError": "Exceeds maximum amount",
             "tokenPrice": "{{token}} price",
             "walletBalance": "Wallet balance",
             "priceImpact": "Price impact",
@@ -914,12 +914,12 @@
             "collateralRatio": "Collateral ratio",
             "liquidationPrice": "Liquidation price",
             "acknowledge": "I understand that my collateral may be liquidated or used to pay rollover fees if applicable.",
-            "invalidAmountError": "Invalid amount",
+            "invalidAmountError": "Exceeds maximum amount",
             "tokenPrice": "{{token}} price"
         },
         "withdrawForm": {
             "remainingSupply": "Remaining supply",
-            "invalidAmountError": "Invalid amount"
+            "invalidAmountError": "Exceeds maximum amount"
         },
         "lendModal": {
             "title": "Deposit",
