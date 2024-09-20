@@ -55,8 +55,9 @@ export const BorrowPositionsList: FC<BorrowPositionsListProps> = ({
   const onRepayClose = useCallback(() => setRepayAssetDialog(undefined), []);
 
   const rowTitleRenderer = useCallback(
-    (r: BorrowPosition) => (
+    (r: BorrowPosition, isOpen?: boolean) => (
       <AaveRowTitle
+        isOpen={isOpen || false}
         asset={r.asset}
         value={r.borrowed}
         suffix={r.asset}

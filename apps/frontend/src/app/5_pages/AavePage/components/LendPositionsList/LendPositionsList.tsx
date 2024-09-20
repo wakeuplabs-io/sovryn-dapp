@@ -65,8 +65,9 @@ export const LendPositionsList: FC<LendPositionsListProps> = ({
   );
 
   const rowTitleRenderer = useCallback(
-    (r: LendPosition) => (
+    (r: LendPosition, isOpen?: boolean) => (
       <AaveRowTitle
+        isOpen={isOpen || false}
         asset={r.asset}
         value={r.supplied}
         suffix={r.asset}

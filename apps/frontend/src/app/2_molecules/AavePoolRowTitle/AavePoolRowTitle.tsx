@@ -27,7 +27,7 @@ export const AaveRowTitle: FC<AaveRowTitleProps> = ({
       className="mr-1"
       chainId={BOB_CHAIN_ID}
     />
-    {isOpen ? null : (
+    {!isOpen && (
       <div className="pl-1 flex items-center font-medium">
         <AmountRenderer {...props} />
         {label && (
