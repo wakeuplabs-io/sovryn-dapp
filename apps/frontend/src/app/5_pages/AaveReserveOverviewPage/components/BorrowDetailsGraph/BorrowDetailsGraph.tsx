@@ -1,5 +1,6 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 
+import dayjs from 'dayjs';
 import { t } from 'i18next';
 
 import { theme } from '@sovryn/tailwindcss-config';
@@ -7,17 +8,20 @@ import { Accordion, Link, Paragraph } from '@sovryn/ui';
 
 import { AmountRenderer } from '../../../../2_molecules/AmountRenderer/AmountRenderer';
 import { StatisticsCard } from '../../../../2_molecules/StatisticsCard/StatisticsCard';
-import { AAVE_CONTRACT_ADDRESSES } from '../../../../../constants/aave';
 import { Reserve } from '../../../../../hooks/aave/useAaveReservesData';
 import {
-  useAaveReservesHistory,
   ReserveRateTimeRange,
   ESupportedTimeRanges,
 } from '../../../../../hooks/aave/useAaveReservesHistory';
 import { useIsMobile } from '../../../../../hooks/useIsMobile';
 import { translations } from '../../../../../locales/i18n';
+import { bobAaveClient } from '../../../../../utils/clients';
+import { useGetBorrowHistoryQuery } from '../../../../../utils/graphql/bobAave/generated';
 import { formatAmountWithSuffix } from '../../../../../utils/math';
-import { normalizeBorrowStats } from './BorrowDetailsGraph.utils';
+import {
+  normalizeBorrowHistory,
+  normalizeBorrowStats,
+} from './BorrowDetailsGraph.utils';
 import { Chart } from './components/Chart/Chart';
 
 const pageTranslations = translations.aaveReserveOverviewPage.borrowDetails;
@@ -37,17 +41,29 @@ export const BorrowDetailsGraph: FC<BorrowDetailsGraphProps> = ({
   const [timeRange, setTimeRange] = useState<ReserveRateTimeRange>(
     ESupportedTimeRanges.OneMonth,
   );
-  const { data: history } = useAaveReservesHistory(
-    `${reserve.underlyingAsset}${AAVE_CONTRACT_ADDRESSES.POOL_ADDRESSES_PROVIDER}`,
-    timeRange,
+
+  const config = useMemo(
+    () => ({
+      id: reserve.id.split('-')[1] + reserve.id.split('-')[2],
+      from: dayjs()
+        .subtract(Number(timeRange[0]), timeRange[1] === 'm' ? 'month' : 'year')
+        .unix(),
+      to: dayjs().unix(),
+    }),
+    [timeRange, reserve.id],
   );
 
+  const { data: history, refetch } = useGetBorrowHistoryQuery({
+    variables: config,
+    client: bobAaveClient,
+  });
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
   const borrowChartData = useMemo(
-    () =>
-      history.map(i => ({
-        x: i.date,
-        y: i.variableBorrowRate * 100,
-      })),
+    () => (history?.reserves.length ? normalizeBorrowHistory(history) : []),
     [history],
   );
 

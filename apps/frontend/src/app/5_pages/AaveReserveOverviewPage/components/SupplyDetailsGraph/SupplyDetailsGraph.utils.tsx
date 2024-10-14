@@ -1,6 +1,8 @@
 import { Decimal } from '@sovryn/utils';
 
 import { Reserve } from '../../../../../hooks/aave/useAaveReservesData';
+import { GetSupplyHistoryQuery } from '../../../../../utils/graphql/bobAave/generated';
+import { RAY } from '../../../../../utils/math';
 
 export const normalizeSupplyStats = (reserve: Reserve) => ({
   totalSupplied: Decimal.from(reserve.formattedAvailableLiquidity).add(
@@ -23,3 +25,14 @@ export const normalizeSupplyStats = (reserve: Reserve) => ({
     reserve.formattedReserveLiquidationBonus,
   ).mul(100),
 });
+
+export const normalizeSupplyHistory = (
+  borrowHistory: GetSupplyHistoryQuery,
+) => {
+  return borrowHistory.reserves[0].supplyHistory.map(b => ({
+    x: b.timestamp,
+    y: Number(
+      Decimal.from(b.reserve.liquidityRate).div(RAY).mul(100).toString(2),
+    ),
+  }));
+};

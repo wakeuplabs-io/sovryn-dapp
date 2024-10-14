@@ -12,6 +12,7 @@ const DEFAULT_DECIMALS_SEPARATOR = '.';
 const DEFAULT_THOUSANDS_SEPARATOR = ',';
 
 export const RAY_DECIMALS = 27;
+export const RAY = Decimal.from(10).pow(27);
 
 const unitNames = ['wei', 'kwei', 'mwei', 'gwei', 'szabo', 'finney', 'ether'];
 

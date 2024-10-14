@@ -1,0 +1,17 @@
+query getBorrowHistory($id: ID!, $from: Int!, $to: Int!) {
+  reserves(
+    where: {
+      id: $id
+      borrowHistory_: { timestamp_gt: $from, timestamp_lt: $to }
+    }
+  ) {
+    id
+    symbol
+    borrowHistory {
+      reserve {
+        variableBorrowRate
+      }
+      timestamp
+    }
+  }
+}
